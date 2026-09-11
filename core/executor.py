@@ -270,6 +270,35 @@ class StepExecutor:
                 ctypes.windll.user32.LockWorkStation()
                 return True, "🔒 Рабочая станция заблокирована"
 
+            elif intent == "start_guard":
+                from services.security_guard import security_guard
+                delay = params.get("delay_sec", 5)
+                
+                def on_guard_triggered(sx, sy, cx, cy):
+                    import asyncio
+                    alert_text = (
+                        f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
+                        f"Зафиксировано движение мыши!\n"
+                        f"📍 Исходные координаты: `({sx}, {sy})`\n"
+                        f"📍 Новые координаты: `({cx}, {cy})`\n\n"
+                        f"🔒 *Компьютер немедленно заблокирован!*"
+                    )
+                    try:
+                        asyncio.run_coroutine_threadsafe(
+                            bot.send_message(chat_id=chat_id, text=alert_text, parse_mode="Markdown"),
+                            asyncio.get_event_loop()
+                        )
+                    except Exception as e:
+                        logger.error(f"Не удалось отправить тревогу: {e}")
+
+                msg = security_guard.start_guard(on_trigger_callback=on_guard_triggered, delay_sec=delay)
+                return True, msg
+
+            elif intent == "stop_guard":
+                from services.security_guard import security_guard
+                msg = security_guard.stop_guard()
+                return True, msg
+
             elif intent == "sleep_pc":
                 os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
                 return True, "😴 ПК переведен в спящий режим"

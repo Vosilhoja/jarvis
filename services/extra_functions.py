@@ -4,6 +4,7 @@
 монитор вкл/выкл, очистка корзины, размер папок, поиск файлов, быстрые запуски.
 """
 import os
+import re
 import socket
 import subprocess
 import ctypes
@@ -42,15 +43,20 @@ def ping_host(host: str = "8.8.8.8") -> str:
     try:
         result = subprocess.run(
             ["ping", "-n", "3", host],
-            capture_output=True, text=True, timeout=10
+            capture_output=True, timeout=10
         )
-        lines = result.stdout.strip().split("\n")
-        # Берём строку со статистикой
-        for line in lines:
-            if "среднее" in line.lower() or "average" in line.lower() or "avg" in line.lower():
-                return line.strip()
-        # Если не нашли — вернуть последние строки
-        return "\n".join(lines[-3:]) if lines else "Нет ответа"
+        out = result.stdout.decode("cp866", errors="replace")
+        times = re.findall(r"(?:среднее|средняя|average|avg)\s*[=:]\s*(\d+)\s*(?:мс|ms)?", out, re.IGNORECASE)
+        loss = re.findall(r"(\d+)%\s*(?:потерь|loss)", out, re.IGNORECASE)
+        loss_val = f"{loss[0]}% потерь" if loss else "0% потерь"
+        if times:
+            return f"✅ Ответ от {host}: среднее {times[0]} мс ({loss_val})"
+        times_all = re.findall(r"[<>=](\d+)\s*мс|time[=<](\d+)ms", out, re.IGNORECASE)
+        if times_all:
+            nums = [int(t[0] or t[1]) for t in times_all if t[0] or t[1]]
+            avg = sum(nums) // len(nums)
+            return f"✅ Ответ от {host}: ~{avg} мс ({loss_val})"
+        return f"Ответ от {host} получен ({loss_val})"
     except Exception as e:
         return f"Ошибка ping: {e}"
 
@@ -77,11 +83,17 @@ def get_wifi_networks() -> str:
     try:
         result = subprocess.run(
             ["netsh", "wlan", "show", "networks"],
-            capture_output=True, text=True, encoding="cp1251", timeout=10
+            capture_output=True, timeout=10
         )
-        lines = result.stdout.strip().split("\n")
-        networks = [l.strip() for l in lines if "SSID" in l and "BSSID" not in l]
-        return "\n".join(networks[:10]) if networks else "Wi-Fi сети не найдены"
+        out = result.stdout.decode("utf-8", errors="replace")
+        ssids = []
+        for line in out.splitlines():
+            m = re.search(r"SSID\s+\d+\s*:\s*(.+)", line)
+            if m:
+                name = m.group(1).strip()
+                if name:
+                    ssids.append(f"📶 {name}")
+        return "\n".join(ssids[:10]) if ssids else "Wi-Fi сети в радиусе не найдены"
     except Exception as e:
         return f"Ошибка: {e}"
 

@@ -29,10 +29,22 @@ def get_monitors_info() -> List[Dict[str, Any]]:
             })
     return monitors_list
 
+def _attach_thread_to_input_desktop():
+    """Прикрепляет текущий поток к активному рабочему столу ввода Windows."""
+    try:
+        import ctypes
+        user32 = ctypes.windll.user32
+        hdesk = user32.OpenInputDesktop(0, False, 0x01FF)
+        if hdesk:
+            user32.SetThreadDesktop(hdesk)
+    except Exception as e:
+        logger.debug(f"Не удалось прикрепить поток к десктопу: {e}")
+
 def take_screenshot(monitor_index: int | None = None) -> BytesIO:
     """
     Делает снимок экрана с тройным резервированием (mss -> PIL ImageGrab -> pyautogui).
     """
+    _attach_thread_to_input_desktop()
     buf = BytesIO()
     
     # 1. Попытка через mss

@@ -50,6 +50,7 @@ def get_system_reply_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton("💡 Яркость +"),        KeyboardButton("💡 Яркость —")],
         [KeyboardButton("⌨ Подсветка клавы"),   KeyboardButton("🖥 Выкл. монитор")],
         [KeyboardButton("🔇 Режим Тихий час"),  KeyboardButton("🧹 Очистить %TEMP%")],
+        [KeyboardButton("🛡 Включить охрану"),  KeyboardButton("🛑 Снять с охраны")],
         [KeyboardButton("🗑 Очистить корзину"), KeyboardButton("🔒 Заблокировать")],
         [KeyboardButton("😴 Режим сна"),        KeyboardButton("🔁 Перезагрузка")],
         [KeyboardButton("⛔ Выключить ПК"),     KeyboardButton("⬅️ Назад в меню")],
@@ -111,6 +112,7 @@ def get_control_reply_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton("⌨ Alt+Tab"),         KeyboardButton("⌨ Alt+F4"),    KeyboardButton("⌨ Win+D")],
         [KeyboardButton("⌨ Ctrl+C"),          KeyboardButton("⌨ Ctrl+V")],
         [KeyboardButton("🎛 Стол 1"),          KeyboardButton("🎛 Стол 2"),   KeyboardButton("➕ Новый стол")],
+        [KeyboardButton("🛡 Включить охрану"),  KeyboardButton("🛑 Снять с охраны")],
         [KeyboardButton("🖱 Пульт мыши"),      KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
@@ -353,6 +355,43 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if text == "🗑 Очистить корзину":
         from services.extra_functions import empty_recycle_bin
         await update.message.reply_text(empty_recycle_bin())
+        return True
+
+    if text in ("🛡 Включить охрану", "включить охрану"):
+        from services.security_guard import security_guard
+        import asyncio
+
+        def on_guard_triggered(sx, sy, cx, cy):
+            try:
+                loop = asyncio.get_event_loop()
+            except Exception:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            alert_text = (
+                f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
+                f"Зафиксировано движение мыши!\n"
+                f"📍 Исходные координаты: `({sx}, {sy})`\n"
+                f"📍 Новые координаты: `({cx}, {cy})`\n\n"
+                f"🔒 *Компьютер немедленно заблокирован!*"
+            )
+            # Отправляем сообщение в чат
+            try:
+                asyncio.run_coroutine_threadsafe(
+                    context.bot.send_message(chat_id=chat_id, text=alert_text, parse_mode="Markdown"),
+                    context.application.loop
+                )
+            except Exception as e:
+                logger.error(f"Не удалось отправить тревожное сообщение: {e}")
+
+        msg = security_guard.start_guard(on_trigger_callback=on_guard_triggered, delay_sec=5)
+        await update.message.reply_text(msg, parse_mode="Markdown")
+        return True
+
+    if text in ("🛑 Снять с охраны", "снять с охраны", "выключить охрану"):
+        from services.security_guard import security_guard
+        msg = security_guard.stop_guard()
+        await update.message.reply_text(msg, parse_mode="Markdown")
         return True
 
     if text == "🔒 Заблокировать":

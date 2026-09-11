@@ -93,6 +93,12 @@ class SleepPcParams(BaseModel):
 class LockPcParams(BaseModel):
     pass
 
+class StartGuardParams(BaseModel):
+    delay_sec: Optional[int] = Field(5, description="Задержка перед активацией охраны в секундах (чтобы успеть убрать руку)")
+
+class StopGuardParams(BaseModel):
+    pass
+
 # 4.4 Интернет
 class OpenWebsiteParams(BaseModel):
     url_or_query: str = Field(..., description="URL или поисковый запрос сайта")
@@ -185,6 +191,8 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "restart_pc": {"model": RestartPcParams, "desc": "Перезагрузка компьютера (требует подтверждения)"},
     "sleep_pc": {"model": SleepPcParams, "desc": "Перевод ПК в спящий режим"},
     "lock_pc": {"model": LockPcParams, "desc": "Блокировка экрана Windows"},
+    "start_guard": {"model": StartGuardParams, "desc": "Включение режима охраны ПК: при любом движении мыши экран блокируется и отправляется тревога"},
+    "stop_guard": {"model": StopGuardParams, "desc": "Отключение режима охраны ПК"},
 
     # Интернет
     "open_website": {"model": OpenWebsiteParams, "desc": "Открытие ссылки или сайта в браузере"},
