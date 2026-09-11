@@ -57,19 +57,22 @@ def find_hung_windows() -> List[Dict[str, Any]]:
     hung_apps = []
 
     def enum_windows_callback(hwnd, extra):
-        if win32gui.IsWindowVisible(hwnd):
-            if win32gui.IsHungAppWindow(hwnd):
+        try:
+            if win32gui.IsWindowVisible(hwnd) and win32gui.IsHungAppWindow(hwnd):
                 title = win32gui.GetWindowText(hwnd)
                 if title:
                     hung_apps.append({
                         "hwnd": hwnd,
                         "title": title
                     })
+        except Exception:
+            pass
+        return True
 
     try:
         win32gui.EnumWindows(enum_windows_callback, None)
     except Exception as e:
-        logger.warning(f"Ошибка при проверке IsHungAppWindow: {e}")
+        logger.debug(f"EnumWindows ended: {e}")
 
     return hung_apps
 
