@@ -150,6 +150,7 @@ def kb_back() -> InlineKeyboardMarkup:
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Показывает приветствие и переключает клавиатуру на главную."""
     user = update.effective_user
+    logger.info(f"Вызов /start от пользователя id={user.id}")
     welcome_text = (
         f"🤖 *Jarvis — Ваш персональный ИИ-ассистент*\n\n"
         f"Привет, {user.first_name or 'Шеф'}! Все функции в кнопках клавиатуры внизу.\n\n"

@@ -34,14 +34,9 @@ def media_stop():
 def set_volume_pycaw(level_percent: int) -> bool:
     """Устанавливает громкость через pycaw (0-100)."""
     try:
-        from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-        from ctypes import cast, POINTER
-        from comtypes import CLSCTX_ALL
-
+        from pycaw.pycaw import AudioUtilities
         devices = AudioUtilities.GetSpeakers()
-        interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-        volume = cast(interface, POINTER(IAudioEndpointVolume))
-        
+        volume = devices.EndpointVolume
         norm_level = max(0.0, min(1.0, level_percent / 100.0))
         volume.SetMasterVolumeLevelScalar(norm_level, None)
         return True

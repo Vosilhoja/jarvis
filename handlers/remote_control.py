@@ -28,8 +28,9 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
         return
 
     text = raw_text.strip()
-    lower = text.lower()
     chat_id = update.effective_chat.id
+    logger.info(f"Получено текстовое сообщение от {chat_id}: '{text}'")
+    lower = text.lower()
 
     # 0. Нажатия кнопок нижней постоянной клавиатуры
     from handlers.menu import handle_reply_keyboard

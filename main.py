@@ -55,9 +55,14 @@ def main():
     # Текстовые команды и естественный язык
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_command))
 
+    async def error_handler(update, context):
+        logger.error(f"Исключение при обработке обновления {update}: {context.error}", exc_info=context.error)
+
+    app.add_error_handler(error_handler)
+
     logger.info("Jarvis успешно запущен и слушает Telegram (long polling)...")
     try:
-        app.run_polling(drop_pending_updates=True)
+        app.run_polling(drop_pending_updates=False)
     except Exception as e:
         logger.critical(f"Критическая ошибка в работе бота: {e}", exc_info=True)
         sys.exit(1)
