@@ -1,7 +1,7 @@
 import os
 import shutil
 import logging
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import ContextTypes
 
 from handlers.auth import restricted
@@ -11,38 +11,39 @@ from core.app_resolver import app_resolver
 
 logger = logging.getLogger("jarvis")
 
-def get_main_keyboard() -> InlineKeyboardMarkup:
-    """Генерирует расширенную главную клавиатуру Jarvis."""
+def get_reply_keyboard() -> ReplyKeyboardMarkup:
+    """Генерирует постоянную клавиатуру под полем ввода (ReplyKeyboardMarkup)."""
     keyboard = [
         [
-            InlineKeyboardButton("📸 Скриншот", callback_data="menu_screenshot"),
-            InlineKeyboardButton("🖥 Инфо о системе", callback_data="sys_info"),
+            KeyboardButton("📸 Скриншот"),
+            KeyboardButton("🖥 Инфо о системе"),
         ],
         [
-            InlineKeyboardButton("🎛 Рабочие столы", callback_data="menu_desktops"),
-            InlineKeyboardButton("🔊 Звук / Медиа", callback_data="menu_media"),
+            KeyboardButton("🎛 Рабочие столы"),
+            KeyboardButton("🔊 Звук / Медиа"),
         ],
         [
-            InlineKeyboardButton("⏰ Напоминания", callback_data="menu_reminders"),
-            InlineKeyboardButton("📋 Процессы", callback_data="menu_procs"),
+            KeyboardButton("⏰ Напоминания"),
+            KeyboardButton("📋 Процессы"),
         ],
         [
-            InlineKeyboardButton("🔒 Заблокировать", callback_data="sys_lock"),
-            InlineKeyboardButton("😴 Сон", callback_data="sys_sleep"),
+            KeyboardButton("🔒 Заблокировать"),
+            KeyboardButton("😴 Сон"),
         ],
         [
-            InlineKeyboardButton("🔁 Перезагрузка", callback_data="confirm_restart"),
-            InlineKeyboardButton("⛔ Выключить", callback_data="confirm_shutdown"),
+            KeyboardButton("🔁 Перезагрузка"),
+            KeyboardButton("⛔ Выключить"),
         ],
         [
-            InlineKeyboardButton("🖱 Мышь/Клавиши", callback_data="menu_remote"),
-            InlineKeyboardButton("📁 Файлы", callback_data="menu_files"),
+            KeyboardButton("🖱 Мышь/Клавиши"),
+            KeyboardButton("📁 Файлы"),
         ],
         [
-            InlineKeyboardButton("🤖 Возможности ИИ", callback_data="menu_ai_help"),
+            KeyboardButton("🤖 Возможности ИИ"),
+            KeyboardButton("🧹 Очистка %TEMP%"),
         ]
     ]
-    return InlineKeyboardMarkup(keyboard)
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 
 @restricted
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -51,18 +52,20 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     welcome_text = (
         f"🤖 *Jarvis — Резидентный ИИ-ассистент готов к работе!*\n\n"
         f"Приветствую, {user.first_name or 'Сэр'}! Я обладаю полным доступом к управлению компьютером.\n\n"
+        "Кнопки управления теперь всегда закреплены в вашей клавиатуре (внизу экрана)!\n\n"
         "Вы можете:\n"
-        "• Отправлять *голосовые сообщения* с любыми составными поручениями.\n"
-        "• Писать сложные многошаговые команды («_перейди на 1 рабочий стол, открой яндекс музыку, сделай скриншот_»).\n"
-        "• Запускать программы с неточными названиями и опечатками («_открой музыку от яндекса_»).\n"
-        "• Просить найти что-то в Википедии или скачать статью прямо на рабочий стол.\n"
-        "• Управлять виртуальными столами, звуком, процессами и напоминаниями."
+        "• Нажимать кнопки внизу клавиатуры для быстрых действий\n"
+        "• Отправлять *голосовые сообщения* с любыми поручениями\n"
+        "• Писать сложные многошаговые команды («_перейди на 1 рабочий стол, открой яндекс музыку, сделай скриншот_»)\n"
+        "• Запускать программы с неточными названиями и опечатками («_открой музыку от яндекса_»)\n"
+        "• Просить найти что-то в Википедии или скачать статью прямо на рабочий стол"
     )
-    kb = get_main_keyboard()
+    reply_kb = get_reply_keyboard()
     if update.callback_query:
-        await update.callback_query.edit_message_text(welcome_text, reply_markup=kb, parse_mode="Markdown")
+        await update.callback_query.message.reply_text(welcome_text, reply_markup=reply_kb, parse_mode="Markdown")
+        await update.callback_query.answer()
     elif update.message:
-        await update.message.reply_text(welcome_text, reply_markup=kb, parse_mode="Markdown")
+        await update.message.reply_text(welcome_text, reply_markup=reply_kb, parse_mode="Markdown")
 
 @restricted
 async def menu_callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE):

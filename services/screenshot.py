@@ -1,7 +1,10 @@
+import logging
 from io import BytesIO
 from typing import List, Dict, Any
 from PIL import Image
 import mss
+
+logger = logging.getLogger("jarvis")
 
 def get_monitors_info() -> List[Dict[str, Any]]:
     """
@@ -28,22 +31,42 @@ def get_monitors_info() -> List[Dict[str, Any]]:
 
 def take_screenshot(monitor_index: int | None = None) -> BytesIO:
     """
-    Делает снимок экрана:
-    - monitor_index is None или 0 -> объединённый скриншот всех мониторов
-    - monitor_index >= 1 -> конкретный монитор (нумерация с 1)
+    Делает снимок экрана с тройным резервированием (mss -> PIL ImageGrab -> pyautogui).
     """
-    with mss.mss() as sct:
-        idx = 0 if monitor_index is None else monitor_index
-        # Проверяем допустимость индекса
-        if idx >= len(sct.monitors):
-            idx = 0
-        monitor = sct.monitors[idx]
-        shot = sct.grab(monitor)
-        
-        # Конвертация mss BGRA в Pillow RGB
-        img = Image.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
-        
-        buf = BytesIO()
+    buf = BytesIO()
+    
+    # 1. Попытка через mss
+    try:
+        with mss.mss() as sct:
+            idx = 0 if monitor_index is None else monitor_index
+            if idx >= len(sct.monitors):
+                idx = 0
+            monitor = sct.monitors[idx]
+            shot = sct.grab(monitor)
+            img = Image.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
+            img.save(buf, format="PNG")
+            buf.seek(0)
+            return buf
+    except Exception as e:
+        logger.warning(f"mss screenshot не сработал ({e}), переключаемся на PIL ImageGrab...")
+
+    # 2. Попытка через PIL ImageGrab (all_screens=True для всех мониторов)
+    try:
+        from PIL import ImageGrab
+        img = ImageGrab.grab(all_screens=True)
         img.save(buf, format="PNG")
         buf.seek(0)
         return buf
+    except Exception as e:
+        logger.warning(f"ImageGrab не сработал ({e}), переключаемся на pyautogui...")
+
+    # 3. Попытка через pyautogui
+    try:
+        import pyautogui
+        img = pyautogui.screenshot()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+        return buf
+    except Exception as e:
+        logger.error(f"Все методы создания скриншота завершились ошибкой: {e}")
+        raise RuntimeError(f"Не удалось сделать скриншот: {e}")

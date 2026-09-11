@@ -22,8 +22,8 @@ for item in _raw_ids.split(","):
 ALLOWED_USER_ID = ALLOWED_USER_IDS[0] if ALLOWED_USER_IDS else 0
 
 # Настройки ИИ
-AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-2.5-flash").strip()
-AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-2.0-flash").strip()
+AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-3.6-flash").strip()
+AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-3.5-flash").strip()
 AI_MAX_STEPS_PER_MESSAGE = int(os.getenv("AI_MAX_STEPS_PER_MESSAGE", "15"))
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.2"))
 
@@ -59,8 +59,6 @@ def validate_config() -> None:
         missing.append("TELEGRAM_BOT_TOKEN")
     if not GOOGLE_API_KEY:
         missing.append("GOOGLE_API_KEY")
-    if not ALLOWED_USER_IDS:
-        missing.append("ALLOWED_USER_ID или ALLOWED_TELEGRAM_USER_IDS")
 
     if missing:
         raise RuntimeError(

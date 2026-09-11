@@ -27,6 +27,33 @@ def get_genai_client() -> genai.Client:
         _client = genai.Client(api_key=GOOGLE_API_KEY)
     return _client
 
+def ask_gemini(prompt: str, history: Optional[List[Dict[str, Any]]] = None) -> str:
+    """
+    Прямой текстовый запрос к Gemini для диалоговых сообщений.
+    """
+    try:
+        client = get_genai_client()
+        contents = []
+        if history:
+            for item in history:
+                contents.append(types.Content(
+                    role=item.get("role", "user"),
+                    parts=[types.Part.from_text(text=p.get("text", "")) for p in item.get("parts", [])]
+                ))
+        contents.append(types.Content(
+            role="user",
+            parts=[types.Part.from_text(text=prompt)]
+        ))
+
+        response = client.models.generate_content(
+            model=AI_MODEL_NAME,
+            contents=contents
+        )
+        return response.text or "Ответ пуст."
+    except Exception as e:
+        logger.error(f"Ошибка ask_gemini: {e}")
+        return f"⚠️ Ошибка Gemini API: {e}"
+
 def build_system_prompt(recent_actions: Optional[List[str]] = None) -> str:
     """Динамически формирует системный промпт с реестром интентов и контекстом системы."""
     metrics = get_system_metrics()

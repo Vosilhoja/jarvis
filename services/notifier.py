@@ -38,6 +38,8 @@ class Notifier:
         full_text = f"{prefix}\n\n{text}"
 
         for user_id in ALLOWED_USER_IDS:
+            if not user_id:
+                continue
             try:
                 await self.bot.send_message(chat_id=user_id, text=full_text, parse_mode="Markdown")
                 logger.info(f"Проактивное уведомление отправлено пользователю {user_id}")

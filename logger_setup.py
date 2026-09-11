@@ -30,7 +30,11 @@ def setup_logging(log_file: str = "jarvis.log") -> logging.Logger:
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
-    # Логирование в консоль (stdout)
+    # Логирование в консоль (stdout) с поддержкой UTF-8 / эмодзи
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")
+    except Exception:
+        pass
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
