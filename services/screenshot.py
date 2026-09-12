@@ -1,6 +1,7 @@
 import logging
+import time
 from io import BytesIO
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from PIL import Image
 import mss
 
@@ -8,17 +9,16 @@ logger = logging.getLogger("jarvis")
 
 def get_monitors_info() -> List[Dict[str, Any]]:
     """
-    Возвращает список доступных мониторов.
-    Индекс 0 в mss — это объединённый виртуальный экран (все мониторы).
-    Индексы 1..N — индивидуальные физические мониторы.
+    Возвращает список доступных экранов.
+    Для ноутбука обычно это монитор 1.
     """
     monitors_list = []
     with mss.mss() as sct:
         for idx, m in enumerate(sct.monitors):
             if idx == 0:
-                name = "Все мониторы (панорама)"
+                name = "Все экраны"
             else:
-                name = f"Монитор {idx} ({m['width']}x{m['height']})"
+                name = f"Экран {idx} ({m['width']}x{m['height']})"
             monitors_list.append({
                 "index": idx,
                 "name": name,
@@ -62,7 +62,7 @@ def take_screenshot(monitor_index: int | None = None) -> BytesIO:
     except Exception as e:
         logger.warning(f"mss screenshot не сработал ({e}), переключаемся на PIL ImageGrab...")
 
-    # 2. Попытка через PIL ImageGrab (all_screens=True для всех мониторов)
+    # 2. Попытка через PIL ImageGrab
     try:
         from PIL import ImageGrab
         img = ImageGrab.grab(all_screens=True)
@@ -82,3 +82,53 @@ def take_screenshot(monitor_index: int | None = None) -> BytesIO:
     except Exception as e:
         logger.error(f"Все методы создания скриншота завершились ошибкой: {e}")
         raise RuntimeError(f"Не удалось сделать скриншот: {e}")
+
+def take_desktop_screenshot(desktop_num: int, monitor_index: int | None = None, return_to_original: bool = True) -> BytesIO:
+    """
+    Делает снимок указанного виртуального рабочего стола:
+    1. Запоминает исходный активный рабочий стол пользователя.
+    2. Переключается на целевой рабочий стол desktop_num.
+    3. Делает снимок экрана.
+    4. ГАРАНТИРОВАННО возвращается обратно на исходный рабочий стол пользователя!
+    """
+    from services.desktops_control import get_current_desktop_number, switch_to_desktop_number
+
+    initial_desktop = get_current_desktop_number()
+    logger.info(f"Скриншот стола {desktop_num}: исходный рабочий стол был {initial_desktop}")
+
+    try:
+        if initial_desktop != desktop_num:
+            switch_to_desktop_number(desktop_num)
+            time.sleep(0.6)  # Wait for desktop to fully render
+
+        buf = take_screenshot(monitor_index)
+        return buf
+    finally:
+        if return_to_original and initial_desktop != desktop_num:
+            logger.info(f"Возврат на исходный рабочий стол {initial_desktop}...")
+            time.sleep(0.2)
+            switch_to_desktop_number(initial_desktop)
+            time.sleep(0.4)
+
+def take_multiple_desktops_screenshots(desktops: List[int], monitor_index: int | None = None) -> List[tuple[int, BytesIO]]:
+    """
+    Делает скриншоты нескольких рабочих столов последовательно
+    и возвращает пользователя на исходный рабочий стол.
+    """
+    from services.desktops_control import get_current_desktop_number, switch_to_desktop_number
+
+    initial_desktop = get_current_desktop_number()
+    results = []
+
+    try:
+        for d in desktops:
+            switch_to_desktop_number(d)
+            time.sleep(0.6)  # Wait for desktop to fully render
+            buf = take_screenshot(monitor_index)
+            results.append((d, buf))
+    finally:
+        logger.info(f"Завершен пакетный снимок, возвращаемся на исходный стол {initial_desktop}")
+        switch_to_desktop_number(initial_desktop)
+        time.sleep(0.4)
+
+    return results

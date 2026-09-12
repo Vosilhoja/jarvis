@@ -15,13 +15,15 @@ logger = logging.getLogger("jarvis")
 # Failsafe: движение мыши в левый верхний угол прерывает операцию
 pyautogui.FAILSAFE = True
 
+
 @restricted
 async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
-    Обрабатывает текстовые сообщения:
+    Обрабатывает текстовые сообщения в порядке приоритета:
     1. Кнопки нижней клавиатуры (категории меню) → menu.handle_reply_keyboard
-    2. Быстрые директивные команды (mouse:, key:, type:, scroll:)
-    3. Всё остальное → ИИ планировщик Gemini
+    2. Ожидание числового ввода (яркость, громкость, поиск файла, скриншот)
+    3. Быстрые директивные команды (mouse:, key:, type:, scroll:)
+    4. Всё остальное → ИИ планировщик Gemini
     """
     raw_text = update.message.text
     if not raw_text:
@@ -32,45 +34,80 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     logger.info(f"Получено текстовое сообщение от {chat_id}: '{text}'")
     lower = text.lower()
 
-    # 0. Нажатия кнопок нижней постоянной клавиатуры
+    # ── ПРИОРИТЕТ 1: кнопки нижней постоянной клавиатуры ───────
+    # handle_reply_keyboard также обрабатывает все awaiting-состояния (скриншот,
+    # яркость, громкость, поиск файла/программы) с наивысшим приоритетом —
+    # до проверки ai_mode, чтобы ИИ не перехватывал числовой/текстовый ввод.
     from handlers.menu import handle_reply_keyboard
     if await handle_reply_keyboard(update, context):
         return
 
-    # 0.1. Ожидание ввода поиска файла
-    if context.user_data.get("awaiting_file_search"):
-        context.user_data.pop("awaiting_file_search")
-        from services.extra_functions import search_files
-        result = search_files(text)
-        await update.message.reply_text(result, parse_mode="Markdown")
+    # ── ПРИОРИТЕТ 2: защита от ИИ при активном ожидании ввода ──
+    # (дополнительная страховка, если handle_reply_keyboard не обработала)
+    _AWAITING_KEYS = (
+        "awaiting_screenshot_choice", "awaiting_brightness",
+        "awaiting_volume", "awaiting_file_search", "awaiting_app_search",
+    )
+    if any(context.user_data.get(k) for k in _AWAITING_KEYS):
+        # Состояние ожидания активно, но не обработано выше — игнорируем
+        logger.warning(f"Необработанное awaiting-состояние при тексте: '{text}'")
         return
 
-    # 1. Быстрые директивные команды мыши
-    if lower.startswith("mouse:") or lower.startswith("мышь:"):
-        coords = re.sub(r"^(mouse:|мышь:)", "", text, flags=re.IGNORECASE).strip()
+    # ── ПРИОРИТЕТ 3: быстрые директивные команды ────────────────
+
+    # Естественные команды перехода на сайты: "зайди в сайт гмаил", "открой ютуб", "перейди на..."
+    if re.match(r"^(зайди\s*(в|на)?\s*(сайт)?|перейди\s*(в|на)?\s*(сайт)?|открой\s*(сайт)?)\s+", lower):
+        from services.web_client import open_url_or_search
+        target_site = text
+        url = open_url_or_search(target_site)
+        await update.message.reply_text(f"🌐 Перехожу: `{url}`", parse_mode="Markdown")
+        return
+
+    # Управление мышью: mouse: X,Y или перемести мышь X,Y
+    m_mouse = re.match(r"^(mouse:|мышь:|перемести мышь:?)\s*(\d+)[,\s]+(\d+)", lower)
+    if m_mouse:
+        x, y = int(m_mouse.group(2)), int(m_mouse.group(3))
         try:
-            x, y = map(int, coords.split(","))
+            pyautogui.FAILSAFE = False
             pyautogui.moveTo(x, y, duration=0.25)
-            await update.message.reply_text(f"🖱 Курсор перемещён в {x}, {y}")
+            await update.message.reply_text(f"🖱 Курсор перемещён в ({x}, {y})")
         except Exception as e:
-            await update.message.reply_text(f"⚠️ Пример: `mouse: 800,600` ({e})", parse_mode="Markdown")
+            await update.message.reply_text(f"⚠️ Ошибка мыши: {e}")
         return
 
-    if lower in ("click", "клик", "лкм"):
+    # Перетаскивание мыши: drag: X1,Y1 to X2,Y2 или drag: X,Y
+    if lower.startswith("drag:") or lower.startswith("перетащи:"):
+        coords = re.sub(r"^(drag:|перетащи:)", "", text, flags=re.IGNORECASE).strip()
+        try:
+            pyautogui.FAILSAFE = False
+            nums = [int(n.strip()) for n in re.split(r"[,\s]+", coords) if n.strip().isdigit()]
+            if len(nums) == 2:
+                pyautogui.dragTo(nums[0], nums[1], duration=0.4, button="left")
+                await update.message.reply_text(f"🖱 Перетащено в ({nums[0]}, {nums[1]})")
+            elif len(nums) == 4:
+                pyautogui.moveTo(nums[0], nums[1], duration=0.2)
+                pyautogui.dragTo(nums[2], nums[3], duration=0.4, button="left")
+                await update.message.reply_text(f"🖱 Перетащено из ({nums[0]}, {nums[1]}) в ({nums[2]}, {nums[3]})")
+        except Exception as e:
+            await update.message.reply_text(f"⚠️ Ошибка Drag&Drop: {e}")
+        return
+
+    if lower in ("click", "клик", "лкм", "кликни"):
         pyautogui.click()
         await update.message.reply_text("🖱 ЛКМ клик выполнен.")
         return
-    elif lower in ("rclick", "пкм"):
+    elif lower in ("rclick", "пкм", "правый клик"):
         pyautogui.click(button="right")
         await update.message.reply_text("🖱 ПКМ клик выполнен.")
         return
-    elif lower in ("dclick", "двойной клик"):
+    elif lower in ("dclick", "двойной клик", "2x клик"):
         pyautogui.doubleClick()
         await update.message.reply_text("🖱 Двойной клик выполнен.")
         return
 
-    if lower.startswith("key:") or lower.startswith("клавиша:"):
-        payload = re.sub(r"^(key:|клавиша:)", "", text, flags=re.IGNORECASE).strip()
+    # Горячие клавиши: key: alt+f4
+    if lower.startswith("key:") or lower.startswith("клавиша:") or lower.startswith("нажми:"):
+        payload = re.sub(r"^(key:|клавиша:|нажми:)", "", text, flags=re.IGNORECASE).strip()
         keys = [k.strip().lower() for k in payload.split("+")]
         try:
             pyautogui.hotkey(*keys)
@@ -79,9 +116,11 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
             await update.message.reply_text(f"⚠️ Ошибка: {e}")
         return
 
-    if lower.startswith("type:") or lower.startswith("напечатай:"):
-        payload = re.sub(r"^(type:|напечатай:)", "", text, flags=re.IGNORECASE).strip()
+    # Ввод текста: type: текст
+    if lower.startswith("type:") or lower.startswith("напечатай:") or lower.startswith("введи:"):
+        payload = re.sub(r"^(type:|напечатай:|введи:)", "", text, flags=re.IGNORECASE).strip()
         try:
+            import pyperclip
             pyperclip.copy(payload)
             pyautogui.hotkey("ctrl", "v")
             await update.message.reply_text("⌨ Текст успешно напечатан.")
@@ -89,6 +128,7 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
             await update.message.reply_text(f"⚠️ Ошибка ввода текста: {e}")
         return
 
+    # Прокрутка: scroll: 300
     if lower.startswith("scroll:") or lower.startswith("скролл:"):
         amount_str = re.sub(r"^(scroll:|скролл:)", "", text, flags=re.IGNORECASE).strip()
         try:
@@ -99,7 +139,7 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
             await update.message.reply_text("⚠️ Ошибка. Пример: `scroll: -300`", parse_mode="Markdown")
         return
 
-    # 2. Всё остальное → ИИ (Gemini)
+    # ── ПРИОРИТЕТ 4: ИИ (Gemini) ─────────────────────────────────
     session = task_queue_manager.get_session(chat_id)
     recent_actions = [h["intent"] for h in session.history[-5:]]
 

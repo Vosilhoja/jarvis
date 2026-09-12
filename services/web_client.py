@@ -9,15 +9,68 @@ import requests
 
 logger = logging.getLogger("jarvis")
 
-def open_url_or_search(query: str):
-    """Открывает URL в браузере по умолчанию или запускает поисковый запрос."""
-    query = query.strip()
-    if query.startswith("http://") or query.startswith("https://"):
-        url = query
-    elif "." in query and not " " in query:
-        url = f"https://{query}"
+# Популярные веб-сервисы и сайты для мгновенного перехода по фразам типа «зайди в гмаил»
+POPULAR_SITES = {
+    "гмаил": "https://mail.google.com",
+    "gmail": "https://mail.google.com",
+    "почта": "https://mail.google.com",
+    "гугл": "https://www.google.com",
+    "google": "https://www.google.com",
+    "ютуб": "https://www.youtube.com",
+    "youtube": "https://www.youtube.com",
+    "гитхаб": "https://github.com",
+    "github": "https://github.com",
+    "телеграм": "https://web.telegram.org",
+    "telegram": "https://web.telegram.org",
+    "тг": "https://web.telegram.org",
+    "ватсап": "https://web.whatsapp.com",
+    "whatsapp": "https://web.whatsapp.com",
+    "яндекс": "https://ya.ru",
+    "yandex": "https://ya.ru",
+    "яндекс музыка": "https://music.yandex.ru",
+    "вк": "https://vk.com",
+    "vk": "https://vk.com",
+    "вконтакте": "https://vk.com",
+    "госуслуги": "https://www.gosuslugi.ru",
+    "чатгпт": "https://chatgpt.com",
+    "chatgpt": "https://chatgpt.com",
+    "википедия": "https://ru.wikipedia.org",
+    "wikipedia": "https://wikipedia.org",
+    "рутуб": "https://rutube.ru",
+    "кинопоиск": "https://www.kinopoisk.ru",
+    "вайлдберриз": "https://www.wildberries.ru",
+    "ozon": "https://www.ozon.ru",
+    "озон": "https://www.ozon.ru",
+    "авито": "https://www.avito.ru",
+}
+
+def open_url_or_search(query: str) -> str:
+    """
+    Открывает URL в браузере (Chrome / по умолчанию) или сопоставляет популярный сайт,
+    например «зайди в сайт гмаил», «открой ютуб», «перейди на github».
+    """
+    q = query.strip()
+
+    # Очищаем префиксы типа "зайди в сайт", "перейди на", "открой"
+    clean_q = re.sub(r"^(зайди\s*(в|на)?\s*(сайт)?|перейди\s*(в|на)?\s*(сайт)?|открой\s*(сайт)?)\s*", "", q, flags=re.IGNORECASE).strip().lower()
+
+    if clean_q in POPULAR_SITES:
+        url = POPULAR_SITES[clean_q]
+    elif any(k in clean_q for k in POPULAR_SITES):
+        # Поиск по подстроке
+        url = None
+        for k, v in POPULAR_SITES.items():
+            if k in clean_q:
+                url = v
+                break
+        if not url:
+            url = f"https://www.google.com/search?q={urllib.parse.quote_plus(q)}"
+    elif q.startswith("http://") or q.startswith("https://"):
+        url = q
+    elif "." in clean_q and not " " in clean_q:
+        url = f"https://{clean_q}"
     else:
-        url = f"https://www.google.com/search?q={urllib.parse.quote_plus(query)}"
+        url = f"https://www.google.com/search?q={urllib.parse.quote_plus(q)}"
     
     logger.info(f"Открытие URL: {url}")
     webbrowser.open(url)

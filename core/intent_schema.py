@@ -64,6 +64,7 @@ class SearchFilesParams(BaseModel):
 class TakeScreenshotParams(BaseModel):
     target: Optional[Literal["full_screen", "active_window"]] = Field("full_screen", description="Цель снимка")
     monitor_index: Optional[int] = Field(0, description="Индекс монитора: 0 для всех, 1, 2... для конкретного")
+    desktop_number: Optional[int] = Field(None, description="Номер виртуального рабочего стола Windows (например 1, 2, 3...)")
 
 class SetVolumeParams(BaseModel):
     level: Optional[int] = Field(None, description="Уровень громкости от 0 до 100")
@@ -155,6 +156,87 @@ class ChatReplyParams(BaseModel):
 class ClarifyParams(BaseModel):
     question: str = Field(..., description="Уточняющий вопрос пользователю")
 
+class TextOnlyParams(BaseModel):
+    text: str = Field(..., description="Текст")
+
+class HostParams(BaseModel):
+    host: Optional[str] = Field("8.8.8.8", description="Хост или IP")
+
+class OptionalPathParams(BaseModel):
+    path: str = Field(..., description="Путь к файлу или папке")
+
+class ZipParams(BaseModel):
+    source: str = Field(..., description="Что архивировать")
+    destination: Optional[str] = Field(None, description="Куда сохранить zip")
+
+class ToolParams(BaseModel):
+    tool: str = Field(..., description="Инструмент Windows: task_scheduler, device_manager, event_viewer, services, disk_cleanup, snipping, osk")
+
+class WindowQueryParams(BaseModel):
+    query: str = Field(..., description="Часть заголовка окна")
+
+class PasswordParams(BaseModel):
+    length: Optional[int] = Field(16, description="Длина пароля")
+
+class HashParams(BaseModel):
+    text: str = Field(..., description="Текст для хеширования")
+    algo: Optional[str] = Field("sha256", description="Алгоритм: md5, sha1, sha256")
+
+class Base64Params(BaseModel):
+    text: str = Field(..., description="Текст")
+    mode: Optional[Literal["encode", "decode"]] = Field("encode", description="encode или decode")
+
+class RandomParams(BaseModel):
+    kind: Optional[str] = Field("number", description="number / coin / dice")
+    min_value: Optional[int] = Field(1)
+    max_value: Optional[int] = Field(100)
+
+class QrParams(BaseModel):
+    data: str = Field(..., description="Данные для QR-кода")
+
+class HotkeyParams(BaseModel):
+    keys: str = Field(..., description="Комбинация клавиш, например ctrl+s")
+
+class TranslateParams(BaseModel):
+    text: str = Field(..., description="Текст для перевода")
+    target_lang: Optional[str] = Field("ru", description="Целевой язык: ru, en")
+
+class QueryParams(BaseModel):
+    query: str = Field(..., description="Поисковый запрос")
+
+class DelayScreenshotParams(BaseModel):
+    seconds: Optional[int] = Field(3, description="Задержка перед снимком в секундах")
+
+class SettingsPageParams(BaseModel):
+    page: Optional[str] = Field("", description="Страница ms-settings, например display")
+
+class EmptyParams(BaseModel):
+    pass
+
+
+class MouseCoordsParams(BaseModel):
+    x: int = Field(..., description="Координата X на экране")
+    y: int = Field(..., description="Координата Y на экране")
+
+class MouseClickParams(BaseModel):
+    x: Optional[int] = Field(None, description="Координата X (если None - клик в текущей позиции)")
+    y: Optional[int] = Field(None, description="Координата Y (если None - клик в текущей позиции)")
+    button: Optional[Literal["left", "right", "middle"]] = Field("left", description="Кнопка мыши: left, right, middle")
+    clicks: Optional[int] = Field(1, description="Количество кликов (1 или 2)")
+
+class MouseScrollParams(BaseModel):
+    amount: int = Field(300, description="Количество делений скролла (положительное - вверх, отрицательное - вниз)")
+
+class PowerPlanParams(BaseModel):
+    mode: Optional[Literal["performance", "balanced", "saver"]] = Field("balanced", description="Схема питания")
+
+class ProcessVolumeParams(BaseModel):
+    process_name: str = Field(..., description="Имя процесса (например chrome, spotify)")
+    volume: int = Field(..., description="Уровень звука (0-100)")
+
+class NoteParams(BaseModel):
+    text: str = Field(..., description="Текст заметки")
+
 
 # ==========================================
 # ЕДИНЫЙ РЕЕСТР ИНТЕНТОВ (SOURCE OF TRUTH)
@@ -215,6 +297,85 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     # Разговор и уточнение
     "chat_reply": {"model": ChatReplyParams, "desc": "Обычный ответ в диалоге (если запрос пользователя не управляет ПК)"},
     "clarify": {"model": ClarifyParams, "desc": "Уточняющий вопрос пользователю при неоднозначности"},
+
+    # Расширенные функции (50+)
+    "get_clipboard": {"model": EmptyParams, "desc": "Показать содержимое и историю буфера обмена"},
+    "set_clipboard": {"model": TextOnlyParams, "desc": "Положить текст в буфер обмена"},
+    "get_local_ip": {"model": EmptyParams, "desc": "Локальный IP компьютера"},
+    "get_public_ip": {"model": EmptyParams, "desc": "Внешний публичный IP"},
+    "ping_host": {"model": HostParams, "desc": "Пинг хоста"},
+    "traceroute_host": {"model": HostParams, "desc": "Трассировка маршрута"},
+    "get_network_adapters": {"model": EmptyParams, "desc": "Список сетевых адаптеров"},
+    "scan_wifi": {"model": EmptyParams, "desc": "Сканирование Wi-Fi сетей"},
+    "get_mac_hostname": {"model": EmptyParams, "desc": "Имя ПК, MAC и локальный IP"},
+    "flush_dns": {"model": EmptyParams, "desc": "Очистка DNS-кэша"},
+    "ipconfig_summary": {"model": EmptyParams, "desc": "Краткая сводка ipconfig"},
+    "speed_test": {"model": EmptyParams, "desc": "Оценка скорости загрузки"},
+    "get_battery": {"model": EmptyParams, "desc": "Заряд аккумулятора"},
+    "laptop_screen_sleep": {"model": EmptyParams, "desc": "Перевести экран ноутбука в режим ожидания/сна"},
+    "get_screen_info": {"model": EmptyParams, "desc": "Разрешение экрана и параметры дисплея"},
+    "get_idle_time": {"model": EmptyParams, "desc": "Время простоя клавиатуры/мыши"},
+    "empty_recycle_bin": {"model": EmptyParams, "desc": "Очистить корзину"},
+    "recycle_bin_info": {"model": EmptyParams, "desc": "Сколько элементов в корзине"},
+    "list_downloads": {"model": EmptyParams, "desc": "Последние файлы в Загрузках"},
+    "folder_sizes": {"model": EmptyParams, "desc": "Размеры папок на рабочем столе"},
+    "get_file_info": {"model": OptionalPathParams, "desc": "Свойства файла или папки"},
+    "zip_path": {"model": ZipParams, "desc": "Упаковать файл/папку в zip"},
+    "unzip_path": {"model": ZipParams, "desc": "Распаковать zip-архив"},
+    "open_windows_tool": {"model": ToolParams, "desc": "Открыть оснастку Windows (планировщик, устройства, службы...)"},
+    "toggle_notifications": {"model": EmptyParams, "desc": "Переключить системные уведомления / режим тихий час"},
+    "toggle_dark_mode": {"model": EmptyParams, "desc": "Переключить тёмную/светлую тему"},
+    "open_night_light": {"model": EmptyParams, "desc": "Открыть ночной свет Windows"},
+    "restart_explorer": {"model": EmptyParams, "desc": "Перезапустить проводник explorer.exe"},
+    "hibernate_pc": {"model": EmptyParams, "desc": "Гибернация ПК"},
+    "cancel_shutdown": {"model": EmptyParams, "desc": "Отменить запланированное выключение"},
+    "list_windows": {"model": EmptyParams, "desc": "Список открытых окон"},
+    "get_active_window": {"model": EmptyParams, "desc": "Заголовок активного окна"},
+    "focus_window": {"model": WindowQueryParams, "desc": "Вывести окно на передний план по названию"},
+    "show_desktop": {"model": EmptyParams, "desc": "Свернуть всё / показать рабочий стол"},
+    "minimize_windows": {"model": EmptyParams, "desc": "Свернуть все окна"},
+    "close_active_window": {"model": EmptyParams, "desc": "Закрыть активное окно (Alt+F4)"},
+    "get_hardware_info": {"model": EmptyParams, "desc": "CPU, RAM, GPU, ОС"},
+    "list_usb": {"model": EmptyParams, "desc": "Список USB-устройств"},
+    "list_printers": {"model": EmptyParams, "desc": "Список принтеров"},
+    "list_startup": {"model": EmptyParams, "desc": "Программы в автозагрузке"},
+    "firewall_status": {"model": EmptyParams, "desc": "Состояние брандмауэра"},
+    "defender_status": {"model": EmptyParams, "desc": "Состояние Microsoft Defender"},
+    "generate_password": {"model": PasswordParams, "desc": "Сгенерировать пароль и скопировать"},
+    "generate_uuid": {"model": EmptyParams, "desc": "Сгенерировать UUID"},
+    "hash_text": {"model": HashParams, "desc": "Хеш текста"},
+    "base64_convert": {"model": Base64Params, "desc": "Encode/decode Base64"},
+    "random_util": {"model": RandomParams, "desc": "Случайное число, монета или кубик"},
+    "get_datetime": {"model": EmptyParams, "desc": "Текущие дата и время"},
+    "speak_text": {"model": TextOnlyParams, "desc": "Озвучить текст голосом Windows"},
+    "generate_qr": {"model": QrParams, "desc": "Сгенерировать QR-код картинкой"},
+    "set_wallpaper": {"model": OptionalPathParams, "desc": "Установить обои рабочего стола"},
+    "type_text": {"model": TextOnlyParams, "desc": "Вставить текст в активное окно"},
+    "press_hotkey": {"model": HotkeyParams, "desc": "Нажать горячие клавиши"},
+    "youtube_search": {"model": QueryParams, "desc": "Поиск на YouTube"},
+    "maps_search": {"model": QueryParams, "desc": "Поиск на картах"},
+    "translate_text": {"model": TranslateParams, "desc": "Перевод текста"},
+    "color_picker": {"model": EmptyParams, "desc": "Цвет пикселя под курсором"},
+    "get_volume_level": {"model": EmptyParams, "desc": "Текущая громкость системы"},
+    "screenshot_delay": {"model": DelayScreenshotParams, "desc": "Скриншот с задержкой"},
+    "open_ms_settings": {"model": SettingsPageParams, "desc": "Открыть страницу параметров Windows"},
+    "autostart_status": {"model": EmptyParams, "desc": "Проверить автозапуск Jarvis"},
+    "ensure_autostart": {"model": EmptyParams, "desc": "Включить автозапуск Jarvis при входе в Windows"},
+    "set_power_plan": {"model": PowerPlanParams, "desc": "Установить схему электропитания ноутбука (производительность/баланс/энергосбережение)"},
+    "battery_report": {"model": EmptyParams, "desc": "Сформировать отчет о состоянии аккумулятора ноутбука"},
+    "clear_browser_cache": {"model": EmptyParams, "desc": "Очистить кэш браузеров"},
+    "create_restore_point": {"model": TextOnlyParams, "desc": "Создать точку восстановления Windows"},
+    "quick_note": {"model": NoteParams, "desc": "Быстрая заметка в Блокноте"},
+    "set_process_volume": {"model": ProcessVolumeParams, "desc": "Установить громкость для конкретной программы"},
+    "list_audio_devices": {"model": EmptyParams, "desc": "Список звуковых устройств"},
+    "installed_updates": {"model": EmptyParams, "desc": "Последние обновления Windows"},
+    "toggle_caps_lock": {"model": EmptyParams, "desc": "Переключить Caps Lock"},
+    "toggle_mute": {"model": EmptyParams, "desc": "Переключить Mute (без звука)"},
+    "mouse_move": {"model": MouseCoordsParams, "desc": "Переместить курсор мыши в координаты X, Y"},
+    "mouse_click": {"model": MouseClickParams, "desc": "Кликнуть мышью в указанные координаты или на месте"},
+    "mouse_drag": {"model": MouseCoordsParams, "desc": "Перетащить (drag & drop) мышь в точку X, Y"},
+    "mouse_scroll": {"model": MouseScrollParams, "desc": "Прокрутить колесо мыши"},
+    "keyboard_backlight": {"model": EmptyParams, "desc": "Переключить подсветку клавиатуры (F11: яркий, средний, выкл)"},
 }
 
 class StepModel(BaseModel):

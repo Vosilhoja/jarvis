@@ -1,10 +1,12 @@
 import os
+import io
 import re
 import uuid
 import json
 import time
 import shutil
 import logging
+import asyncio
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Any, Optional, Tuple
@@ -152,11 +154,17 @@ class StepExecutor:
             # 5. Скриншот
             elif intent == "take_screenshot":
                 mon_idx = params.get("monitor_index", 0)
-                buf = take_screenshot(mon_idx)
+                desk_num = params.get("desktop_number")
+                if desk_num:
+                    from services.screenshot import take_desktop_screenshot
+                    buf = take_desktop_screenshot(desk_num, mon_idx)
+                    name = f"Рабочий стол {desk_num}"
+                else:
+                    buf = take_screenshot(mon_idx)
+                    name = "Все мониторы" if mon_idx == 0 else f"Монитор {mon_idx}"
                 from telegram import InputFile
-                name = "Все мониторы" if mon_idx == 0 else f"Монитор {mon_idx}"
                 await bot.send_photo(chat_id=chat_id, photo=InputFile(buf, "screenshot.png"), caption=f"📸 Снимок: {name}")
-                return True, "✅ Скриншот отправлен"
+                return True, f"✅ Скриншот ({name}) отправлен"
 
             # 6. Файлы и проводник
             elif intent == "open_explorer_path":
@@ -192,6 +200,68 @@ class StepExecutor:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
                 return True, f"✅ Создал файл: `{file_path}`"
+
+            elif intent == "move_item":
+                src = resolve_path_aliases(params["source"])
+                dst = resolve_path_aliases(params["destination"])
+                if not src.exists():
+                    return False, f"❌ Нет источника: `{src}`"
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(src), str(dst))
+                return True, f"✅ Перемещено: `{src}` → `{dst}`"
+
+            elif intent == "copy_item":
+                src = resolve_path_aliases(params["source"])
+                dst = resolve_path_aliases(params["destination"])
+                if not src.exists():
+                    return False, f"❌ Нет источника: `{src}`"
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                if src.is_dir():
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src, dst)
+                return True, f"✅ Скопировано: `{src}` → `{dst}`"
+
+            elif intent == "rename_item":
+                src = resolve_path_aliases(params["path"])
+                if not src.exists():
+                    return False, f"❌ Нет файла: `{src}`"
+                new_path = src.with_name(params["new_name"])
+                src.rename(new_path)
+                return True, f"✅ Переименовано в `{new_path.name}`"
+
+            elif intent == "search_files":
+                from services.extra_functions import search_files as _search_files
+                msg = _search_files(params["query"], params.get("root"))
+                await bot.send_message(chat_id=chat_id, text=msg)
+                return True, "✅ Поиск файлов выполнен"
+
+            elif intent == "list_installed_apps":
+                q = (params.get("query") or "").strip()
+                apps = app_resolver.apps_index
+                if q:
+                    from rapidfuzz import process, fuzz
+                    names = [a.get("display_name", "") for a in apps]
+                    hits = process.extract(q, names, scorer=fuzz.WRatio, limit=12)
+                    lines = [f"• {n} ({s:.0f}%)" for n, s, _ in hits]
+                else:
+                    lines = [f"• {a.get('display_name')}" for a in apps[:20]]
+                await bot.send_message(chat_id=chat_id, text="📦 Программы:\n" + "\n".join(lines))
+                return True, "✅ Список приложений отправлен"
+
+            elif intent == "get_disk_space":
+                m = get_system_metrics()
+                drive = (params.get("drive") or "").upper().replace(":", "")
+                lines = []
+                for d in m.get("disks", []):
+                    if drive and not d["device"].upper().startswith(drive):
+                        continue
+                    lines.append(
+                        f"• {d['device']} свободно {d['free_gb']} ГБ из {d['total_gb']} ГБ ({d['percent']}%)"
+                    )
+                text = "💾 Диски:\n" + ("\n".join(lines) if lines else "Нет данных")
+                await bot.send_message(chat_id=chat_id, text=text)
+                return True, "✅ Место на дисках отправлено"
 
             elif intent == "delete_item":
                 target_p = resolve_path_aliases(params["path"])
@@ -335,6 +405,77 @@ class StepExecutor:
                     await bot.send_message(chat_id=chat_id, text=text, parse_mode="Markdown")
                 return True, "✅ Список напоминаний отправлен"
 
+            elif intent == "cancel_reminder":
+                from scheduler import reminder_manager
+                ok = reminder_manager.cancel_reminder(params["reminder_id"], chat_id)
+                return ok, "✅ Напоминание отменено" if ok else "❌ Напоминание не найдено"
+
+            elif intent == "create_scenario":
+                from config import SCENARIOS_PATH
+                name = params["scenario_name"]
+                steps = session.context_memory.get("last_plan_steps") or []
+                data = {}
+                if SCENARIOS_PATH.exists():
+                    try:
+                        data = json.loads(SCENARIOS_PATH.read_text(encoding="utf-8"))
+                    except Exception:
+                        data = {}
+                data[name] = {
+                    "description": params.get("steps_description", ""),
+                    "steps": steps,
+                }
+                SCENARIOS_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+                return True, f"✅ Сценарий «{name}» сохранён ({len(steps)} шагов из последней цепочки)"
+
+            elif intent == "run_scenario":
+                from config import SCENARIOS_PATH
+                from core.intent_schema import validate_step
+                name = params["scenario_name"]
+                if not SCENARIOS_PATH.exists():
+                    return False, "Нет сохранённых сценариев"
+                data = json.loads(SCENARIOS_PATH.read_text(encoding="utf-8"))
+                sc = data.get(name)
+                if not sc:
+                    return False, f"Сценарий «{name}» не найден. Есть: {', '.join(data.keys()) or '—'}"
+                added = 0
+                for s in sc.get("steps") or []:
+                    try:
+                        session.add_steps([validate_step(s["intent"], s.get("params") or {})])
+                        added += 1
+                    except Exception:
+                        continue
+                return True, f"▶ Сценарий «{name}»: в очередь добавлено {added} шагов"
+
+            elif intent == "focus_mode":
+                from services.extra_functions import do_not_disturb_mode
+                mins = int(params.get("duration_minutes") or 60)
+                do_not_disturb_mode()
+                from scheduler import reminder_manager
+                reminder_manager.add_reminder(chat_id, "Режим фокуса закончился", f"через {mins} минут")
+                return True, f"🎯 Режим фокуса на {mins} мин: уведомления переключены, напоминание поставлено"
+
+            elif intent == "watch_process":
+                import asyncio
+                pname = params["process_name"]
+
+                async def _watch():
+                    while True:
+                        found = False
+                        for p in psutil.process_iter(["name"]):
+                            try:
+                                if pname.lower() in (p.info.get("name") or "").lower():
+                                    found = True
+                                    break
+                            except Exception:
+                                continue
+                        if not found:
+                            await bot.send_message(chat_id=chat_id, text=f"✅ Процесс «{pname}» завершился")
+                            return
+                        await asyncio.sleep(5)
+
+                asyncio.create_task(_watch())
+                return True, f"👁 Слежу за процессом «{pname}» — напишу, когда завершится"
+
             # 11. Дополнительные фичи (погода, валюта, очистка, фокус)
             elif intent == "get_weather":
                 msg = get_weather_forecast(params.get("city"))
@@ -359,6 +500,18 @@ class StepExecutor:
                 await bot.send_message(chat_id=chat_id, text=f"❓ {params['question']}")
                 return True, "✅ Задан уточняющий вопрос"
 
+            from services.extra_functions import dispatch_extra
+            extra = dispatch_extra(intent, params, session)
+            if extra is not None:
+                if extra.photo_bytes:
+                    from telegram import InputFile
+                    await bot.send_photo(
+                        chat_id=chat_id,
+                        photo=InputFile(io.BytesIO(extra.photo_bytes), extra.photo_name),
+                        caption=extra.text[:900],
+                    )
+                return extra.success, extra.text
+
             return False, f"Неизвестный intent: {intent}"
 
         except Exception as e:
@@ -382,10 +535,15 @@ class TaskExecutorService:
 
                 success, report = await self.executor.execute_step(step, session, bot)
                 session.history.append({"intent": step.intent, "success": success, "time": time.time()})
+                session.context_memory.setdefault("last_plan_steps", [])
+                session.context_memory["last_plan_steps"].append({"intent": step.intent, "params": step.params})
+                session.context_memory["last_plan_steps"] = session.context_memory["last_plan_steps"][-30:]
 
-                # Отправляем пользователю факт выполнения шага (если это не диалоговый chat_reply)
                 if step.intent != "chat_reply":
-                    await bot.send_message(chat_id=session.user_id, text=report, parse_mode="Markdown")
+                    try:
+                        await bot.send_message(chat_id=session.user_id, text=report, parse_mode="Markdown")
+                    except Exception:
+                        await bot.send_message(chat_id=session.user_id, text=str(report))
 
                 session.queue.task_done()
         finally:

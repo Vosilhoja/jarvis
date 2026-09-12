@@ -88,7 +88,10 @@ jarvis/
 ### 1. Установка зависимостей
 ```powershell
 pip install -r requirements.txt
+python Scripts/pywin32_postinstall.py -install
 ```
+> **Примечание:** если скрипт `pywin32_postinstall.py` не находится напрямую в папке Scripts, запустите:
+> `python -c "import win32com; print(win32com.__file__)"` и выполните `pywin32_postinstall.py -install` из директории Python/Scripts или site-packages. Без этого шага модуль `win32com.client` (чтение ярлыков `.lnk`) может вызывать ошибку на Windows.
 
 ### 2. Настройка `.env`
 Скопируйте шаблон:

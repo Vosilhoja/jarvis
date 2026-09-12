@@ -1,4 +1,5 @@
 import json
+import time
 import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -30,29 +31,43 @@ def get_genai_client() -> genai.Client:
 def ask_gemini(prompt: str, history: Optional[List[Dict[str, Any]]] = None) -> str:
     """
     Прямой текстовый запрос к Gemini для диалоговых сообщений.
+    При ошибке 429 (rate limit) — делает 1 повтор через 12 секунд.
     """
-    try:
-        client = get_genai_client()
-        contents = []
-        if history:
-            for item in history:
-                contents.append(types.Content(
-                    role=item.get("role", "user"),
-                    parts=[types.Part.from_text(text=p.get("text", "")) for p in item.get("parts", [])]
-                ))
-        contents.append(types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=prompt)]
-        ))
+    for attempt in range(2):
+        try:
+            client = get_genai_client()
+            contents = []
+            if history:
+                for item in history:
+                    contents.append(types.Content(
+                        role=item.get("role", "user"),
+                        parts=[types.Part.from_text(text=p.get("text", "")) for p in item.get("parts", [])]
+                    ))
+            contents.append(types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=prompt)]
+            ))
 
-        response = client.models.generate_content(
-            model=AI_MODEL_NAME,
-            contents=contents
-        )
-        return response.text or "Ответ пуст."
-    except Exception as e:
-        logger.error(f"Ошибка ask_gemini: {e}")
-        return f"⚠️ Ошибка Gemini API: {e}"
+            response = client.models.generate_content(
+                model=AI_MODEL_NAME,
+                contents=contents
+            )
+            return response.text or "Ответ пуст."
+        except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                if attempt == 0:
+                    logger.warning(f"Gemini 429 rate limit, повтор через 12 сек...")
+                    time.sleep(12)
+                    continue
+                else:
+                    logger.error(f"Gemini 429 rate limit после повтора: {e}")
+                    return (
+                        "⚠️ Превышен лимит запросов к Gemini API.\n"
+                        "Подождите минуту и попробуйте снова, или проверьте квоту на https://ai.dev/rate-limit"
+                    )
+            logger.error(f"Ошибка ask_gemini: {e}")
+            return f"⚠️ Ошибка ИИ: {e}"
 
 def build_system_prompt(recent_actions: Optional[List[str]] = None) -> str:
     """Динамически формирует системный промпт с реестром интентов и контекстом системы."""
@@ -121,6 +136,20 @@ def parse_user_instruction_to_plan(user_text: str, recent_actions: Optional[List
             raw_response_text = response.text.strip() if response.text else ""
             break
         except Exception as e:
+            err_str = str(e)
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                if attempt == 0:
+                    logger.warning(f"Gemini 429 на планировщике, повтор через 12 сек...")
+                    time.sleep(12)
+                    continue
+                else:
+                    logger.error(f"Gemini 429 после повтора: {e}")
+                    return [StepModel(intent="chat_reply", params={
+                        "message": (
+                            "⚠️ Превышен лимит запросов к Gemini API.\n"
+                            "Подождите минуту и попробуйте снова."
+                        )
+                    })]
             logger.warning(f"Ошибка модели {model_to_use} (попытка {attempt+1}): {e}")
             model_to_use = AI_FALLBACK_MODEL_NAME
 

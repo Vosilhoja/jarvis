@@ -33,15 +33,21 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
             await status_msg.edit_text("🤷‍♂️ Не удалось распознать речь. Попробуйте сказать четче.")
             return
 
-        await status_msg.edit_text(f"🎤 *Распознал:* «_{recognized_text}_»\n⏳ Анализирую задачи...", parse_mode="Markdown")
+        await status_msg.edit_text(f"🎤 *Распознал:* «_{recognized_text}_»", parse_mode="Markdown")
 
-        # Передаем в единый планировщик задач
-        session = task_queue_manager.get_session(chat_id)
-        recent_actions = [h["intent"] for h in session.history[-5:]]
-        plan_steps = parse_user_instruction_to_plan(recognized_text, recent_actions)
-
-        session.add_steps(plan_steps)
-        await task_executor.process_user_queue(session, context.bot)
+        # Если активен ИИ-режим — передаём в Gemini-диалог
+        if context.user_data.get("ai_mode"):
+            from handlers.ai_chat import handle_ai_message
+            # Подменяем текст сообщения на распознанный и вызываем ИИ-обработчик
+            update.message.text = recognized_text
+            await handle_ai_message(update, context)
+        else:
+            # Передаем в единый планировщик задач
+            session = task_queue_manager.get_session(chat_id)
+            recent_actions = [h["intent"] for h in session.history[-5:]]
+            plan_steps = parse_user_instruction_to_plan(recognized_text, recent_actions)
+            session.add_steps(plan_steps)
+            await task_executor.process_user_queue(session, context.bot)
 
     except Exception as e:
         logger.error(f"Ошибка при обработке голоса: {e}", exc_info=True)

@@ -22,8 +22,8 @@ for item in _raw_ids.split(","):
 ALLOWED_USER_ID = ALLOWED_USER_IDS[0] if ALLOWED_USER_IDS else 0
 
 # Настройки ИИ
-AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-3.6-flash").strip()
-AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-3.5-flash").strip()
+AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-2.5-flash-preview-04-17").strip()
+AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-2.5-flash-lite-preview-06-17").strip()
 AI_MAX_STEPS_PER_MESSAGE = int(os.getenv("AI_MAX_STEPS_PER_MESSAGE", "15"))
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.2"))
 

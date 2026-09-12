@@ -45,26 +45,73 @@ class ReminderManager:
         except Exception as e:
             logger.error(f"Ошибка сохранения напоминаний: {e}")
 
-    def add_reminder(self, chat_id: int, text: str, when_str: str) -> Dict[str, Any]:
-        """Парсит естественное время (например 'через 15 минут', 'в 18:30') и добавляет в список."""
+    def parse_time_expression(self, when_str: str) -> Optional[datetime]:
+        """Парсит естественное время на русском языке в объект datetime."""
         now = datetime.now()
-        target_time = now + timedelta(minutes=15) # По умолчанию
+        s = when_str.strip().lower()
 
-        # Простые паттерны
-        m_min = re.search(r"через\s+(\d+)\s+(мин|минут)", when_str.lower())
-        m_hour = re.search(r"через\s+(\d+)\s+(час|часа|часов)", when_str.lower())
-        m_at = re.search(r"в\s+(\d{1,2})[:\.](\d{2})", when_str.lower())
+        # 1. "через X ч Y мин" / "через X часов Y минут"
+        m_compound = re.search(r"через\s+(\d+)\s*(?:ч|час|часа|часов)\s*(?:и\s*)?(\d+)\s*(?:м|мин|минут[уы]?)?", s)
+        if m_compound:
+            h = int(m_compound.group(1))
+            m = int(m_compound.group(2))
+            return now + timedelta(hours=h, minutes=m)
 
+        # 2. "через X сек"
+        m_sec = re.search(r"через\s+(\d+)\s*(?:с|сек|секунд[уы]?)", s)
+        if m_sec:
+            return now + timedelta(seconds=int(m_sec.group(1)))
+
+        # 3. "через X минут"
+        m_min = re.search(r"через\s+(\d+)\s*(?:м|мин|минут[уы]?)", s)
         if m_min:
-            target_time = now + timedelta(minutes=int(m_min.group(1)))
-        elif m_hour:
-            target_time = now + timedelta(hours=int(m_hour.group(1)))
-        elif m_at:
+            return now + timedelta(minutes=int(m_min.group(1)))
+
+        # 4. "через X часов"
+        m_hour = re.search(r"через\s+(\d+)\s*(?:ч|час|часа|часов)", s)
+        if m_hour:
+            return now + timedelta(hours=int(m_hour.group(1)))
+
+        # 5. "завтра в HH:MM"
+        m_tomorrow = re.search(r"завтра\s+(?:в\s+)?(\d{1,2})[:\.](\d{2})", s)
+        if m_tomorrow:
+            h, m = int(m_tomorrow.group(1)), int(m_tomorrow.group(2))
+            cand = (now + timedelta(days=1)).replace(hour=h, minute=m, second=0, microsecond=0)
+            return cand
+
+        # 6. "послезавтра в HH:MM"
+        m_after_tomorrow = re.search(r"послезавтра\s+(?:в\s+)?(\d{1,2})[:\.](\d{2})", s)
+        if m_after_tomorrow:
+            h, m = int(m_after_tomorrow.group(1)), int(m_after_tomorrow.group(2))
+            cand = (now + timedelta(days=2)).replace(hour=h, minute=m, second=0, microsecond=0)
+            return cand
+
+        # 7. "сегодня в HH:MM" или просто "в HH:MM"
+        m_at = re.search(r"(?:сегодня\s+)?в\s+(\d{1,2})[:\.](\d{2})", s)
+        if m_at:
             h, m = int(m_at.group(1)), int(m_at.group(2))
             cand = now.replace(hour=h, minute=m, second=0, microsecond=0)
             if cand <= now:
                 cand += timedelta(days=1)
-            target_time = cand
+            return cand
+
+        # 8. Резервный вызов dateparser если установлен
+        try:
+            import dateparser
+            parsed = dateparser.parse(s, settings={"PREFER_DATES_FROM": "future", "DATE_ORDER": "DMY"})
+            if parsed:
+                return parsed
+        except Exception:
+            pass
+
+        return None
+
+    def add_reminder(self, chat_id: int, text: str, when_str: str) -> Dict[str, Any]:
+        """Парсит естественное время и добавляет в список."""
+        now = datetime.now()
+        target_time = self.parse_time_expression(when_str)
+        if not target_time:
+            target_time = now + timedelta(minutes=15)
 
         rem_id = str(uuid.uuid4())
         reminder = {
@@ -98,6 +145,19 @@ class ReminderManager:
         if due:
             self.save()
         return due
+
+    def cancel_reminder(self, reminder_id: str, chat_id: Optional[int] = None) -> bool:
+        rid = (reminder_id or "").strip().lower()
+        for r in self.reminders:
+            if chat_id and r.get("chat_id") != chat_id:
+                continue
+            if not r.get("active", True):
+                continue
+            if str(r.get("id", "")).lower().startswith(rid) or rid in str(r.get("text", "")).lower():
+                r["active"] = False
+                self.save()
+                return True
+        return False
 
 reminder_manager = ReminderManager(REMINDERS_DB_PATH)
 

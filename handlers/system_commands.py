@@ -88,7 +88,9 @@ async def cmd_sysinfo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     disks_text = ""
     for d in metrics["disks"]:
-        disks_text += f"  • {d['device']} ({d['mountpoint']}): {d['percent']}% (исп. {d['used_gb']} / {d['total_gb']} GB)\n"
+        dev = str(d['device']).replace('\\', '/')
+        mp = str(d['mountpoint']).replace('\\', '/')
+        disks_text += f"  • {dev} ({mp}): {d['percent']}% (исп. {d['used_gb']} / {d['total_gb']} GB)\n"
     if not disks_text:
         disks_text = "  • Нет доступных дисков\n"
 
@@ -117,8 +119,8 @@ async def cmd_sysinfo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(text, reply_markup=kb, parse_mode="Markdown")
 
 @restricted
-async def send_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, monitor_index: int | None = None):
-    """Создает и отправляет скриншот пользователю."""
+async def send_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, monitor_index: int | None = None, desktop_num: int | None = None):
+    """Создает и отправляет скриншот пользователю (поддерживает выбор монитора и виртуального рабочего стола)."""
     chat_id = update.effective_chat.id
     status_msg = None
     if update.callback_query:
@@ -127,13 +129,20 @@ async def send_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, mo
         status_msg = await update.message.reply_text("📸 Делаю снимок экрана...")
 
     try:
-        buf = take_screenshot(monitor_index)
-        name = "Все мониторы" if monitor_index in (None, 0) else f"Монитор {monitor_index}"
-        caption = f"📸 Снимок: {name}"
+        if desktop_num is not None and desktop_num > 0:
+            from services.screenshot import take_desktop_screenshot
+            buf = take_desktop_screenshot(desktop_num, monitor_index)
+            name = f"Рабочий стол {desktop_num}"
+        else:
+            buf = take_screenshot(monitor_index)
+            name = "Текущий экран" if monitor_index in (None, 0) else f"Монитор {monitor_index}"
+        
+        caption = f"📸 Снимок: *{name}*"
         await context.bot.send_photo(
             chat_id=chat_id,
             photo=buf,
-            caption=caption
+            caption=caption,
+            parse_mode="Markdown"
         )
     except Exception as e:
         logger.error(f"Ошибка при создании скриншота: {e}", exc_info=True)

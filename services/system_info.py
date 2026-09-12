@@ -1,16 +1,74 @@
 import time
+import subprocess
 from datetime import datetime, timedelta
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import psutil
+
+def get_cpu_temperature() -> Optional[float]:
+    """
+    Возвращает актуальную температуру процессора в градусах Цельсия (°C).
+    Использует:
+    1. psutil.sensors_temperatures (если доступно)
+    2. WMI ThermalZoneInformation (HighPrecisionTemperature в десикельвинах)
+    3. WMI MSAcpi_ThermalZoneTemperature
+    """
+    # 1. psutil
+    try:
+        temps = psutil.sensors_temperatures()
+        if temps:
+            for _, entries in temps.items():
+                for e in entries:
+                    if e.current and e.current > 0:
+                        return round(float(e.current), 1)
+    except Exception:
+        pass
+
+    # 2. WMI ThermalZoneInformation
+    try:
+        cmd = [
+            "powershell", "-NoProfile", "-Command",
+            "(Get-CimInstance -ClassName Win32_PerfFormattedData_Counters_ThermalZoneInformation -ErrorAction SilentlyContinue).HighPrecisionTemperature"
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=5, creationflags=0x08000000)
+        out = res.stdout.strip()
+        if out:
+            # Преобразование из десикельвинов: (T - 2732) / 10
+            # Например 3252 -> (3252 - 2732) / 10 = 52.0 °C
+            vals = [float(x) for x in out.split() if x.replace('.', '', 1).isdigit()]
+            if vals:
+                celsius = (vals[0] - 2732.0) / 10.0
+                if 20.0 <= celsius <= 115.0:
+                    return round(celsius, 1)
+    except Exception:
+        pass
+
+    # 3. WMI MSAcpi_ThermalZoneTemperature
+    try:
+        cmd2 = [
+            "powershell", "-NoProfile", "-Command",
+            "(Get-CimInstance -Namespace root/wmi -ClassName MSAcpi_ThermalZoneTemperature -ErrorAction SilentlyContinue).CurrentTemperature"
+        ]
+        res2 = subprocess.run(cmd2, capture_output=True, text=True, timeout=5, creationflags=0x08000000)
+        out2 = res2.stdout.strip()
+        if out2:
+            vals2 = [float(x) for x in out2.split() if x.replace('.', '', 1).isdigit()]
+            if vals2:
+                celsius2 = (vals2[0] - 2732.0) / 10.0
+                if 20.0 <= celsius2 <= 115.0:
+                    return round(celsius2, 1)
+    except Exception:
+        pass
+
+    return None
 
 def get_system_metrics() -> Dict[str, Any]:
     """
-    Возвращает актуальную информацию о загрузке ЦП, ОЗУ, дисков и времени работы ПК.
+    Возвращает актуальную информацию о загрузке ЦП, температуре, ОЗУ, дисков и времени работы ПК.
     """
-    # CPU
-    cpu_percent = psutil.cpu_percent(interval=0.5)
+    cpu_percent = psutil.cpu_percent(interval=None)
     cpu_count_logical = psutil.cpu_count(logical=True)
     cpu_count_physical = psutil.cpu_count(logical=False)
+    temp_celsius = get_cpu_temperature()
     
     # RAM
     ram = psutil.virtual_memory()
@@ -18,7 +76,6 @@ def get_system_metrics() -> Dict[str, Any]:
     # Диски (основные разделы)
     disks = []
     for part in psutil.disk_partitions(all=False):
-        # Исключаем cdrom / сетевые сбои
         if "cdrom" in part.opts or part.fstype == "":
             continue
         try:
@@ -41,6 +98,7 @@ def get_system_metrics() -> Dict[str, Any]:
 
     return {
         "cpu_percent": cpu_percent,
+        "cpu_temp": temp_celsius,
         "cpu_cores": f"{cpu_count_physical} физ. / {cpu_count_logical} лог.",
         "ram_total_mb": ram.total // (1024 ** 2),
         "ram_used_mb": ram.used // (1024 ** 2),
@@ -81,7 +139,6 @@ def kill_process_by_pid(pid: int) -> bool:
     try:
         proc = psutil.Process(pid)
         proc.terminate()
-        # Ожидаем завершения, если не вышло — принудительно kill
         gone, alive = psutil.wait_procs([proc], timeout=3)
         if alive:
             for p in alive:

@@ -2,7 +2,7 @@ import io
 import logging
 from google import genai
 from google.genai import types
-from config import GOOGLE_API_KEY, STT_LANGUAGE
+from config import GOOGLE_API_KEY, STT_LANGUAGE, AI_MODEL_NAME, AI_FALLBACK_MODEL_NAME
 
 logger = logging.getLogger("jarvis")
 
@@ -34,7 +34,7 @@ def transcribe_audio_bytes(audio_bytes: bytes, mime_type: str = "audio/ogg") -> 
     try:
         audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=AI_MODEL_NAME,
             contents=[audio_part, prompt]
         )
         text = response.text.strip() if response.text else ""
@@ -42,11 +42,11 @@ def transcribe_audio_bytes(audio_bytes: bytes, mime_type: str = "audio/ogg") -> 
         return text
     except Exception as e:
         logger.error(f"Ошибка при распознавании голоса через Gemini: {e}", exc_info=True)
-        # Fallback на gemini-2.0-flash
+        # Fallback на резервную модель из config
         try:
             audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
             response = client.models.generate_content(
-                model="gemini-2.0-flash",
+                model=AI_FALLBACK_MODEL_NAME,
                 contents=[audio_part, prompt]
             )
             return response.text.strip() if response.text else ""
