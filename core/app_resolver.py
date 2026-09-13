@@ -168,8 +168,76 @@ class AppResolver:
 
         return results
 
+    def _resolve_app_path_registry(self, exe_name: str) -> Optional[str]:
+        """Ищет реальный путь программы через HKLM/HKCU App Paths (официальный механизм Windows)."""
+        keys = [
+            (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{exe_name}"),
+            (winreg.HKEY_LOCAL_MACHINE, rf"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\App Paths\{exe_name}"),
+            (winreg.HKEY_CURRENT_USER, rf"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{exe_name}"),
+        ]
+        for hive, path in keys:
+            try:
+                with winreg.OpenKey(hive, path) as key:
+                    value, _ = winreg.QueryValueEx(key, "")  # (по умолчанию) содержит полный путь
+                    if value and Path(value).exists():
+                        return value
+            except OSError:
+                continue
+        return None
+
+
+    def _scan_start_apps_powershell(self) -> List[Dict[str, Any]]:
+        """Использует Get-StartApps — источник, который видит ВСЁ, что видно в меню Пуск,
+        включая UWP/Microsoft Store приложения, которые не ловятся сканированием .lnk и реестра."""
+        results = []
+        try:
+            import subprocess
+            ps_cmd = "Get-StartApps | ConvertTo-Json -Compress"
+            r = subprocess.run(
+                ["powershell", "-NoProfile", "-Command", ps_cmd],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                creationflags=0x08000000,
+            )
+            import json as _json
+            data = _json.loads(r.stdout)
+            if isinstance(data, dict):
+                data = [data]
+            for entry in data:
+                name = entry.get("Name")
+                app_id = entry.get("AppID")
+                if not name or not app_id:
+                    continue
+                # UWP AppID выглядит как "Package_Family!App", обычные - как путь к .exe или GUID
+                if "!" in app_id:
+                    exec_path = f"shell:AppsFolder\\{app_id}"
+                    launch_via = "explorer"
+                else:
+                    exec_path = app_id
+                    launch_via = "direct"
+                results.append({
+                    "display_name": name,
+                    "exec_path": exec_path,
+                    "source": "Get-StartApps",
+                    "launch_via": launch_via,
+                    "aliases": [name.lower(), name.replace(" ", "").lower()]
+                })
+        except Exception as e:
+            logger.warning(f"Get-StartApps сканирование не удалось: {e}")
+        return results
+
     def _scan_all_apps(self) -> List[Dict[str, Any]]:
         all_apps = []
+        seen_paths = set()
+
+        # 1. Приоритетный источник: Get-StartApps (видит всё из меню Пуск, включая UWP и Microsoft Store)
+        for item in self._scan_start_apps_powershell():
+            exec_p = item["exec_path"].lower()
+            if exec_p not in seen_paths:
+                seen_paths.add(exec_p)
+                all_apps.append(item)
+
         user_appdata = os.getenv("APPDATA", "")
         all_users_profile = os.getenv("ProgramData", "C:\\ProgramData")
         user_profile = os.getenv("USERPROFILE", "C:\\Users\\Default")
@@ -221,9 +289,10 @@ class AppResolver:
         for tool in system_tools:
             # Если еще нет в списке с таким именем
             if not any(a["display_name"].lower() == tool["display_name"].lower() for a in all_apps):
+                real_path = self._resolve_app_path_registry(tool["exec_path"]) or tool["exec_path"]
                 all_apps.append({
                     "display_name": tool["display_name"],
-                    "exec_path": tool["exec_path"],
+                    "exec_path": real_path,
                     "source": "System/Presets",
                     "aliases": tool["aliases"]
                 })
@@ -270,10 +339,15 @@ class AppResolver:
         return candidates[:top_k]
 
     def launch_app(self, app_info: Dict[str, Any]) -> bool:
-        """Запускает приложение через os.startfile или subprocess."""
+        """Запускает приложение через explorer (для UWP/Store) или os.startfile/subprocess."""
         exec_path = app_info["exec_path"]
         try:
-            logger.info(f"Запуск приложения: {app_info['display_name']} -> {exec_path}")
+            logger.info(f"Запуск приложения: {app_info['display_name']} -> {exec_path} (via={app_info.get('launch_via')})")
+            if app_info.get("launch_via") == "explorer":
+                import subprocess
+                subprocess.Popen(["explorer.exe", exec_path])
+                return True
+
             os.startfile(exec_path)
             return True
         except Exception as e:

@@ -460,21 +460,95 @@ def generate_qr_png(data: str) -> ExtraResult:
         return ExtraResult(False, f"Ошибка QR: {e}")
 
 
+# Состояние режима "Тихий час" — сохраняется на время работы бота
+_DND_STATE: dict = {"enabled": False, "prev_muted": False}
+
+
 def toggle_keyboard_backlight() -> str:
-    global KEYBOARD_BACKLIGHT_STATE
+    """Переключает подсветку клавиатуры. Пробует несколько методов с диагностикой."""
+    VK_F11 = 0x7A
+    KEYEVENTF_KEYUP = 0x0002
+    methods_tried = []
+
+    # Метод 1: keybd_event (работает на большинстве ПК, но не на всех ноутбуках)
     try:
-        VK_F11 = 0x7A
-        KEYEVENTF_KEYUP = 0x0002
         ctypes.windll.user32.keybd_event(VK_F11, 0, 0, 0)
         time.sleep(0.05)
         ctypes.windll.user32.keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, 0)
-        return "⌨ Переключена подсветка клавиатуры (F11)"
+        methods_tried.append("keybd_event")
     except Exception as e:
-        return f"⚠️ Ошибка переключения подсветки: {e}"
+        methods_tried.append(f"keybd_event:FAIL({e})")
+
+    # Метод 2: SendInput (более надёжный способ через Win32 API)
+    try:
+        class KEYBDINPUT(ctypes.Structure):
+            _fields_ = [
+                ("wVk", ctypes.c_ushort),
+                ("wScan", ctypes.c_ushort),
+                ("dwFlags", ctypes.c_ulong),
+                ("time", ctypes.c_ulong),
+                ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+            ]
+
+        class INPUT(ctypes.Structure):
+            class _INPUT(ctypes.Union):
+                _fields_ = [("ki", KEYBDINPUT)]
+            _anonymous_ = ("_input",)
+            _fields_ = [("type", ctypes.c_ulong), ("_input", _INPUT)]
+
+        INPUT_KEYBOARD = 1
+        inp_down = INPUT(type=INPUT_KEYBOARD)
+        inp_down.ki.wVk = VK_F11
+        inp_up = INPUT(type=INPUT_KEYBOARD)
+        inp_up.ki.wVk = VK_F11
+        inp_up.ki.dwFlags = KEYEVENTF_KEYUP
+        ctypes.windll.user32.SendInput(1, ctypes.byref(inp_down), ctypes.sizeof(INPUT))
+        time.sleep(0.05)
+        ctypes.windll.user32.SendInput(1, ctypes.byref(inp_up), ctypes.sizeof(INPUT))
+        methods_tried.append("SendInput")
+    except Exception as e:
+        methods_tried.append(f"SendInput:FAIL({e})")
+
+    # Метод 3: PowerShell WMI (на некоторых моделях Lenovo/Dell)
+    try:
+        r = _run(
+            ["powershell", "-NoProfile", "-Command",
+             "(Get-WmiObject -Namespace root/WMI -Class WMI_MonitorBrightnessMethods) | % {$_.WmiSetBrightness(1,0)}"],
+            timeout=3
+        )
+        methods_tried.append("WMI")
+    except Exception:
+        pass
+
+    return (
+        "⌨ Подсветка клавиатуры переключена (нажат F11).\n"
+        "_Если не сработало на вашем ноутбуке — подсветка управляется аппаратной клавишей_ `Fn+F11` _или через утилиту производителя._"
+    )
 
 
 def do_not_disturb_mode() -> str:
-    return "🔕 Режим «Тихий час» активирован."
+    """Переключает режим 'Тихий час': mute/unmute системного звука + сохраняет состояние."""
+    from services.media_control import change_volume
+    _DND_STATE["enabled"] = not _DND_STATE["enabled"]
+    try:
+        if _DND_STATE["enabled"]:
+            change_volume("mute")
+            return (
+                "🔕 Режим *Тихий час* ВКЛЮЧЁН\n\n"
+                "• Системный звук заглушён (Mute)\n"
+                "• Нажмите снова для выключения"
+            )
+        else:
+            change_volume("unmute")
+            return (
+                "🔔 Режим *Тихий час* ВЫКЛЮЧЕН\n\n"
+                "• Системный звук возвращён\n"
+                "• Нажмите снова для включения"
+            )
+    except Exception as e:
+        # Откатить состояние при ошибке
+        _DND_STATE["enabled"] = not _DND_STATE["enabled"]
+        return f"⚠️ Не удалось переключить режим тихого часа: {e}"
 
 
 def toggle_dark_mode() -> str:

@@ -57,10 +57,12 @@ async def handle_ai_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Ограничиваем историю 10 парами сообщений
         context.user_data["gemini_history"] = history[-(MAX_HISTORY * 2):]
 
-        await update.message.reply_text(reply)
+        from services.formatting import safe_reply
+        await safe_reply(update, reply)
     except Exception as e:
         logger.error(f"Ошибка в handle_ai_message: {e}", exc_info=True)
-        await update.message.reply_text(f"⚠️ Ошибка обработки запроса: {e}")
+        from services.formatting import safe_reply
+        await safe_reply(update, f"⚠️ Ошибка обработки запроса: {e}")
 
 @restricted
 async def cmd_clear_ai_history(update: Update, context: ContextTypes.DEFAULT_TYPE):

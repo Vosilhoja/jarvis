@@ -51,6 +51,8 @@ TEST_REGISTRY: Dict[str, List[Any]] = {
     "services.extra_functions.set_process_volume": ["chrome", 50],
     "services.extra_functions.close_active_window": [],
     "services.extra_functions.laptop_screen_sleep": [],
+    # Browser control functions
+    "services.browser_control.list_running_browsers": [],
 }
 
 # Auto-discovery settings: when new functions are added under services/, discover and add safe ones to TEST_REGISTRY

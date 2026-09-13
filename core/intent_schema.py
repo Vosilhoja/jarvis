@@ -237,6 +237,23 @@ class ProcessVolumeParams(BaseModel):
 class NoteParams(BaseModel):
     text: str = Field(..., description="Текст заметки")
 
+class BrowserTabParams(BaseModel):
+    url: str = Field(..., description="URL-адрес веб-страницы")
+    browser: Optional[str] = Field(None, description="Браузер: chrome, edge, yandex, firefox (по умолчанию системный)")
+
+class BrowserIncognitoParams(BaseModel):
+    url: str = Field(..., description="URL-адрес для открытия в приватном режиме")
+    browser: Optional[str] = Field("chrome", description="Браузер: chrome, edge, yandex, firefox")
+
+class CloseBrowserParams(BaseModel):
+    browser: str = Field(..., description="Имя браузера для закрытия (chrome, edge, yandex, firefox)")
+
+class TabUrlParams(BaseModel):
+    url: str = Field(..., description="URL-адрес новой вкладки")
+
+class SwitchTabParams(BaseModel):
+    direction: Optional[Literal["next", "prev"]] = Field("next", description="Направление переключения: next (следующая) или prev (предыдущая)")
+
 
 # ==========================================
 # ЕДИНЫЙ РЕЕСТР ИНТЕНТОВ (SOURCE OF TRUTH)
@@ -376,6 +393,14 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "mouse_drag": {"model": MouseCoordsParams, "desc": "Перетащить (drag & drop) мышь в точку X, Y"},
     "mouse_scroll": {"model": MouseScrollParams, "desc": "Прокрутить колесо мыши"},
     "keyboard_backlight": {"model": EmptyParams, "desc": "Переключить подсветку клавиатуры (F11: яркий, средний, выкл)"},
+    "refresh_apps_index": {"model": EmptyParams, "desc": "Принудительно обновить список установленных программ ПК"},
+    "open_browser_tab": {"model": BrowserTabParams, "desc": "Открыть URL в новой вкладке браузера (по умолчанию или указанного)"},
+    "open_incognito": {"model": BrowserIncognitoParams, "desc": "Открыть URL в приватном режиме/инкогнито"},
+    "close_browser": {"model": CloseBrowserParams, "desc": "Закрыть все процессы указанного браузера"},
+    "list_browsers": {"model": EmptyParams, "desc": "Список запущенных браузеров и процессов"},
+    "new_tab": {"model": TabUrlParams, "desc": "Открыть новую вкладку в уже активном окне браузера"},
+    "close_tab": {"model": EmptyParams, "desc": "Закрыть текущую активную вкладку браузера (Ctrl+W)"},
+    "switch_tab": {"model": SwitchTabParams, "desc": "Переключить вкладку в активном браузере (следующая/предыдущая)"},
 }
 
 class StepModel(BaseModel):

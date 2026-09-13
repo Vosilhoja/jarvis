@@ -82,10 +82,18 @@ def switch_to_desktop_number(target_num: int):
             pyautogui.hotkey("win", "ctrl", "right")
             time.sleep(0.15)
 
-    time.sleep(0.35)  # Дать Windows обновить реестр и рендер
+    # Дать Windows обновить реестр и дождаться совпадения CurrentVirtualDesktop
+    for _ in range(10):
+        time.sleep(0.08)
+        if get_current_desktop_number() == target_num:
+            break
 
 def create_virtual_desktop() -> int:
     """Создает новый виртуальный рабочий стол (Win+Ctrl+D) и возвращает общее количество."""
+    old_count = get_desktop_count()
     pyautogui.hotkey("win", "ctrl", "d")
-    time.sleep(0.4)
+    for _ in range(12):
+        time.sleep(0.1)
+        if get_desktop_count() > old_count:
+            break
     return get_desktop_count()

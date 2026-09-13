@@ -150,8 +150,10 @@ class TaskExecutorService:
                 session.context_memory["last_plan_steps"] = session.context_memory["last_plan_steps"][-30:]
 
                 if step.intent != "chat_reply":
+                    from services.formatting import convert_markdown_to_telegram
+                    clean_report = convert_markdown_to_telegram(str(report))
                     try:
-                        await bot.send_message(chat_id=session.user_id, text=report, parse_mode="Markdown")
+                        await bot.send_message(chat_id=session.user_id, text=clean_report, parse_mode="Markdown")
                     except Exception:
                         await bot.send_message(chat_id=session.user_id, text=str(report))
 

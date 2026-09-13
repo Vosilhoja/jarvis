@@ -45,6 +45,20 @@ async def post_init(application: Application):
         logger.warning("Не удалось зарегистрировать автозапуск: %s", e)
     logger.info("Фоновые службы и нотификатор успешно зарегистрированы.")
 
+def acquire_single_instance_lock():
+    """Гарантирует, что запущен строго один процесс бота на ПК."""
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        # Привязываемся к локальному порту 49876
+        s.bind(("127.0.0.1", 49876))
+        s.listen(1)
+        return s
+    except Exception:
+        logger.warning("Обнаружен другой работающий экземпляр Jarvis. Завершаем дублирующий процесс.")
+        print("[JARVIS] Экземпляр бота уже запущен. Завершение работы дубликата.", file=sys.stderr)
+        sys.exit(0)
+
 def main():
     try:
         validate_config()
@@ -53,6 +67,8 @@ def main():
         logger.critical(f"Ошибка конфигурации при старте:\n{tb}")
         print(f"\n[ОШИБКА КОНФИГУРАЦИИ]\n{tb}", file=sys.stderr)
         sys.exit(1)
+
+    _instance_lock = acquire_single_instance_lock()
 
     logger.info("Инициализация резидента Jarvis AI Agent...")
 

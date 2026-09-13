@@ -196,7 +196,12 @@ async def handle_watch_process(step: StepModel, session: UserTaskSession, bot: B
     return True, f"👁 Слежу за процессом «{pname}» — напишу, когда завершится"
 
 async def handle_chat_reply(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    await bot.send_message(chat_id=session.user_id, text=step.params["message"])
+    from services.formatting import convert_markdown_to_telegram
+    clean_msg = convert_markdown_to_telegram(step.params.get("message", ""))
+    try:
+        await bot.send_message(chat_id=session.user_id, text=clean_msg, parse_mode="Markdown")
+    except Exception:
+        await bot.send_message(chat_id=session.user_id, text=step.params.get("message", ""))
     return True, "✅ Ответ отправлен"
 
 async def handle_clarify(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:

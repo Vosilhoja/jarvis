@@ -227,6 +227,17 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return True
 
+    if text == "🧰 Инструменты":
+        context.user_data.pop("ai_mode", None)
+        kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🛠 Оснастки Windows", callback_data="tools_windows")],
+            [InlineKeyboardButton("🧹 Обслуживание системы", callback_data="tools_maintenance")],
+            [InlineKeyboardButton("⚙️ Диагностика / Сеть", callback_data="tools_network")],
+            [InlineKeyboardButton("📸 Экран и медиа", callback_data="tools_media")],
+        ])
+        await update.message.reply_text("🧰 *Инструменты:* выберите категорию", reply_markup=kb, parse_mode="Markdown")
+        return True
+
     # 2. СКРИНШОТ
     if text == "📸 Весь экран":
         from handlers.system_commands import send_screenshot
@@ -644,13 +655,23 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         desk_num = int(m_switch.group(1))
         from services.desktops_control import switch_to_desktop_number
         switch_to_desktop_number(desk_num)
-        await update.message.reply_text(f"🎛 Переключено на Рабочий стол {desk_num}")
+        # Отправляем подтверждение с обновленной клавиатурой (метка активного стола 📍 переместится)
+        await update.message.reply_text(
+            f"🎛 Переключено на *Рабочий стол {desk_num}*",
+            reply_markup=get_control_reply_keyboard(),
+            parse_mode="Markdown"
+        )
         return True
 
     if text == "➕ Новый стол":
-        from services.desktops_control import create_virtual_desktop
-        create_virtual_desktop()
-        await update.message.reply_text("➕ Создан новый виртуальный рабочий стол")
+        from services.desktops_control import create_virtual_desktop, get_desktop_count
+        new_total = create_virtual_desktop()
+        # Отправляем подтверждение с обновленной клавиатурой (новая кнопка стола сразу появится в меню)
+        await update.message.reply_text(
+            f"➕ Создан новый виртуальный рабочий стол! (Всего столов: *{new_total}*)",
+            reply_markup=get_control_reply_keyboard(),
+            parse_mode="Markdown"
+        )
         return True
 
     if text == "🖱 Пульт мыши":
