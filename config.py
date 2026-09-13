@@ -56,6 +56,12 @@ ALLOWED_USER_IDS = parse_allowed_user_ids(_raw_ids)
 # Для обратной совместимости
 ALLOWED_USER_ID = ALLOWED_USER_IDS[0] if ALLOWED_USER_IDS else 0
 
+# Список ID администраторов (для ADMIN-уровня риска в PolicyEngine).
+# Если не задан явно через ADMIN_TELEGRAM_USER_IDS, считаем владельцем(ами)
+# всех пользователей из ALLOWED_TELEGRAM_USER_IDS (единоличный владелец ПК).
+_raw_admin_ids = os.getenv("ADMIN_TELEGRAM_USER_IDS", "").strip()
+ADMIN_USER_IDS = parse_allowed_user_ids(_raw_admin_ids) or list(ALLOWED_USER_IDS)
+
 # Настройки ИИ (модели с большим бесплатным лимитом, не gemini-3.x-flash)
 AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-2.0-flash").strip()
 AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-2.5-flash").strip()

@@ -2,15 +2,22 @@ import io
 import time
 import logging
 import asyncio
+from types import SimpleNamespace
 from typing import Tuple, Callable, Dict, Awaitable
-from telegram import Bot, InputFile
+from telegram import Bot, InputFile, InlineKeyboardButton, InlineKeyboardMarkup
 
 from core.intent_schema import StepModel
 from core.task_queue import UserTaskSession, task_queue_manager
 from core.execution.common import resolve_path_aliases
 import core.execution as actions
+from security.policy_engine import policy_engine
 
 logger = logging.getLogger("jarvis")
+
+# Intent'ы, которые никогда не должны требовать доп. подтверждения от
+# PolicyEngine, т.к. они сами являются частью diалога подтверждения/чата
+# и не производят никакого side-effect'а.
+_POLICY_EXEMPT_INTENTS = {"chat_reply", "clarify"}
 
 # Intent dispatch table for O(1) modular execution
 INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaitable[Tuple[bool, str]]]] = {
@@ -27,7 +34,6 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "copy_item": actions.handle_copy_item,
     "rename_item": actions.handle_rename_item,
     "search_files": actions.handle_search_files,
-    "send_file_by_name": actions.handle_send_file_by_name,
     "delete_item": actions.handle_delete_item,
 
     # Screenshots
@@ -90,6 +96,37 @@ class StepExecutor:
         chat_id = session.user_id
 
         try:
+            if intent not in _POLICY_EXEMPT_INTENTS and not params.get("_policy_confirmed"):
+                decision = await policy_engine.evaluate(
+                    action=SimpleNamespace(name=intent),
+                    context=SimpleNamespace(user_id=chat_id),
+                    params=params,
+                )
+                if not decision.allowed:
+                    logger.warning(
+                        f"🚫 PolicyEngine отказал в выполнении '{intent}' для {chat_id}: {decision.reason}"
+                    )
+                    return False, f"🚫 Действие запрещено политикой безопасности: {decision.reason}"
+
+                if decision.requires_confirmation:
+                    session.pending_confirmation = {"step": step}
+                    kb = InlineKeyboardMarkup([
+                        [InlineKeyboardButton("⚠️ Подтвердить", callback_data="policy_confirm_yes")],
+                        [InlineKeyboardButton("❌ Отмена", callback_data="policy_confirm_no")],
+                    ])
+                    await bot.send_message(
+                        chat_id=chat_id,
+                        text=(
+                            f"⚠️ *Требуется подтверждение*\n"
+                            f"Действие: `{intent}`\n"
+                            f"{decision.reason or 'Операция помечена как рискованная.'}"
+                        ),
+                        reply_markup=kb,
+                        parse_mode="Markdown",
+                    )
+                    logger.info(f"⏳ Действие '{intent}' от {chat_id} ожидает подтверждения (risk={decision.risk_level}).")
+                    return True, "⏳ Запрошено подтверждение действия — ожидаю вашего ответа."
+
             handler = INTENT_HANDLER_MAP.get(intent)
             if handler:
                 return await handler(step, session, bot)

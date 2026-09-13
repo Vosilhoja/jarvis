@@ -110,3 +110,27 @@ class PolicyEngine:
             reason=reason,
             risk_level=risk_level,
         )
+
+
+def _build_default_policy_engine() -> "PolicyEngine":
+    """Создаёт PolicyEngine, сконфигурированный реальными ID пользователей из config.py.
+
+    Ранее PolicyEngine существовал только с настройками по умолчанию (пустые
+    allowlist/admin_list) и нигде не создавался и не вызывался в реальном
+    пайплайне выполнения (core/executor.py) — это и есть тот самый
+    "decorative security" архитектурный долг. Теперь используется здесь и
+    импортируется в core/executor.py.
+    """
+    try:
+        import config as _config
+        allowlist = list(getattr(_config, "ALLOWED_USER_IDS", []) or [])
+        admin_list = list(getattr(_config, "ADMIN_USER_IDS", []) or []) or allowlist
+    except Exception:
+        allowlist, admin_list = [], []
+
+    auth_policy = AuthorizationPolicy(allowlist=allowlist, admin_list=admin_list)
+    return PolicyEngine(authorization_policy=auth_policy, path_policy=PathPolicy())
+
+
+# Синглтон, используемый в реальном пайплайне выполнения (core/executor.py).
+policy_engine = _build_default_policy_engine()

@@ -21,6 +21,45 @@ async def menu_callback_router(update: Update, context: ContextTypes.DEFAULT_TYP
         await query.edit_message_text("🚫 Действие отменено.")
         return
 
+    if data in ("policy_confirm_yes", "policy_confirm_no", "confirm_delete_yes", "confirm_delete_no"):
+        # Единый обработчик подтверждений PolicyEngine (см. core/executor.py).
+        # Раньше кнопки confirm_delete_yes/no отправлялись из
+        # core/execution/file_actions.py, но никогда не обрабатывались здесь —
+        # клик по ним ничего не делал, а сам файл/папка никогда не удалялись.
+        # Теперь и CONFIRM-уровень риска, и старые callback_data ведут в один
+        # и тот же поток подтверждения через session.pending_confirmation.
+        from core.task_queue import task_queue_manager
+        from core.executor import task_executor
+        from services.formatting import convert_markdown_to_telegram
+
+        session = task_queue_manager.get_session(chat_id)
+        pending = session.pending_confirmation
+        session.pending_confirmation = None
+
+        if not pending or "step" not in pending:
+            await query.edit_message_text("⚠️ Запрос на подтверждение устарел или уже обработан.")
+            return
+
+        if data in ("policy_confirm_no", "confirm_delete_no"):
+            await query.edit_message_text("🚫 Действие отменено пользователем.")
+            return
+
+        step = pending["step"]
+        step.params["_policy_confirmed"] = True
+        await query.edit_message_text("⏳ Подтверждено, выполняю…")
+        try:
+            success, report = await task_executor.executor.execute_step(step, session, bot=context.bot)
+        except Exception as e:
+            logger.error(f"Ошибка выполнения подтверждённого шага {step.intent}: {e}", exc_info=True)
+            success, report = False, f"❌ Ошибка в шаге «{step.intent}»: {e}"
+
+        clean_report = convert_markdown_to_telegram(str(report))
+        try:
+            await context.bot.send_message(chat_id=chat_id, text=clean_report, parse_mode="Markdown")
+        except Exception:
+            await context.bot.send_message(chat_id=chat_id, text=str(report))
+        return
+
     if data == "main_menu":
         await query.edit_message_text(
             "🏠 *Главное меню:* выберите категорию",
@@ -46,19 +85,6 @@ async def menu_callback_router(update: Update, context: ContextTypes.DEFAULT_TYP
     if data == "cancel_shutdown":
         os.system("shutdown /a")
         await query.edit_message_text("✅ Выключение/перезагрузка отменена!")
-        return
-
-    if data.startswith("kill_hung_"):
-        try:
-            pid = int(data.rsplit("_", 1)[-1])
-        except ValueError:
-            await query.edit_message_text("⚠️ Некорректный PID.")
-            return
-        import asyncio
-        from services.system_info import kill_process_by_pid
-        ok = await asyncio.to_thread(kill_process_by_pid, pid)
-        res = f"Процесс (PID {pid}) завершён." if ok else f"Не удалось завершить процесс {pid} (уже закрыт или отказано в доступе)."
-        await query.edit_message_text(f"💀 {res}")
         return
 
     if data.startswith("do_delete_desktop_"):

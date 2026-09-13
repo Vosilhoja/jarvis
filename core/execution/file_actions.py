@@ -3,7 +3,7 @@ import shutil
 import asyncio
 from typing import Tuple
 from pathlib import Path
-from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Bot
 from core.intent_schema import StepModel
 from core.task_queue import UserTaskSession
 from core.execution.common import resolve_path_aliases
@@ -76,37 +76,19 @@ async def handle_search_files(step: StepModel, session: UserTaskSession, bot: Bo
     await bot.send_message(chat_id=session.user_id, text=msg)
     return True, "✅ Поиск файлов выполнен"
 
-async def handle_send_file_by_name(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import find_file_broad
-    query = step.params["query"]
-    matches = await asyncio.to_thread(find_file_broad, query)
-    if not matches:
-        return True, f"🔍 Файл по запросу «{query}» не найден в Рабочем столе/Загрузках/Документах/Изображениях."
-
-    top = matches[0]
-    try:
-        with open(top, "rb") as f:
-            await bot.send_document(chat_id=session.user_id, document=f, filename=top.name)
-    except Exception as e:
-        return False, f"❌ Не удалось отправить файл {top.name}: {e}"
-
-    extra = ""
-    if len(matches) > 1:
-        others = "\n".join(f"• {p}" for p in matches[1:])
-        extra = f"\n\nЕщё найдено похожих (не отправлены):\n{others}"
-    return True, f"📎 Отправлен файл: *{top.name}*{extra}"
-
 async def handle_delete_item(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    # Подтверждение опасной операции теперь берёт на себя PolicyEngine
+    # (delete_item помечен как RiskLevel.CONFIRM в security/risk.py) —
+    # к моменту вызова этого handler'а пользователь уже подтвердил действие
+    # через generic-диалог в core/executor.py / handlers/menu/callback_router.py.
     target_p = resolve_path_aliases(step.params["path"])
-    session.pending_confirmation = {"action": "delete", "path": str(target_p)}
-    kb = InlineKeyboardMarkup([
-        [InlineKeyboardButton(f"⚠️ Да, удалить {target_p.name}", callback_data="confirm_delete_yes")],
-        [InlineKeyboardButton("❌ Отмена", callback_data="confirm_delete_no")]
-    ])
-    await bot.send_message(
-        chat_id=session.user_id,
-        text=f"⚠️ *Подтверждение удаления!*\nВы уверены, что хотите безвозвратно удалить:\n`{target_p}`?",
-        reply_markup=kb,
-        parse_mode="Markdown"
-    )
-    return True, "⏳ Запрошено подтверждение удаления"
+    if not target_p.exists():
+        return False, f"❌ Путь `{target_p}` не существует."
+    try:
+        if target_p.is_dir():
+            await asyncio.to_thread(shutil.rmtree, target_p)
+        else:
+            await asyncio.to_thread(target_p.unlink)
+    except Exception as e:
+        return False, f"❌ Не удалось удалить `{target_p}`: {e}"
+    return True, f"🗑️ Удалено: `{target_p}`"
