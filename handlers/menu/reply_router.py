@@ -404,10 +404,11 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         return True
 
     if text in ("🛡 Включить охрану", "включить охрану"):
+        import asyncio
         from services.security_guard import security_guard, make_guard_alert_callback
 
         on_guard_triggered = make_guard_alert_callback(
-            context.bot, chat_id, loop=context.application.loop
+            context.bot, chat_id, loop=asyncio.get_running_loop()
         )
         msg = security_guard.start_guard(on_trigger_callback=on_guard_triggered, delay_sec=5)
         await update.message.reply_text(msg, parse_mode="Markdown")

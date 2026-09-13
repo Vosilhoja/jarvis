@@ -38989,3 +38989,107 @@ AttributeError: 'list' object has no attribute 'get'
 2026-09-14 01:47:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔐 Пароль'
 2026-09-14 01:47:54 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔐 Пароль'
 2026-09-14 01:47:55 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔐 Пароль'
+2026-09-14 02:57:09 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-14 02:57:10 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-14 02:57:10 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-14 02:57:10 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-14 02:57:10 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-14 02:57:10 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-14 02:57:22 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:57:24 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-14 02:57:27 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Подсветка клавы'
+2026-09-14 02:57:32 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Подсветка клавы'
+2026-09-14 02:57:34 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:57:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-14 02:57:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:57:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🚀 Приложения'
+2026-09-14 02:57:43 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:57:46 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-14 02:57:48 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:57:49 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧰 Инструменты'
+2026-09-14 02:57:57 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🗣 Сказать время'
+2026-09-14 02:58:04 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:58:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-14 02:58:08 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:58:09 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-14 02:58:11 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:58:14 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-14 02:58:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:58:17 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-14 02:58:19 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛡 Включить охрану'
+2026-09-14 02:58:19 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 21, 58, 19, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=2598, supergroup_chat_created=False, text='🛡 Включить охрану'), update_id=995574560): 'Application' object has no attribute 'loop'
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 410, in handle_reply_keyboard
+    context.bot, chat_id, loop=context.application.loop
+                               ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Application' object has no attribute 'loop'
+2026-09-14 02:58:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛑 Снять с охраны'
+2026-09-14 02:58:41 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛡 Включить охрану'
+2026-09-14 02:58:41 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 21, 58, 41, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=2601, supergroup_chat_created=False, text='🛡 Включить охрану'), update_id=995574562): 'Application' object has no attribute 'loop'
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 410, in handle_reply_keyboard
+    context.bot, chat_id, loop=context.application.loop
+                               ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Application' object has no attribute 'loop'
+2026-09-14 02:59:03 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:59:07 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📋 Процессы'
+2026-09-14 02:59:12 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧰 Инструменты'
+2026-09-14 02:59:15 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:59:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⏰ Напоминания'
+2026-09-14 02:59:18 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🤖 ИИ-чат'
+2026-09-14 02:59:19 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 02:59:20 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-14 02:59:24 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Режим Тихий час'
+2026-09-14 02:59:30 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Режим Тихий час'
+2026-09-14 02:59:33 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Режим Тихий час'
+2026-09-14 02:59:48 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧹 Очистить %TEMP%'
+2026-09-14 02:59:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-14 03:00:45 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-14 03:00:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛡 Включить охрану'
+2026-09-14 03:00:53 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 22, 0, 53, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=2631, supergroup_chat_created=False, text='🛡 Включить охрану'), update_id=995574578): 'Application' object has no attribute 'loop'
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 410, in handle_reply_keyboard
+    context.bot, chat_id, loop=context.application.loop
+                               ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Application' object has no attribute 'loop'
+2026-09-14 03:00:58 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛑 Снять с охраны'
+2026-09-14 03:01:33 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-14 03:01:33 [INFO] [jarvis] Переключение (анимация): 1 -> 5, 4x right
+2026-09-14 03:01:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 1'
+2026-09-14 03:01:39 [INFO] [jarvis] Переключение (анимация): 5 -> 1, 4x left
+2026-09-14 03:02:07 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Alt+Tab'
+2026-09-14 03:03:08 [WARNING] [jarvis] Telegram network error (non-fatal): httpx.ReadError: 
+2026-09-14 03:06:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
