@@ -89,23 +89,9 @@ for _ in range({steps}):
 def switch_to_desktop_number(target_num: int):
     """
     Переключается на рабочий стол target_num (1-indexed).
-    Сначала пробует pyvda COM API, при сбое — subprocess Win+Ctrl+←/→.
+    Основной способ — эмуляция Win+Ctrl+←/→ через subprocess (даёт нативную анимацию Windows).
+    pyvda используется только как аварийный fallback, если subprocess не отработал.
     """
-    logger.info(f"Переключение на рабочий стол {target_num}")
-
-    # 1. pyvda COM API (надёжно, работает из любого потока)
-    try:
-        import pyvda
-        desktops = pyvda.get_virtual_desktops()
-        if desktops and 1 <= target_num <= len(desktops):
-            desktops[target_num - 1].go()
-            time.sleep(0.4)
-            logger.info(f"pyvda: переключено на стол {target_num}")
-            return
-    except Exception as e:
-        logger.warning(f"pyvda switch failed: {e}, используем subprocess Win+Ctrl+←/→")
-
-    # 2. Subprocess Win+Ctrl+←/→ (с анимацией)
     total = get_desktop_count()
     target_num = max(1, min(target_num, total))
     current = get_current_desktop_number()
@@ -117,9 +103,29 @@ def switch_to_desktop_number(target_num: int):
     steps = abs(diff)
     direction = "right" if diff > 0 else "left"
 
-    logger.info(f"subprocess: {current} -> {target_num}, {steps}x {direction}")
+    logger.info(f"Переключение (анимация): {current} -> {target_num}, {steps}x {direction}")
     _switch_via_subprocess(steps, direction)
-    time.sleep(0.5)
+
+    # Ждём, пока Windows реально подтвердит смену стола (не просто фиксированная пауза)
+    confirmed = False
+    for _ in range(20):
+        time.sleep(0.08)
+        if get_current_desktop_number() == target_num:
+            confirmed = True
+            break
+
+    if not confirmed:
+        # Subprocess почему-то не сработал (например, pyautogui не установлен/заблокирован) — fallback на pyvda
+        logger.warning("subprocess-переключение не подтвердилось, пробуем pyvda как fallback")
+        try:
+            import pyvda
+            desktops = pyvda.get_virtual_desktops()
+            if desktops and 1 <= target_num <= len(desktops):
+                desktops[target_num - 1].go()
+                time.sleep(0.4)
+                logger.info(f"pyvda fallback: переключено на стол {target_num}")
+        except Exception as e:
+            logger.error(f"pyvda fallback тоже не сработал: {e}")
 
 
 def switch_desktop_direction(direction: str):
