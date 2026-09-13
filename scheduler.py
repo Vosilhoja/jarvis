@@ -8,12 +8,15 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+
 from config import (
     REMINDERS_DB_PATH,
     BACKGROUND_CHECK_INTERVAL_SEC,
     DISK_FREE_THRESHOLD_GB,
     CPU_LOAD_THRESHOLD_PERCENT,
-    RAM_LOAD_THRESHOLD_PERCENT
+    RAM_LOAD_THRESHOLD_PERCENT,
+    HUNG_APP_ALERT_SEC,
 )
 from services.notifier import notifier
 from services.system_monitor import check_system_thresholds, find_hung_windows
@@ -161,15 +164,9 @@ class ReminderManager:
 
 reminder_manager = ReminderManager(REMINDERS_DB_PATH)
 
-# Трекинг длительности зависания приложений: {pid: первое_время_обнаружения}
-# Нужен, чтобы не спамить алертом на каждую мимолётную заминку — только на реальное затяжное зависание.
+# Трекинг длительности непрерывного зависания окон по hwnd (см. п.3 ниже).
 _hung_since: Dict[int, float] = {}
-HUNG_ALERT_THRESHOLD_SEC = 120  # предупреждаем, если висит непрерывно от 2 минут (раньше не было отслеживания вообще)
-
-# Трекинг подключённых USB-устройств для обнаружения новых подключений
-_known_usb_ids: Optional[set] = None  # None = ещё не инициализировано, первый цикл просто запоминает базу без алерта
-_usb_check_counter = 0
-USB_CHECK_EVERY_N_CYCLES = 4  # не каждый цикл — опрос PowerShell не бесплатный
+_hung_alerted: set = set()
 
 async def background_monitoring_loop():
     """
@@ -193,15 +190,6 @@ async def background_monitoring_loop():
                     min_interval_sec=0,
                     urgency="normal"
                 )
-
-            # 1.5 Статистика простоя (для еженедельного отчёта)
-            try:
-                from services.power_tools import get_idle_seconds
-                from services.usage_stats import record_idle_sample
-                idle_sec = await asyncio.to_thread(get_idle_seconds)
-                await asyncio.to_thread(record_idle_sample, idle_sec, BACKGROUND_CHECK_INTERVAL_SEC)
-            except Exception as e:
-                logger.debug(f"idle-статистика: {e}")
 
             # 2. Пороги системы
             alerts = check_system_thresholds(
@@ -246,60 +234,47 @@ async def background_monitoring_loop():
                     # Не фатально — лог и продолжаем
                     logger.debug("Не удалось автоматически создать напоминание для аларта")
 
-            # 2.5 Новые USB-устройства (проверяем не каждый цикл — дороже по времени)
-            global _known_usb_ids, _usb_check_counter
-            _usb_check_counter += 1
-            if _usb_check_counter >= USB_CHECK_EVERY_N_CYCLES:
-                _usb_check_counter = 0
-                try:
-                    from services.misc_tools import get_usb_device_ids
-                    current_usb = await asyncio.to_thread(get_usb_device_ids)
-                    current_ids = set(current_usb.keys())
-                    if _known_usb_ids is None:
-                        _known_usb_ids = current_ids  # первый запуск — просто запоминаем, не алертим на уже подключённое
-                    else:
-                        new_ids = current_ids - _known_usb_ids
-                        for iid in new_ids:
-                            name = current_usb.get(iid, iid)
-                            await notifier.send_notification(
-                                text=f"🔌 Подключено новое USB-устройство: *{name}*",
-                                topic_key=f"usb_new_{iid}",
-                                min_interval_sec=0,
-                                urgency="high"
-                            )
-                        _known_usb_ids = current_ids
-                except Exception as e:
-                    logger.debug(f"USB-мониторинг: {e}")
-
-            # 3. Зависшие приложения (IsHungAppWindow) — с трекингом длительности и кнопкой "Убить"
+            # 3. Зависшие приложения (IsHungAppWindow) — раньше просто слался
+            # текстовый список без кнопки "Убить" и без реального учёта того,
+            # сколько именно окно висит непрерывно (алерт мог уйти почти сразу
+            # после первого зависания). Теперь ведём учёт по каждому hwnd и
+            # алертим только когда окно висит подряд ≥ HUNG_APP_ALERT_SEC,
+            # с кнопкой моментального завершения процесса.
             hung = find_hung_windows()
             now_ts = time.time()
-            hung_pids_seen = set()
+            current_hwnds = set()
             for h in hung:
-                pid = h.get("pid")
-                if not pid:
-                    continue
-                hung_pids_seen.add(pid)
-                first_seen = _hung_since.setdefault(pid, now_ts)
-                hung_duration = now_ts - first_seen
+                hwnd = h["hwnd"]
+                current_hwnds.add(hwnd)
+                first_seen = _hung_since.setdefault(hwnd, now_ts)
+                duration_sec = now_ts - first_seen
 
-                if hung_duration >= HUNG_ALERT_THRESHOLD_SEC:
-                    from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-                    minutes = int(hung_duration // 60)
-                    kb = InlineKeyboardMarkup([[
-                        InlineKeyboardButton(f"💀 Убить «{h['title'][:30]}»", callback_data=f"kill_hung_{pid}")
-                    ]])
+                if duration_sec >= HUNG_APP_ALERT_SEC and hwnd not in _hung_alerted:
+                    _hung_alerted.add(hwnd)
+                    minutes = int(duration_sec // 60)
+                    display_name = h.get("process_name") or h["title"]
+                    kb = None
+                    if h.get("pid"):
+                        kb = InlineKeyboardMarkup([[
+                            InlineKeyboardButton(f"🔪 Убить «{h['title'][:30]}»", callback_data=f"kill_hung_{h['pid']}")
+                        ]])
                     await notifier.send_notification(
-                        text=f"Приложение «{h['title']}» не отвечает уже ~{minutes} мин. (PID {pid}).",
-                        topic_key=f"hung_{pid}",
-                        min_interval_sec=600,  # не чаще раза в 10 минут по этому же PID
+                        text=(
+                            f"Приложение «{h['title']}» ({display_name}) не отвечает уже {minutes} мин.\n"
+                            "Завершить процесс?"
+                        ),
+                        topic_key=f"hung_hwnd_{hwnd}",
+                        min_interval_sec=0,
                         urgency="high",
-                        reply_markup=kb
+                        reply_markup=kb,
                     )
-            # Очищаем трекинг для процессов, которые больше не висят (отпустило само)
-            for pid in list(_hung_since.keys()):
-                if pid not in hung_pids_seen:
-                    del _hung_since[pid]
+
+            # Забываем окна, которые перестали висеть (отпустило само или закрыли) —
+            # если то же приложение зависнет снова, алерт придёт заново.
+            for hwnd in list(_hung_since.keys()):
+                if hwnd not in current_hwnds:
+                    _hung_since.pop(hwnd, None)
+                    _hung_alerted.discard(hwnd)
 
             # 4. Ежедневная утренняя сводка (в 9:00 утра)
             now = datetime.now()

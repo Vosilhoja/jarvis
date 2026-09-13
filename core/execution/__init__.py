@@ -12,10 +12,10 @@ from core.execution.file_actions import (
     handle_copy_item,
     handle_rename_item,
     handle_search_files,
-    handle_send_file_by_name,
     handle_delete_item,
+    handle_send_file_by_name,
 )
-from core.execution.screenshot_actions import handle_take_screenshot
+from core.execution.screenshot_actions import handle_take_screenshot, handle_send_last_screenshot
 from core.execution.reminder_actions import (
     handle_set_reminder,
     handle_list_reminders,
@@ -75,9 +75,10 @@ __all__ = [
     "handle_copy_item",
     "handle_rename_item",
     "handle_search_files",
-    "handle_send_file_by_name",
     "handle_delete_item",
+    "handle_send_file_by_name",
     "handle_take_screenshot",
+    "handle_send_last_screenshot",
     "handle_set_reminder",
     "handle_list_reminders",
     "handle_cancel_reminder",

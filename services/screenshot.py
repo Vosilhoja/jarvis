@@ -5,10 +5,27 @@ import subprocess
 import tempfile
 import os
 from io import BytesIO
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger("jarvis")
 PYTHON = sys.executable
+
+# Кеш последнего сделанного скриншота (скриншоты и так живут только в памяти,
+# на диск не пишутся) — нужен для быстрой команды "пришли последний скриншот"
+# без похода в файловый браузер.
+_last_screenshot: Dict[str, Any] = {"bytes": None, "name": None, "when": None}
+
+
+def remember_last_screenshot(data: bytes, name: str) -> None:
+    _last_screenshot["bytes"] = data
+    _last_screenshot["name"] = name
+    _last_screenshot["when"] = time.time()
+
+
+def get_last_screenshot() -> Optional[Dict[str, Any]]:
+    if _last_screenshot["bytes"] is None:
+        return None
+    return dict(_last_screenshot)
 
 def get_monitors_info() -> List[Dict[str, Any]]:
     return [{"index": 0, "name": "Экран 1", "width": 1920, "height": 1080, "left": 0, "top": 0}]

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple
 import psutil
 import win32gui
+import win32process
 
 logger = logging.getLogger("jarvis")
 
@@ -53,9 +54,9 @@ def check_system_thresholds(disk_threshold_gb: float = 10.0, cpu_threshold: floa
 def find_hung_windows() -> List[Dict[str, Any]]:
     """
     Ищет зависшие приложения Windows с помощью Win32 API IsHungAppWindow.
-    Возвращает hwnd, title и pid процесса (для возможности его убить).
+    Возвращает hwnd, заголовок, PID и (если доступно) имя процесса —
+    PID нужен, чтобы предложить пользователю кнопку "Убить" в алерте.
     """
-    import win32process
     hung_apps = []
 
     def enum_windows_callback(hwnd, extra):
@@ -63,14 +64,18 @@ def find_hung_windows() -> List[Dict[str, Any]]:
             if win32gui.IsWindowVisible(hwnd) and win32gui.IsHungAppWindow(hwnd):
                 title = win32gui.GetWindowText(hwnd)
                 if title:
+                    pid = None
+                    proc_name = None
                     try:
                         _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                        proc_name = psutil.Process(pid).name()
                     except Exception:
-                        pid = None
+                        pass
                     hung_apps.append({
                         "hwnd": hwnd,
                         "title": title,
-                        "pid": pid
+                        "pid": pid,
+                        "process_name": proc_name,
                     })
         except Exception:
             pass

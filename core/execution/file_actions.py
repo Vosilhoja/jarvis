@@ -76,6 +76,39 @@ async def handle_search_files(step: StepModel, session: UserTaskSession, bot: Bo
     await bot.send_message(chat_id=session.user_id, text=msg)
     return True, "✅ Поиск файлов выполнен"
 
+async def handle_send_file_by_name(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from telegram import InputFile
+    from services.misc_tools import find_file_broad
+
+    query = step.params["name"]
+    MAX_SIZE = 50 * 1024 * 1024  # лимит Telegram для ботов
+
+    matches = await asyncio.to_thread(find_file_broad, query)
+    if not matches:
+        return False, f"❌ Не нашёл файл по запросу «{query}» в Рабочем столе/Загрузках/Документах/Изображениях."
+
+    best = matches[0]
+    try:
+        size = best.stat().st_size
+    except Exception:
+        size = 0
+
+    if size > MAX_SIZE:
+        return False, f"⚠️ Нашёл `{best}`, но он больше 50 МБ — Telegram-бот не может его отправить."
+
+    with open(best, "rb") as f:
+        await bot.send_document(
+            chat_id=session.user_id,
+            document=InputFile(f, filename=best.name),
+            caption=f"📄 {best.name} ({round(size / 1024, 1)} КБ)" if size < 1024 * 1024 else f"📄 {best.name} ({round(size / (1024*1024), 2)} МБ)",
+        )
+
+    extra = ""
+    if len(matches) > 1:
+        others = ", ".join(m.name for m in matches[1:4])
+        extra = f"\nЕщё найдено похожих: {others}"
+    return True, f"✅ Отправил `{best}`{extra}"
+
 async def handle_delete_item(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     # Подтверждение опасной операции теперь берёт на себя PolicyEngine
     # (delete_item помечен как RiskLevel.CONFIRM в security/risk.py) —

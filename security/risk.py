@@ -21,6 +21,7 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "search_files": RiskLevel.SAFE,
     "send_file_by_name": RiskLevel.SAFE,
     "take_screenshot": RiskLevel.SAFE,
+    "send_last_screenshot": RiskLevel.SAFE,
     "set_volume": RiskLevel.SAFE,
     "set_brightness": RiskLevel.SAFE,
     "media_control": RiskLevel.SAFE,

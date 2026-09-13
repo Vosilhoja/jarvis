@@ -378,24 +378,11 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         return True
 
     if text in ("🛡 Включить охрану", "включить охрану"):
-        from services.security_guard import security_guard
-        import asyncio
+        from services.security_guard import security_guard, make_guard_alert_callback
 
-        def on_guard_triggered(sx, sy, cx, cy, reason="движение мыши"):
-            alert_text = (
-                f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
-                f"Причина: {reason}\n"
-                f"📍 Координаты мыши: `({sx}, {sy})` → `({cx}, {cy})`\n\n"
-                f"🔒 *Компьютер немедленно заблокирован!*"
-            )
-            try:
-                asyncio.run_coroutine_threadsafe(
-                    context.bot.send_message(chat_id=chat_id, text=alert_text, parse_mode="Markdown"),
-                    context.application.loop
-                )
-            except Exception as e:
-                logger.error(f"Не удалось отправить тревожное сообщение: {e}")
-
+        on_guard_triggered = make_guard_alert_callback(
+            context.bot, chat_id, loop=context.application.loop
+        )
         msg = security_guard.start_guard(on_trigger_callback=on_guard_triggered, delay_sec=5)
         await update.message.reply_text(msg, parse_mode="Markdown")
         return True
@@ -711,42 +698,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     # ═══════════════════════════════════════════════════════
     import asyncio as _asyncio
 
-    if text == "📅 Планировщик задач":
-        from services.misc_tools import open_task_scheduler
-        res = await _asyncio.to_thread(open_task_scheduler)
-        await update.message.reply_text(res)
-        return True
-
-    if text == "🖥 Диспетчер устройств":
-        from services.misc_tools import open_device_manager
-        res = await _asyncio.to_thread(open_device_manager)
-        await update.message.reply_text(res)
-        return True
-
-    if text == "📋 Просмотр событий":
-        from services.misc_tools import open_event_viewer
-        res = await _asyncio.to_thread(open_event_viewer)
-        await update.message.reply_text(res)
-        return True
-
-    if text == "🔧 Панель управления":
-        import os as _os
-        await _asyncio.to_thread(_os.startfile, "control")
-        await update.message.reply_text("🔧 Панель управления открыта")
-        return True
-
-    if text == "🌐 Топ сайтов":
-        from services.usage_stats import get_top_visited_sites
-        res = await _asyncio.to_thread(get_top_visited_sites)
-        await update.message.reply_text(res, parse_mode="Markdown")
-        return True
-
-    if text == "📊 Статистика":
-        from services.usage_stats import get_weekly_report
-        res = await _asyncio.to_thread(get_weekly_report)
-        await update.message.reply_text(res, parse_mode="Markdown")
-        return True
-
     if text == "🔐 Пароль":
         from services.misc_tools import generate_password
         res = await _asyncio.to_thread(generate_password, 16)
@@ -756,12 +707,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if text == "📷 QR-код":
         context.user_data["awaiting_qr"] = True
         await update.message.reply_text("📷 Отправьте текст или ссылку, которую закодировать в QR:")
-        return True
-
-    if text == "🆔 UUID":
-        from services.misc_tools import generate_uuid
-        res = await _asyncio.to_thread(generate_uuid)
-        await update.message.reply_text(res, parse_mode="Markdown")
         return True
 
     if text == "🗣 Сказать время":

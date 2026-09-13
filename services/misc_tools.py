@@ -55,25 +55,37 @@ class ExtraResult:
 
 def empty_recycle_bin() -> str:
     try:
-        # Сначала проверяем, реально ли там что-то есть
-        count_before = _run([
-            "powershell", "-NoProfile", "-Command",
-            "(New-Object -ComObject Shell.Application).NameSpace(10).Items().Count"
-        ], timeout=10)
-        before = (_decode(count_before.stdout).strip() or "0")
-        if before.isdigit() and int(before) == 0:
-            return "🗑 Корзина уже пуста (0 элементов)."
+        count_before = _recycle_bin_item_count()
 
         r = _run([
             "powershell", "-NoProfile", "-Command",
-            "Clear-RecycleBin -Force -ErrorAction Stop"
+            "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"
         ], timeout=20)
+
         if r.returncode == 0:
-            return f"🗑 Корзина очищена ({before} элем.)."
-        err_text = _decode(r.stderr).strip()[:300] or "неизвестная ошибка PowerShell"
-        return f"⚠️ Не удалось очистить корзину: {err_text}"
+            return "🗑 Корзина очищена."
+
+        # returncode != 0 — разбираемся, была ли корзина пуста ДО попытки очистки,
+        # вместо того чтобы всегда молча писать "возможно уже пуста" (раньше это
+        # маскировало реальные ошибки PowerShell/прав доступа).
+        if count_before == 0:
+            return "🗑 Корзина уже была пуста."
+        err = _decode(r.stderr).strip()
+        return f"⚠️ Не удалось очистить корзину (элементов было: {count_before}). {err or 'Ошибка PowerShell.'}"
     except Exception as e:
         return f"Ошибка очистки корзины: {e}"
+
+
+def _recycle_bin_item_count() -> int:
+    """Возвращает число элементов в корзине или -1, если посчитать не удалось."""
+    try:
+        r = _run([
+            "powershell", "-NoProfile", "-Command",
+            "(New-Object -ComObject Shell.Application).NameSpace(10).Items().Count"
+        ], timeout=15)
+        return int(_decode(r.stdout).strip())
+    except Exception:
+        return -1
 
 
 def recycle_bin_info() -> str:
@@ -112,32 +124,6 @@ def get_desktop_folder_sizes() -> str:
     return "\n".join(lines) if lines else "Рабочий стол пуст"
 
 
-def find_file_broad(query: str, limit: int = 8) -> list:
-    """
-    Ищет файлы по частичному совпадению имени в самых частых пользовательских папках
-    (Рабочий стол, Загрузки, Документы, Изображения), сортирует по свежести (сначала новые).
-    Возвращает список Path (может быть пустым).
-    """
-    home = Path.home()
-    search_roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "Pictures"]
-    found = []
-    seen = set()
-    for root in search_roots:
-        if not root.exists():
-            continue
-        try:
-            for p in root.rglob(f"*{query}*"):
-                if p.is_file() and str(p) not in seen:
-                    seen.add(str(p))
-                    found.append(p)
-                if len(found) >= 200:  # защита от зависания на огромных папках
-                    break
-        except Exception:
-            continue
-    found.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-    return found[:limit]
-
-
 def search_files(query: str, search_dir: Optional[str] = None) -> str:
     base = Path(search_dir) if search_dir else Path.home() / "Desktop"
     results = []
@@ -151,6 +137,38 @@ def search_files(query: str, search_dir: Optional[str] = None) -> str:
     if not results:
         return f"🔍 По запросу «{query}» ничего не найдено в {base}"
     return "🔍 Найдено:\n" + "\n".join(results)
+
+
+def find_file_broad(query: str, max_results: int = 8, timeout_sec: float = 6.0) -> list[Path]:
+    """Ищет файл по (части) имени в стандартных пользовательских папках.
+
+    Ограничено по времени и глубине — согласно AGENT_RULES.md, неограниченный
+    рекурсивный обход реального диска пользователя может быть очень медленным
+    или зависнуть. Возвращает совпадения, отсортированные по дате изменения
+    (новые сначала).
+    """
+    home = Path.home()
+    roots = [home / "Desktop", home / "Downloads", home / "Documents", home / "Pictures"]
+    q = query.strip().lower()
+    matches: list[Path] = []
+    start = time.time()
+
+    for root in roots:
+        if not root.exists():
+            continue
+        try:
+            for p in root.rglob("*"):
+                if time.time() - start > timeout_sec:
+                    break
+                if p.is_file() and q in p.name.lower():
+                    matches.append(p)
+        except Exception:
+            continue
+        if time.time() - start > timeout_sec:
+            break
+
+    matches.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+    return matches[:max_results]
 
 
 def get_downloads_list() -> str:
@@ -363,28 +381,6 @@ def get_hardware_info() -> str:
     )
 
 
-def get_usb_device_ids() -> dict:
-    """
-    Возвращает {InstanceId: FriendlyName} для всех подключённых USB-устройств.
-    Используется для отслеживания новых подключений (диффом между проверками).
-    """
-    try:
-        r = _run([
-            "powershell", "-NoProfile", "-Command",
-            "Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match '^USB' } | "
-            "ForEach-Object { \"$($_.InstanceId)|$($_.FriendlyName)\" }"
-        ], timeout=15)
-        result = {}
-        for line in _decode(r.stdout).splitlines():
-            if "|" in line:
-                iid, name = line.split("|", 1)
-                result[iid.strip()] = name.strip() or iid.strip()
-        return result
-    except Exception as e:
-        logger.warning(f"get_usb_device_ids failed: {e}")
-        return {}
-
-
 def list_usb_devices() -> str:
     try:
         r = _run([
@@ -535,23 +531,6 @@ def toggle_keyboard_backlight() -> str:
     клавиатуры не существует — это всегда проприетарная функция производителя.
     """
     methods_ok = []
-
-    # HP (Pavilion/Omen) — WMI namespace root\WMI, класс hpqBIntM (HP BIOS Interface)
-    # Это самый частый способ управления подсветкой на HP через WMI, но встроен не во все модели —
-    # часть Pavilion вообще не даёт программного доступа, только Fn+F5/аппаратно.
-    try:
-        r = _run(
-            ["powershell", "-NoProfile", "-Command",
-             "$m = Get-WmiObject -Namespace root/WMI -Class hpqBIntM -ErrorAction SilentlyContinue; "
-             "if ($m) { $m.hpqBIsetBacklight(1) } "
-             "else { $m2 = Get-WmiObject -Namespace root/WMI -Class HPBIOS_BIOSSettingInterface -ErrorAction SilentlyContinue; "
-             "if ($m2) { $m2.SetBIOSSetting('Backlit Keyboard Timeout', 'Toggle') } }"],
-            timeout=3
-        )
-        if r.returncode == 0:
-            methods_ok.append("HP WMI")
-    except Exception:
-        pass
 
     # Lenovo (Vantage / Legion) — WMI namespace root\WMI, класс LENOVO_GAMEZONE_DATA / LENOVO_UTILITY
     try:

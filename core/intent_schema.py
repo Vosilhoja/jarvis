@@ -25,9 +25,6 @@ class DeleteVirtualDesktopParams(BaseModel):
 class ListRunningProcessesParams(BaseModel):
     filter: Optional[str] = Field(None, description="Фильтр по имени процесса")
 
-class SendFileByNameParams(BaseModel):
-    query: str = Field(..., description="Часть имени файла для поиска (например 'договор', 'отчет.pdf')")
-
 class KillProcessParams(BaseModel):
     name_or_pid: str = Field(..., description="PID (число) или имя процесса (например 'chrome.exe' или 1234)")
 
@@ -65,6 +62,9 @@ class RenameItemParams(BaseModel):
 class SearchFilesParams(BaseModel):
     query: str = Field(..., description="Имя файла, маска или ключевое слово для поиска")
     root: Optional[str] = Field(None, description="Корневая директория поиска (по умолчанию Рабочий стол или C:\\)")
+
+class SendFileByNameParams(BaseModel):
+    name: str = Field(..., description="Имя или часть имени файла для быстрой отправки в Telegram (ищет в Рабочем столе/Загрузках/Документах/Изображениях)")
 
 # 4.3 Система
 class TakeScreenshotParams(BaseModel):
@@ -272,7 +272,6 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "switch_virtual_desktop": {"model": SwitchVirtualDesktopParams, "desc": "Переключение на виртуальный рабочий стол (по номеру или стрелкам)"},
     "create_virtual_desktop": {"model": CreateVirtualDesktopParams, "desc": "Создание нового виртуального рабочего стола Windows"},
     "delete_virtual_desktop": {"model": DeleteVirtualDesktopParams, "desc": "Удаление виртуального рабочего стола Windows по номеру (или текущего, если номер не указан)"},
-    "send_file_by_name": {"model": SendFileByNameParams, "desc": "Найти файл по части имени в Рабочем столе/Загрузках/Документах/Изображениях и отправить его пользователю в Telegram. Используй, когда просят прислать/скинуть/отправить конкретный файл по названию."},
     "list_running_processes": {"model": ListRunningProcessesParams, "desc": "Получение списка запущенных процессов"},
     "kill_process": {"model": KillProcessParams, "desc": "Завершение процесса по имени или PID"},
     "list_installed_apps": {"model": ListInstalledAppsParams, "desc": "Поиск по установленным приложениям"},
@@ -286,9 +285,11 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "delete_item": {"model": DeleteItemParams, "desc": "Удаление файла или папки (требует подтверждения)"},
     "rename_item": {"model": RenameItemParams, "desc": "Переименование файла или папки"},
     "search_files": {"model": SearchFilesParams, "desc": "Поиск файлов по имени/расширению"},
+    "send_file_by_name": {"model": SendFileByNameParams, "desc": "Быстро найти файл по названию (Рабочий стол/Загрузки/Документы/Изображения) и сразу отправить его в Telegram, без похода в файловый браузер"},
 
     # Система
     "take_screenshot": {"model": TakeScreenshotParams, "desc": "Создание снимка экрана (все мониторы или один)"},
+    "send_last_screenshot": {"model": EmptyParams, "desc": "Переслать уже сделанный последний скриншот из памяти, без нового захвата экрана"},
     "set_volume": {"model": SetVolumeParams, "desc": "Установка громкости (0-100), mute или up/down"},
     "set_brightness": {"model": SetBrightnessParams, "desc": "Установка яркости экрана монитора"},
     "media_control": {"model": MediaControlParams, "desc": "Управление медиаплеером (play_pause, next, prev)"},

@@ -1,9 +1,10 @@
 import asyncio
+from io import BytesIO
 from typing import Tuple
 from telegram import Bot, InputFile
 from core.intent_schema import StepModel
 from core.task_queue import UserTaskSession
-from services.screenshot import take_screenshot
+from services.screenshot import take_screenshot, remember_last_screenshot, get_last_screenshot
 
 async def handle_take_screenshot(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     mon_idx = step.params.get("monitor_index", 0)
@@ -20,9 +21,24 @@ async def handle_take_screenshot(step: StepModel, session: UserTaskSession, bot:
         return buf, name
 
     buf, name = await asyncio.to_thread(_capture)
+    data = buf.getvalue()
+    remember_last_screenshot(data, name)
     await bot.send_photo(
         chat_id=session.user_id,
-        photo=InputFile(buf, "screenshot.png"),
+        photo=InputFile(BytesIO(data), "screenshot.png"),
         caption=f"📸 Снимок: {name}"
     )
     return True, f"✅ Скриншот ({name}) отправлен"
+
+
+async def handle_send_last_screenshot(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    """Пересылает последний уже сделанный скриншот из памяти без нового захвата экрана."""
+    cached = get_last_screenshot()
+    if not cached:
+        return False, "❌ Скриншотов ещё не делалось в этой сессии. Сначала сделайте новый: «сделай скриншот»."
+    await bot.send_photo(
+        chat_id=session.user_id,
+        photo=InputFile(BytesIO(cached["bytes"]), "last_screenshot.png"),
+        caption=f"📸 Последний скриншот: {cached['name']}"
+    )
+    return True, "✅ Последний скриншот отправлен"

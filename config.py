@@ -102,6 +102,13 @@ RAM_LOAD_THRESHOLD_PERCENT = float(os.getenv("RAM_LOAD_THRESHOLD_PERCENT", "90.0
 TEMP_THRESHOLD_CELSIUS = float(os.getenv("TEMP_THRESHOLD_CELSIUS", "85.0"))
 APP_NOT_RESPONDING_TIMEOUT_SEC = int(os.getenv("APP_NOT_RESPONDING_TIMEOUT_SEC", "15"))
 
+# Через сколько НЕПРЕРЫВНОГО зависания (в минутах) слать алерт с кнопкой "Убить".
+# Раньше find_hung_windows() просто проверялся раз в BACKGROUND_CHECK_INTERVAL_SEC
+# без отслеживания длительности конкретного окна — теперь ведём учёт по каждому hwnd
+# в scheduler.py и алертим только когда реально висит подряд HUNG_APP_ALERT_MINUTES.
+HUNG_APP_ALERT_MINUTES = float(os.getenv("HUNG_APP_ALERT_MINUTES", "10"))
+HUNG_APP_ALERT_SEC = HUNG_APP_ALERT_MINUTES * 60
+
 # Распознавание речи
 STT_PROVIDER = os.getenv("STT_PROVIDER", "google").strip().lower()
 STT_LANGUAGE = os.getenv("STT_LANGUAGE", "ru-RU").strip()

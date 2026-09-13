@@ -132,12 +132,40 @@ class SecurityGuard:
                 # 2. Вызываем колбэк уведомления (если передан)
                 if self._on_trigger_callback:
                     try:
-                        self._on_trigger_callback(start_x, start_y, cur_x, cur_y, trigger_reason)
-                    except TypeError:
-                        # обратная совместимость со старыми колбэками без 5-го аргумента
                         self._on_trigger_callback(start_x, start_y, cur_x, cur_y)
                     except Exception as e:
                         logger.error(f"Ошибка вызова on_trigger_callback охраны: {e}")
                 break
 
 security_guard = SecurityGuard()
+
+
+def make_guard_alert_callback(bot, chat_id: int, loop=None):
+    """Создаёт единый callback тревоги охраны для отправки в Telegram.
+
+    Раньше этот же код (текст тревоги + asyncio.run_coroutine_threadsafe)
+    был продублирован дословно в handlers/menu/reply_router.py (запуск через
+    кнопку "🛡 Включить охрану") и в core/execution/system_actions.py (запуск
+    через AI-интент start_guard) — два места, которые легко было разойтись
+    друг с другом. Теперь оба используют эту фабрику.
+    """
+    import asyncio as _asyncio
+
+    def on_guard_triggered(sx, sy, cx, cy):
+        alert_text = (
+            f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
+            f"Зафиксировано движение мыши/смена окна или рабочего стола!\n"
+            f"📍 Исходные координаты: `({sx}, {sy})`\n"
+            f"📍 Новые координаты: `({cx}, {cy})`\n\n"
+            f"🔒 *Компьютер немедленно заблокирован!*"
+        )
+        try:
+            target_loop = loop or _asyncio.get_event_loop()
+            _asyncio.run_coroutine_threadsafe(
+                bot.send_message(chat_id=chat_id, text=alert_text, parse_mode="Markdown"),
+                target_loop,
+            )
+        except Exception as e:
+            logger.error(f"Не удалось отправить тревожное сообщение охраны: {e}")
+
+    return on_guard_triggered
