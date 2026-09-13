@@ -109,6 +109,12 @@ async def handle_send_file_by_name(step: StepModel, session: UserTaskSession, bo
         extra = f"\nЕщё найдено похожих: {others}"
     return True, f"✅ Отправил `{best}`{extra}"
 
+async def handle_search_file_content(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.file_search import search_file_content
+    msg = await asyncio.to_thread(search_file_content, step.params["query"], step.params.get("root"))
+    await bot.send_message(chat_id=session.user_id, text=msg, parse_mode="Markdown")
+    return True, "✅ Полнотекстовый поиск выполнен"
+
 async def handle_delete_item(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     # Подтверждение опасной операции теперь берёт на себя PolicyEngine
     # (delete_item помечен как RiskLevel.CONFIRM в security/risk.py) —

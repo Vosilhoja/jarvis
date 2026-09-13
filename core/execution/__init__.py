@@ -14,6 +14,7 @@ from core.execution.file_actions import (
     handle_search_files,
     handle_delete_item,
     handle_send_file_by_name,
+    handle_search_file_content,
 )
 from core.execution.screenshot_actions import handle_take_screenshot, handle_send_last_screenshot
 from core.execution.reminder_actions import (
@@ -62,6 +63,11 @@ from core.execution.system_actions import (
     handle_close_active_window,
     handle_laptop_screen_sleep,
 )
+from core.execution.calendar_actions import (
+    handle_get_today_events,
+    handle_get_upcoming_events,
+)
+from core.execution.stats_actions import handle_get_weekly_report
 
 __all__ = [
     "resolve_path_aliases",
@@ -77,6 +83,7 @@ __all__ = [
     "handle_search_files",
     "handle_delete_item",
     "handle_send_file_by_name",
+    "handle_search_file_content",
     "handle_take_screenshot",
     "handle_send_last_screenshot",
     "handle_set_reminder",
@@ -119,4 +126,7 @@ __all__ = [
     "handle_set_process_volume",
     "handle_close_active_window",
     "handle_laptop_screen_sleep",
+    "handle_get_today_events",
+    "handle_get_upcoming_events",
+    "handle_get_weekly_report",
 ]

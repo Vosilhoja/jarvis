@@ -36,6 +36,7 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "search_files": actions.handle_search_files,
     "delete_item": actions.handle_delete_item,
     "send_file_by_name": actions.handle_send_file_by_name,
+    "search_file_content": actions.handle_search_file_content,
 
     # Screenshots
     "take_screenshot": actions.handle_take_screenshot,
@@ -45,6 +46,9 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "set_reminder": actions.handle_set_reminder,
     "list_reminders": actions.handle_list_reminders,
     "cancel_reminder": actions.handle_cancel_reminder,
+    "get_today_events": actions.handle_get_today_events,
+    "get_upcoming_events": actions.handle_get_upcoming_events,
+    "get_weekly_report": actions.handle_get_weekly_report,
     "create_scenario": actions.handle_create_scenario,
     "run_scenario": actions.handle_run_scenario,
     "focus_mode": actions.handle_focus_mode,

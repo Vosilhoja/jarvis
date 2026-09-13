@@ -19,6 +19,7 @@ def get_system_reply_keyboard() -> ReplyKeyboardMarkup:
     """Клавиатура управления системой."""
     keyboard = [
         [KeyboardButton("📊 Инфо о системе"),  KeyboardButton("🌡 Температура")],
+        [KeyboardButton("📅 Календарь сегодня"),KeyboardButton("📈 Недельная сводка")],
         [KeyboardButton("🔋 Аккумулятор"),      KeyboardButton("🖥 Разрешение")],
         [KeyboardButton("🌐 IP-адреса"),        KeyboardButton("📋 Буфер обмена")],
         [KeyboardButton("💾 Диски"),            KeyboardButton("🧠 Железо")],
@@ -47,8 +48,9 @@ def get_files_reply_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton("🗂 Рабочий стол"),    KeyboardButton("⬇️ Загрузки")],
         [KeyboardButton("📂 Документы"),        KeyboardButton("📦 Размер папок")],
-        [KeyboardButton("🔍 Найти файл"),       KeyboardButton("📁 Открыть Проводник")],
-        [KeyboardButton("🗑 Очистить корзину"), KeyboardButton("⬅️ Назад в меню")],
+        [KeyboardButton("🔍 Найти файл"),       KeyboardButton("📝 Поиск в файлах")],
+        [KeyboardButton("📁 Открыть Проводник"), KeyboardButton("🗑 Очистить корзину")],
+        [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 

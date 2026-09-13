@@ -178,4 +178,14 @@ def get_weekly_report() -> str:
         lines.append("🖥 Недостаточно данных о простое ПК (бот недавно запущен).")
 
     lines.append("\n_Учитываются только запуски приложений ЧЕРЕЗ Jarvis (голосом/кнопками), не все запуски в системе. Простой считается только за время, пока бот был запущен._")
+
+    lines.append("")
+    try:
+        sites_report = get_top_visited_sites(days=7, limit=8)
+        # get_top_visited_sites уже содержит свой заголовок "🌐 Топ..." — используем как есть.
+        lines.append(sites_report)
+    except Exception as e:
+        logger.debug(f"get_weekly_report: не удалось получить топ сайтов: {e}")
+        lines.append("🌐 Топ сайтов недоступен (не удалось прочитать историю браузера).")
+
     return "\n".join(lines)

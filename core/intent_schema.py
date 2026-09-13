@@ -66,6 +66,10 @@ class SearchFilesParams(BaseModel):
 class SendFileByNameParams(BaseModel):
     name: str = Field(..., description="Имя или часть имени файла для быстрой отправки в Telegram (ищет в Рабочем столе/Загрузках/Документах/Изображениях)")
 
+class SearchFileContentParams(BaseModel):
+    query: str = Field(..., description="Текст/фраза, которую нужно найти ВНУТРИ содержимого файлов (не в имени файла)")
+    root: Optional[str] = Field(None, description="Папка для поиска (по умолчанию Рабочий стол/Документы/Загрузки)")
+
 # 4.3 Система
 class TakeScreenshotParams(BaseModel):
     target: Optional[Literal["full_screen", "active_window"]] = Field("full_screen", description="Цель снимка")
@@ -127,6 +131,15 @@ class SetReminderParams(BaseModel):
     when: str = Field(..., description="Когда напомнить (например: 'через 15 минут', 'в 18:30', 'каждый день в 09:00')")
 
 class ListRemindersParams(BaseModel):
+    pass
+
+class GetTodayEventsParams(BaseModel):
+    pass
+
+class GetUpcomingEventsParams(BaseModel):
+    days: Optional[int] = Field(7, description="На сколько дней вперёд показать события календаря")
+
+class GetWeeklyReportParams(BaseModel):
     pass
 
 class CancelReminderParams(BaseModel):
@@ -286,6 +299,7 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "rename_item": {"model": RenameItemParams, "desc": "Переименование файла или папки"},
     "search_files": {"model": SearchFilesParams, "desc": "Поиск файлов по имени/расширению"},
     "send_file_by_name": {"model": SendFileByNameParams, "desc": "Быстро найти файл по названию (Рабочий стол/Загрузки/Документы/Изображения) и сразу отправить его в Telegram, без похода в файловый браузер"},
+    "search_file_content": {"model": SearchFileContentParams, "desc": "Полнотекстовый поиск ВНУТРИ содержимого файлов (.txt/.md/.csv/.log/.docx/.pdf), а не по имени файла"},
 
     # Система
     "take_screenshot": {"model": TakeScreenshotParams, "desc": "Создание снимка экрана (все мониторы или один)"},
@@ -312,6 +326,9 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "set_reminder": {"model": SetReminderParams, "desc": "Установка напоминания (разового или периодического)"},
     "list_reminders": {"model": ListRemindersParams, "desc": "Список всех активных напоминаний"},
     "cancel_reminder": {"model": CancelReminderParams, "desc": "Отмена напоминания по его ID"},
+    "get_today_events": {"model": GetTodayEventsParams, "desc": "Что сегодня по плану — реальные события из Google Calendar (не ручные напоминания Jarvis)"},
+    "get_upcoming_events": {"model": GetUpcomingEventsParams, "desc": "События из Google Calendar на ближайшие N дней"},
+    "get_weekly_report": {"model": GetWeeklyReportParams, "desc": "Красивая еженедельная сводка: топ запускаемых приложений, простой ПК, топ посещаемых сайтов"},
     "run_scenario": {"model": RunScenarioParams, "desc": "Запуск сохраненного макроса/сценария"},
     "create_scenario": {"model": CreateScenarioParams, "desc": "Сохранение цепочки действий в именованный сценарий"},
     "focus_mode": {"model": FocusModeParams, "desc": "Включение режима фокуса для работы"},
@@ -401,7 +418,7 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "mouse_click": {"model": MouseClickParams, "desc": "Кликнуть мышью в указанные координаты или на месте"},
     "mouse_drag": {"model": MouseCoordsParams, "desc": "Перетащить (drag & drop) мышь в точку X, Y"},
     "mouse_scroll": {"model": MouseScrollParams, "desc": "Прокрутить колесо мыши"},
-    "keyboard_backlight": {"model": EmptyParams, "desc": "Переключить подсветку клавиатуры (F11: яркий, средний, выкл)"},
+    "keyboard_backlight": {"model": EmptyParams, "desc": "Переключить подсветку клавиатуры ноутбука через WMI производителя (Lenovo/Dell/HP)"},
     "refresh_apps_index": {"model": EmptyParams, "desc": "Принудительно обновить список установленных программ ПК"},
     "open_browser_tab": {"model": BrowserTabParams, "desc": "Открыть URL в новой вкладке браузера (по умолчанию или указанного)"},
     "open_incognito": {"model": BrowserIncognitoParams, "desc": "Открыть URL в приватном режиме/инкогнито"},

@@ -17,6 +17,8 @@ from config import (
     CPU_LOAD_THRESHOLD_PERCENT,
     RAM_LOAD_THRESHOLD_PERCENT,
     HUNG_APP_ALERT_SEC,
+    WEEKLY_REPORT_WEEKDAY,
+    WEEKLY_REPORT_HOUR,
 )
 from services.notifier import notifier
 from services.system_monitor import check_system_thresholds, find_hung_windows
@@ -178,6 +180,7 @@ async def background_monitoring_loop():
     """
     logger.info("Фоновый планировщик и система мониторинга Jarvis запущены.")
     last_daily_report_date = None
+    last_weekly_report_week = None
 
     while True:
         try:
@@ -190,6 +193,17 @@ async def background_monitoring_loop():
                     min_interval_sec=0,
                     urgency="normal"
                 )
+
+            # 1.5 Учёт простоя ПК для еженедельной статистики (services/usage_stats.py).
+            # Раньше record_idle_sample() существовал, но нигде не вызывался —
+            # get_weekly_report() всегда показывал "недостаточно данных о простое".
+            try:
+                from services.power_tools import get_idle_seconds
+                from services.usage_stats import record_idle_sample
+                idle_sec = await asyncio.to_thread(get_idle_seconds)
+                record_idle_sample(idle_sec, BACKGROUND_CHECK_INTERVAL_SEC)
+            except Exception:
+                logger.debug("Не удалось записать сэмпл простоя ПК", exc_info=True)
 
             # 2. Пороги системы
             alerts = check_system_thresholds(
@@ -294,6 +308,19 @@ async def background_monitoring_loop():
                 )
                 await notifier.send_notification(report_text, topic_key="daily_report", min_interval_sec=43200)
                 last_daily_report_date = today_str
+
+            # 5. Еженедельная сводка статистики (день/час задаются в config.py:
+            # WEEKLY_REPORT_WEEKDAY/WEEKLY_REPORT_HOUR, по умолчанию понедельник 9:00).
+            week_key = now.strftime("%G-W%V")  # ISO-неделя, чтобы сработать один раз за неделю
+            if (
+                now.weekday() == WEEKLY_REPORT_WEEKDAY
+                and now.hour == WEEKLY_REPORT_HOUR
+                and last_weekly_report_week != week_key
+            ):
+                from services.usage_stats import get_weekly_report
+                weekly_text = await asyncio.to_thread(get_weekly_report)
+                await notifier.send_notification(weekly_text, topic_key="weekly_report", min_interval_sec=43200)
+                last_weekly_report_week = week_key
 
         except Exception as e:
             logger.error(f"Ошибка в фоновом цикле мониторинга: {e}", exc_info=True)

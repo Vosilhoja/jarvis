@@ -15,7 +15,7 @@ logger = logging.getLogger("jarvis")
 _AWAITING_INPUT_KEYS = (
     "awaiting_screenshot_choice", "awaiting_brightness",
     "awaiting_volume", "awaiting_file_search", "awaiting_app_search",
-    "awaiting_qr",
+    "awaiting_qr", "awaiting_file_content_search",
 )
 
 def _clear_awaiting(context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -27,7 +27,7 @@ def _looks_like_keyboard_button(text: str) -> bool:
                         "🖱", "🌐", "📁", "🎵", "🔑", "⌨", "🧹", "🛤", "⚡", "🏓",
                         "🔐", "📷", "🆔", "🗣", "🎲", "🪙", "🪟", "🎯", "🌙", "🔋",
                         "🔌", "🖨", "🛡", "⏱", "🗑", "🔄", "📌", "📦", "🔍",
-                        "📅", "🔧")):
+                        "📅", "🔧", "📝", "📈")):
         return True
     return False
 
@@ -161,8 +161,18 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
 
     if context.user_data.get("awaiting_file_search"):
         context.user_data.pop("awaiting_file_search")
+        import asyncio
         from services.extra_functions import search_files
-        result = search_files(text)
+        result = await asyncio.to_thread(search_files, text)
+        await update.message.reply_text(result, parse_mode="Markdown")
+        return True
+
+    if context.user_data.get("awaiting_file_content_search"):
+        context.user_data.pop("awaiting_file_content_search")
+        import asyncio
+        from services.file_search import search_file_content
+        await update.message.reply_text("🔎 Ищу в содержимом файлов, это может занять до ~25 секунд...")
+        result = await asyncio.to_thread(search_file_content, text)
         await update.message.reply_text(result, parse_mode="Markdown")
         return True
 
@@ -327,6 +337,22 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if text == "🔋 Аккумулятор":
         from services.extra_functions import get_battery_info
         await update.message.reply_text(get_battery_info(), parse_mode="Markdown")
+        return True
+
+    if text == "📅 Календарь сегодня":
+        import asyncio
+        from services.calendar_client import get_today_events
+        await update.message.reply_text("📅 Проверяю Google Calendar...")
+        result = await asyncio.to_thread(get_today_events)
+        await update.message.reply_text(result, parse_mode="Markdown")
+        return True
+
+    if text == "📈 Недельная сводка":
+        import asyncio
+        from services.usage_stats import get_weekly_report
+        await update.message.reply_text("📈 Собираю статистику за неделю...")
+        result = await asyncio.to_thread(get_weekly_report)
+        await update.message.reply_text(result, parse_mode="Markdown")
         return True
 
     if text == "🖥 Разрешение":

@@ -113,6 +113,18 @@ HUNG_APP_ALERT_SEC = HUNG_APP_ALERT_MINUTES * 60
 STT_PROVIDER = os.getenv("STT_PROVIDER", "google").strip().lower()
 STT_LANGUAGE = os.getenv("STT_LANGUAGE", "ru-RU").strip()
 
+# Google Calendar (services/calendar_client.py) — настройка описана в docstring модуля.
+GOOGLE_CALENDAR_CREDENTIALS_PATH = Path(
+    os.getenv("GOOGLE_CALENDAR_CREDENTIALS_PATH", str(BASE_DIR / "credentials.json"))
+)
+GOOGLE_CALENDAR_TOKEN_PATH = DATA_DIR / "google_calendar_token.json"
+
+# Еженедельная сводка статистики (services/usage_stats.py::get_weekly_report) —
+# день недели (0=понедельник ... 6=воскресенье) и час, когда scheduler.py
+# автоматически присылает дайджест.
+WEEKLY_REPORT_WEEKDAY = int(os.getenv("WEEKLY_REPORT_WEEKDAY", "0"))
+WEEKLY_REPORT_HOUR = int(os.getenv("WEEKLY_REPORT_HOUR", "9"))
+
 def validate_config() -> None:
     """Проверяет корректность обязательных переменных конфигурации."""
     missing = []
