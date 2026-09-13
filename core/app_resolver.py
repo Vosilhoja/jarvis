@@ -35,11 +35,15 @@ class AppResolver:
             try:
                 mtime = self.cache_file.stat().st_mtime
                 if time.time() - mtime < self.ttl_seconds:
-                    with open(self.cache_file, "r", encoding="utf-8") as f:
-                        data = json.load(f)
-                        self.apps_index = data.get("apps", [])
-                        logger.info(f"Загружено {len(self.apps_index)} приложений из кэша.")
-                        return
+                    try:
+                        import orjson
+                        data = orjson.loads(self.cache_file.read_bytes())
+                    except Exception:
+                        with open(self.cache_file, "r", encoding="utf-8") as f:
+                            data = json.load(f)
+                    self.apps_index = data.get("apps", [])
+                    logger.info(f"Загружено {len(self.apps_index)} приложений из кэша.")
+                    return
             except Exception as e:
                 logger.warning(f"Ошибка чтения кэша приложений: {e}")
 
@@ -50,8 +54,12 @@ class AppResolver:
 
     def _save_cache(self):
         try:
-            with open(self.cache_file, "w", encoding="utf-8") as f:
-                json.dump({"updated_at": time.time(), "apps": self.apps_index}, f, ensure_ascii=False, indent=2)
+            try:
+                import orjson
+                self.cache_file.write_bytes(orjson.dumps({"updated_at": time.time(), "apps": self.apps_index}))
+            except Exception:
+                with open(self.cache_file, "w", encoding="utf-8") as f:
+                    json.dump({"updated_at": time.time(), "apps": self.apps_index}, f, ensure_ascii=False, indent=2)
         except Exception as e:
             logger.error(f"Не удалось сохранить кэш приложений: {e}")
 

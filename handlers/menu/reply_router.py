@@ -1,291 +1,16 @@
-"""
-Главный модуль меню Jarvis.
-Архитектура: ReplyKeyboardMarkup (нижняя клавиатура).
-- Нажал категорию → клавиатура меняется
-- Нажал функцию → выполняется или бот просит ввод
-- Нажал "⬅️ Назад" → возврат в главное меню
-"""
 import os
 import re
 import logging
-import subprocess
-from telegram import (
-    Update, InlineKeyboardMarkup, InlineKeyboardButton,
-    ReplyKeyboardMarkup, KeyboardButton
-)
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
-
-from handlers.auth import restricted
+from handlers.menu.common import safe_reply
+from handlers.menu.keyboards import (
+    get_main_reply_keyboard, get_system_reply_keyboard, get_media_reply_keyboard,
+    get_files_reply_keyboard, get_network_reply_keyboard, get_apps_reply_keyboard,
+    get_control_reply_keyboard, get_screenshot_reply_keyboard
+)
 
 logger = logging.getLogger("jarvis")
-
-
-# ═══════════════════════════════════════════════════════════
-#  УТИЛИТЫ БЕЗОПАСНОЙ ОТПРАВКИ
-# ═══════════════════════════════════════════════════════════
-
-def _escape_md(text: str) -> str:
-    """Экранирует спецсимволы Markdown v1 в пользовательских данных."""
-    # Экранируем только символы вне *bold*, _italic_, `code` блоков
-    return re.sub(r'([_\*\[\]\(\)~`>#+\-=|{}.!])', r'\\\1', str(text))
-
-
-async def safe_reply(update: Update, text: str, reply_markup=None, parse_mode: str = "Markdown") -> None:
-    """Отправляет сообщение с Markdown. При ошибке парсинга — повторяет без форматирования."""
-    msg = update.message or (update.callback_query and update.callback_query.message if update.callback_query else None)
-    if not msg:
-        return
-    try:
-        await msg.reply_text(text, parse_mode=parse_mode, reply_markup=reply_markup)
-    except Exception as e:
-        if "parse" in str(e).lower() or "entity" in str(e).lower():
-            # Убираем Markdown-форматирование и повторяем
-            plain = re.sub(r'[*_`]', '', text)
-            try:
-                await msg.reply_text(plain, reply_markup=reply_markup)
-            except Exception as e2:
-                logger.error(f"safe_reply: не смогли отправить сообщение: {e2}")
-        else:
-            raise
-
-
-async def safe_edit(update: Update, text: str, reply_markup=None, parse_mode: str = "Markdown") -> None:
-    """Редактирует сообщение с Markdown. При ошибке — без форматирования."""
-    cq = update.callback_query
-    if not cq:
-        return
-    try:
-        await cq.edit_message_text(text, parse_mode=parse_mode, reply_markup=reply_markup)
-    except Exception as e:
-        if "parse" in str(e).lower() or "entity" in str(e).lower():
-            plain = re.sub(r'[*_`]', '', text)
-            try:
-                await cq.edit_message_text(plain, reply_markup=reply_markup)
-            except Exception as e2:
-                logger.error(f"safe_edit: не смогли отредактировать: {e2}")
-        else:
-            raise
-
-
-# ═══════════════════════════════════════════════════════════
-#  КЛАВИАТУРЫ (ReplyKeyboardMarkup)
-# ═══════════════════════════════════════════════════════════
-
-def get_main_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Главная нижняя клавиатура со всеми категориями."""
-    keyboard = [
-        [KeyboardButton("🖥 Система"),       KeyboardButton("🎵 Медиа / Звук")],
-        [KeyboardButton("📁 Файлы"),          KeyboardButton("🌐 Сеть")],
-        [KeyboardButton("🚀 Приложения"),     KeyboardButton("🖱 Управление ПК")],
-        [KeyboardButton("📸 Скриншот"),       KeyboardButton("📋 Процессы")],
-        [KeyboardButton("🧰 Инструменты"),    KeyboardButton("⏰ Напоминания")],
-        [KeyboardButton("🤖 ИИ-чат")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_system_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Клавиатура управления системой."""
-    keyboard = [
-        [KeyboardButton("📊 Инфо о системе"),  KeyboardButton("🌡 Температура")],
-        [KeyboardButton("🔋 Аккумулятор"),      KeyboardButton("🖥 Разрешение")],
-        [KeyboardButton("🌐 IP-адреса"),        KeyboardButton("📋 Буфер обмена")],
-        [KeyboardButton("💾 Диски"),            KeyboardButton("🧠 Железо")],
-        [KeyboardButton("💡 Яркость"),          KeyboardButton("⌨ Подсветка клавы")],
-        [KeyboardButton("🔇 Режим Тихий час"), KeyboardButton("🧹 Очистить %TEMP%")],
-        [KeyboardButton("🛡 Включить охрану"), KeyboardButton("🛑 Снять с охраны")],
-        [KeyboardButton("🗑 Очистить корзину"),KeyboardButton("🔒 Заблокировать")],
-        [KeyboardButton("😴 Режим сна"),        KeyboardButton("🔁 Перезагрузка")],
-        [KeyboardButton("⛔ Выключить ПК"),     KeyboardButton("⬅️ Назад в меню")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_media_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Клавиатура управления медиа и звуком."""
-    keyboard = [
-        [KeyboardButton("⏮ Назад трек"),     KeyboardButton("⏯ Play/Pause"), KeyboardButton("⏭ След трек")],
-        [KeyboardButton("🔉 Тише (-10%)"),    KeyboardButton("🔇 Mute"),       KeyboardButton("🔊 Громче (+10%)")],
-        [KeyboardButton("🎚 Звук 0%"),        KeyboardButton("🎚 Звук 25%"),   KeyboardButton("🎚 Звук 50%"), KeyboardButton("🎚 Звук 100%")],
-        [KeyboardButton("🎙 Установить громкость"),                             KeyboardButton("⏹ Стоп")],
-        [KeyboardButton("⬅️ Назад в меню")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_files_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Клавиатура файлов и папок."""
-    keyboard = [
-        [KeyboardButton("🗂 Рабочий стол"),    KeyboardButton("⬇️ Загрузки")],
-        [KeyboardButton("📂 Документы"),        KeyboardButton("📦 Размер папок")],
-        [KeyboardButton("🔍 Найти файл"),       KeyboardButton("📁 Открыть Проводник")],
-        [KeyboardButton("🗑 Очистить корзину"), KeyboardButton("⬅️ Назад в меню")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_network_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Клавиатура сети и интернета."""
-    keyboard = [
-        [KeyboardButton("🌍 Внешний IP"),     KeyboardButton("🏠 Локальный IP")],
-        [KeyboardButton("📡 Адаптеры сети"),  KeyboardButton("📶 Wi-Fi сети")],
-        [KeyboardButton("🏓 Ping 8.8.8.8"),   KeyboardButton("🏓 Ping Яндекс")],
-        [KeyboardButton("🛤 Трассировка"),    KeyboardButton("⚡ Скорость сети")],
-        [KeyboardButton("🧹 Flush DNS"),      KeyboardButton("🌐 ipconfig")],
-        [KeyboardButton("⬅️ Назад в меню")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_apps_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Клавиатура быстрого запуска приложений."""
-    keyboard = [
-        [KeyboardButton("🌐 Chrome"),         KeyboardButton("📨 Telegram")],
-        [KeyboardButton("💻 VS Code"),        KeyboardButton("📁 Проводник")],
-        [KeyboardButton("🧮 Калькулятор"),    KeyboardButton("📝 Блокнот")],
-        [KeyboardButton("🎨 Paint"),          KeyboardButton("⚙️ Панель упр.")],
-        [KeyboardButton("💻 CMD"),            KeyboardButton("🔵 PowerShell")],
-        [KeyboardButton("📊 Диспетчер задач"),KeyboardButton("🛡 Защитник Win")],
-        [KeyboardButton("📦 Все программы ПК"),KeyboardButton("🔍 Найти программу")],
-        [KeyboardButton("⬅️ Назад в меню")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_control_reply_keyboard() -> ReplyKeyboardMarkup:
-    """Клавиатура клавиш и окон ПК с динамическими столами."""
-    from services.desktops_control import get_desktop_count, get_current_desktop_number
-    count = get_desktop_count()
-    current = get_current_desktop_number()
-
-    keyboard = [
-        [KeyboardButton("⌨ Enter"),           KeyboardButton("⌨ Escape"),    KeyboardButton("⌨ Win")],
-        [KeyboardButton("⌨ Alt+Tab"),         KeyboardButton("⌨ Alt+F4"),    KeyboardButton("⌨ Win+D")],
-        [KeyboardButton("⌨ Ctrl+C"),          KeyboardButton("⌨ Ctrl+V")],
-    ]
-
-    # Динамические кнопки переключения столов с отметкой текущего активного
-    desk_row = []
-    for i in range(1, count + 1):
-        mark = "📍" if i == current else "🎛"
-        desk_row.append(KeyboardButton(f"{mark} Стол {i}"))
-        if len(desk_row) == 3:
-            keyboard.append(desk_row)
-            desk_row = []
-    if desk_row:
-        keyboard.append(desk_row)
-
-    keyboard.append([KeyboardButton("➕ Новый стол"), KeyboardButton("🖱 Пульт мыши")])
-    keyboard.append([KeyboardButton("🛡 Включить охрану"), KeyboardButton("🛑 Снять с охраны")])
-    keyboard.append([KeyboardButton("⬅️ Назад в меню")])
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def get_screenshot_reply_keyboard() -> ReplyKeyboardMarkup:
-    """
-    Клавиатура скриншота — динамически считывает реальное кол-во столов из реестра
-    и выводит кнопки для каждого из них.
-    """
-    from services.desktops_control import get_desktop_count, get_current_desktop_number
-    desktop_count = get_desktop_count()
-    current = get_current_desktop_number()
-
-    keyboard = [
-        [KeyboardButton("📸 Весь экран"), KeyboardButton("📸 Все столы подряд")],
-    ]
-
-    row = []
-    for i in range(1, desktop_count + 1):
-        mark = "📍" if i == current else "🖥"
-        row.append(KeyboardButton(f"{mark} Снимок Стола {i}"))
-        if len(row) == 3:
-            keyboard.append(row)
-            row = []
-    if row:
-        keyboard.append(row)
-
-    keyboard.append([KeyboardButton("📝 Выбрать столы вручную")])
-    keyboard.append([KeyboardButton("⬅️ Назад в меню")])
-
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-def _get_virtual_desktop_count() -> int:
-    """Читает кол-во виртуальных рабочих столов из реестра Windows."""
-    from services.desktops_control import get_desktop_count
-    return get_desktop_count()
-
-
-def get_tools_reply_keyboard() -> ReplyKeyboardMarkup:
-    keyboard = [
-        [KeyboardButton("🔐 Пароль"), KeyboardButton("📷 QR-код"), KeyboardButton("🆔 UUID")],
-        [KeyboardButton("🗣 Сказать время"), KeyboardButton("🎲 Кубик"), KeyboardButton("🪙 Монета")],
-        [KeyboardButton("🪟 Окна"), KeyboardButton("🎯 Активное окно"), KeyboardButton("🖥 Свернуть всё")],
-        [KeyboardButton("🌙 Тема Windows"), KeyboardButton("🌙 Ночной свет"), KeyboardButton("🔋 Отчет батареи")],
-        [KeyboardButton("🔌 USB"), KeyboardButton("🖨 Принтеры"), KeyboardButton("🚀 Автозагрузка ПО")],
-        [KeyboardButton("🛡 Firewall"), KeyboardButton("🛡 Defender"), KeyboardButton("⏱ Простой")],
-        [KeyboardButton("🗑 Корзина (счёт)"), KeyboardButton("🔄 Restart Explorer")],
-        [KeyboardButton("📌 Автозапуск Jarvis"), KeyboardButton("⬅️ Назад в меню")],
-    ]
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
-
-
-# Совместимость со старым кодом
-def get_reply_keyboard() -> ReplyKeyboardMarkup:
-    return get_main_reply_keyboard()
-
-def kb_system() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-def kb_media() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-def kb_files() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-def kb_network() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-def kb_apps() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-def kb_control() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-def kb_back() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([[InlineKeyboardButton("🏠 Главное меню", callback_data="main_menu")]])
-
-
-# ═══════════════════════════════════════════════════════════
-#  /start КОМАНДА
-# ═══════════════════════════════════════════════════════════
-
-@restricted
-async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Показывает приветствие и переключает клавиатуру на главную."""
-    user = update.effective_user
-    logger.info(f"Вызов /start от пользователя id={user.id}")
-    welcome_text = (
-        f"🤖 *Jarvis — Ваш персональный ИИ-ассистент*\n\n"
-        f"Привет, {user.first_name or 'Шеф'}! Все функции в кнопках клавиатуры внизу.\n\n"
-        "Нажмите любую категорию — клавиатура откроет соответствующие кнопки!"
-    )
-    msg = update.message or (update.callback_query and update.callback_query.message)
-    if msg:
-        await msg.reply_text(welcome_text, reply_markup=get_main_reply_keyboard(), parse_mode="Markdown")
-    if update.callback_query:
-        await update.callback_query.answer()
-
-
-# ═══════════════════════════════════════════════════════════
-#  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# ═══════════════════════════════════════════════════════════
-
-async def _ask_for_number(update, context, state_key: str, prompt: str):
-    """Универсальная функция: устанавливает ожидание числового ввода и просит пользователя."""
-    context.user_data[state_key] = True
-    await update.message.reply_text(prompt, parse_mode="Markdown")
-
 
 _AWAITING_INPUT_KEYS = (
     "awaiting_screenshot_choice", "awaiting_brightness",
@@ -293,11 +18,9 @@ _AWAITING_INPUT_KEYS = (
     "awaiting_qr",
 )
 
-
 def _clear_awaiting(context: ContextTypes.DEFAULT_TYPE) -> None:
     for key in _AWAITING_INPUT_KEYS:
         context.user_data.pop(key, None)
-
 
 def _looks_like_keyboard_button(text: str) -> bool:
     if text.startswith(("📸", "🖥", "🎛", "📍", "⬅️", "🚀", "🧰", "🤖", "📋", "⏰",
@@ -307,12 +30,7 @@ def _looks_like_keyboard_button(text: str) -> bool:
         return True
     return False
 
-
 def parse_desktop_selection(text: str):
-    """
-    Разбирает ввод номеров столов.
-    Возвращает 'all', список int, или None если это не выбор столов.
-    """
     raw = (text or "").strip().lower()
     if raw in ("все", "all", "*", "всё"):
         return "all"
@@ -328,7 +46,6 @@ def parse_desktop_selection(text: str):
         else:
             return None
     return nums or None
-
 
 async def send_desktop_screenshots(update: Update, context: ContextTypes.DEFAULT_TYPE, selection) -> None:
     from services.desktops_control import get_desktop_count
@@ -369,23 +86,16 @@ async def send_desktop_screenshots(update: Update, context: ContextTypes.DEFAULT
         logger.error("Ошибка пакетного скриншота: %s", e, exc_info=True)
         await update.message.reply_text(f"⚠️ Ошибка скриншота: {e}")
 
-
-# ═══════════════════════════════════════════════════════════
-#  ОБРАБОТЧИК НАЖАТИЙ НИЖНЕЙ КЛАВИАТУРЫ (ReplyKeyboard)
-# ═══════════════════════════════════════════════════════════
+async def _ask_for_number(update: Update, context: ContextTypes.DEFAULT_TYPE, state_key: str, prompt: str):
+    context.user_data[state_key] = True
+    await update.message.reply_text(prompt, parse_mode="Markdown")
 
 async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
-    """
-    Обрабатывает нажатия ВСЕХ кнопок клавиатуры.
-    Меняет саму клавиатуру при выборе категории или выполняет действие.
-    Возвращает True если кнопка была обработана.
-    """
+    """Обрабатывает нажатия ВСЕХ кнопок клавиатуры."""
     text = (update.message.text or "").strip()
     chat_id = update.effective_chat.id
 
-    # ──────────────────────────────────────────────────────────
-    # 0. КНОПКА ВОЗВРАТА (всегда перехватываем, даже в ИИ-режиме)
-    # ──────────────────────────────────────────────────────────
+    # 0. КНОПКА ВОЗВРАТА
     if text in ("⬅️ Назад в меню", "назад в меню", "главное меню", "/menu"):
         context.user_data.pop("ai_mode", None)
         context.user_data.pop("menu_section", None)
@@ -397,12 +107,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 0.5 ПРИОРИТЕТ: ожидание числового/текстового ввода
-    # (проверяется ДО ai_mode, чтобы ИИ не перехватывал ввод)
-    # ──────────────────────────────────────────────────────────
-
-    # Ожидание выбора рабочих столов для скриншота
     if context.user_data.get("awaiting_screenshot_choice"):
         selection = parse_desktop_selection(text)
         if selection is not None:
@@ -419,7 +124,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             )
             return True
 
-    # Ожидание ввода яркости
     if context.user_data.get("awaiting_brightness"):
         context.user_data.pop("awaiting_brightness")
         try:
@@ -435,7 +139,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             )
         return True
 
-    # Ожидание ввода громкости
     if context.user_data.get("awaiting_volume"):
         context.user_data.pop("awaiting_volume")
         try:
@@ -455,7 +158,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             )
         return True
 
-    # Ожидание поиска файла
     if context.user_data.get("awaiting_file_search"):
         context.user_data.pop("awaiting_file_search")
         from services.extra_functions import search_files
@@ -463,7 +165,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text(result, parse_mode="Markdown")
         return True
 
-    # Ожидание поиска и запуска программы
     if context.user_data.get("awaiting_app_search"):
         context.user_data.pop("awaiting_app_search")
         from core.app_resolver import app_resolver
@@ -479,7 +180,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             await update.message.reply_text(f"⚠️ Программа по запросу «{text}» не найдена.")
         return True
 
-    # Ожидание текста для QR
     if context.user_data.get("awaiting_qr"):
         if _looks_like_keyboard_button(text):
             context.user_data.pop("awaiting_qr", None)
@@ -499,8 +199,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             return True
 
     if context.user_data.get("ai_mode"):
-        # Если сообщение похоже на нажатие клавиаторной кнопки — рассматриваем его как навигацию
-        # и выходим из режима ИИ, чтобы пользователь мог переключать меню.
         if _looks_like_keyboard_button(text):
             context.user_data.pop("ai_mode", None)
         else:
@@ -508,9 +206,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             await handle_ai_message(update, context)
             return True
 
-    # ──────────────────────────────────────────────────────────
-    # 1. ПЕРЕКЛЮЧЕНИЕ КАТЕГОРИЙ (Смена нижней клавиатуры)
-    # ──────────────────────────────────────────────────────────
+    # 1. ПЕРЕКЛЮЧЕНИЕ КАТЕГОРИЙ
     CATEGORY_MAP = {
         "🖥 Система":     (get_system_reply_keyboard,   "🖥 *Меню системы:*"),
         "🎵 Медиа / Звук":(get_media_reply_keyboard,    "🎵 *Меню звука и медиа:*"),
@@ -522,7 +218,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     }
 
     if text in CATEGORY_MAP:
-        # При переключении категории явно выход из режима ИИ, чтобы ИИ не перехватывал дальнейший ввод
         context.user_data.pop("ai_mode", None)
         keyboard_fn, title = CATEGORY_MAP[text]
         await update.message.reply_text(
@@ -532,9 +227,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 2. СКРИНШОТ
-    # ──────────────────────────────────────────────────────────
     if text == "📸 Весь экран":
         from handlers.system_commands import send_screenshot
         await send_screenshot(update, context, monitor_index=0)
@@ -572,7 +265,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text("✅ Все скриншоты сделаны, вы вернулись на свой исходный рабочий стол.")
         return True
 
-    # Кнопки "Снимок Стола N" (с иконками 🖥 или 📍)
     m_desk = re.search(r"Стола?\s+(\d+)", text)
     if m_desk and ("Снимок" in text or "Стол" in text) and not text.startswith("🎛") and not text.startswith("📍 Стол"):
         desk_num = int(m_desk.group(1))
@@ -580,9 +272,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await send_screenshot(update, context, monitor_index=0, desktop_num=desk_num)
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 3. ПРОЦЕССЫ, ИИ-ЧАТ, НАПОМИНАНИЯ
-    # ──────────────────────────────────────────────────────────
     if text == "📋 Процессы":
         from handlers.process_commands import show_processes
         await show_processes(update, context, sort_by="memory")
@@ -616,9 +306,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text(t, parse_mode="Markdown")
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 4. ФУНКЦИИ СИСТЕМЫ
-    # ──────────────────────────────────────────────────────────
     if text == "📊 Инфо о системе":
         from handlers.system_commands import cmd_sysinfo
         await cmd_sysinfo(update, context)
@@ -655,12 +343,9 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if text == "📋 Буфер обмена":
         from services.extra_functions import get_clipboard
         content = get_clipboard() or "(пусто)"
-        # Не используем Markdown — в буфере могут быть спецсимволы
         await update.message.reply_text(f"📋 Буфер обмена:\n\n{content}")
         return True
 
-
-    # Яркость — одна кнопка → просим ввод числа
     if text == "💡 Яркость":
         await _ask_for_number(
             update, context,
@@ -746,9 +431,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text("⚠️ *Вы уверены, что хотите выключить компьютер?*", reply_markup=kb, parse_mode="Markdown")
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 5. ФУНКЦИИ МЕДИА И ЗВУКА
-    # ──────────────────────────────────────────────────────────
     if text in ("⏮ Назад трек",):
         from services.media_control import media_prev
         media_prev()
@@ -791,7 +474,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text(f"🔇 {res}")
         return True
 
-    # Адаптивный ввод громкости — одна кнопка
     if text == "🎙 Установить громкость":
         await _ask_for_number(
             update, context,
@@ -800,7 +482,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return True
 
-    # Пресеты громкости (🎚 Звук X%)
     if text.startswith("🎚 Звук "):
         lvl_str = text.replace("🎚 Звук ", "").replace("%", "").strip()
         try:
@@ -822,9 +503,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text("🎬 Открываю YouTube в браузере")
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 6. ФУНКЦИИ ФАЙЛОВ
-    # ──────────────────────────────────────────────────────────
     if text == "🗂 Рабочий стол":
         from handlers.files import show_files_menu
         await show_files_menu(update, context)
@@ -833,7 +512,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if text == "⬇️ Загрузки":
         from services.extra_functions import get_downloads_list
         raw = get_downloads_list()
-        # Экранируем имена файлов (могут содержать [ ] _ * и т.д.)
         safe_list = re.sub(r'([_\*\[\]])', r'\\\1', raw)
         await safe_reply(update, f"⬇️ *Последние загрузки:*\n\n{safe_list}")
         return True
@@ -869,9 +547,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text("📁 Проводник запущен")
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 7. ФУНКЦИИ СЕТИ
-    # ──────────────────────────────────────────────────────────
     if text == "🌍 Внешний IP":
         from services.extra_functions import get_public_ip
         await update.message.reply_text(f"🌍 *Внешний IP:* `{get_public_ip()}`", parse_mode="Markdown")
@@ -902,9 +578,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await safe_reply(update, f"🏓 *Ping ya.ru:*\n\n```\n{ping_host('ya.ru')}\n```")
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 8. БЫСТРЫЙ ЗАПУСК ПРИЛОЖЕНИЙ
-    # ──────────────────────────────────────────────────────────
     APP_FAST_MAP = {
         "🌐 Chrome":          "chrome",
         "📨 Telegram":        "telegram",
@@ -944,9 +618,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text("🔍 *Введите название или часть имени программы для запуска:*", parse_mode="Markdown")
         return True
 
-    # ──────────────────────────────────────────────────────────
     # 9. УПРАВЛЕНИЕ ПК И ГОРЯЧИЕ КЛАВИШИ
-    # ──────────────────────────────────────────────────────────
     KEY_ACTION_MAP = {
         "⌨ Enter":   ["enter"],
         "⌨ Escape":  ["escape"],
@@ -967,7 +639,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             await update.message.reply_text(f"Ошибка: {e}")
         return True
 
-    # Динамическое переключение на любой рабочий стол (🎛 Стол N / 📍 Стол N)
     m_switch = re.search(r"Стол\s+(\d+)", text)
     if m_switch and ("🎛" in text or "📍" in text or "стол" in text.lower()) and "снимок" not in text.lower() and "новый" not in text.lower():
         desk_num = int(m_switch.group(1))
@@ -988,84 +659,3 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         return True
 
     return False
-
-
-# ═══════════════════════════════════════════════════════════
-#  ЦЕНТРАЛЬНЫЙ РОУТЕР CallbackQuery (Inline кнопки)
-# ═══════════════════════════════════════════════════════════
-
-@restricted
-async def menu_callback_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Обрабатывает Inline кнопки подтверждений и действий."""
-    query = update.callback_query
-    data = query.data
-    chat_id = update.effective_chat.id
-
-    await query.answer()
-
-    if data == "cancel_action":
-        await query.edit_message_text("🚫 Действие отменено.")
-        return
-
-    if data == "main_menu":
-        await query.edit_message_text(
-            "🏠 *Главное меню:* выберите категорию",
-            reply_markup=None,
-            parse_mode="Markdown"
-        )
-        await query.message.reply_text(
-            "🏠 Вы в главном меню",
-            reply_markup=get_main_reply_keyboard()
-        )
-        return
-
-    if data == "do_shutdown":
-        from handlers.system_commands import cmd_shutdown_execute
-        await cmd_shutdown_execute(update, context)
-        return
-
-    if data == "do_restart":
-        from handlers.system_commands import cmd_restart_execute
-        await cmd_restart_execute(update, context)
-        return
-
-    if data == "cancel_shutdown":
-        os.system("shutdown /a")
-        await query.edit_message_text("✅ Выключение/перезагрузка отменена!")
-        return
-
-    if data == "sys_info":
-        from handlers.system_commands import cmd_sysinfo
-        await cmd_sysinfo(update, context)
-        return
-
-    if data.startswith("mouse_"):
-        from handlers.remote_control import handle_remote_callback
-        await handle_remote_callback(update, context)
-        return
-
-    if data.startswith("file_"):
-        from handlers.files import show_files_menu, handle_file_callback
-        if data == "file_menu":
-            await show_files_menu(update, context)
-        else:
-            await handle_file_callback(update, context)
-        return
-
-    if data.startswith("kill_proc_"):
-        from handlers.process_commands import handle_kill_callback
-        await handle_kill_callback(update, context)
-        return
-
-    if data in ("procs_sort_ram", "procs_sort_cpu") or data.startswith("procs_refresh_"):
-        from handlers.process_commands import show_processes
-        sort_by = "cpu" if "cpu" in data else "memory"
-        await show_processes(update, context, sort_by=sort_by)
-        return
-
-    if data.startswith("scr_"):
-        idx_str = data.replace("scr_", "")
-        idx = int(idx_str) if idx_str != "all" else 0
-        from handlers.system_commands import send_screenshot
-        await send_screenshot(update, context, monitor_index=idx)
-        return

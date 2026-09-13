@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from domain.actions.risk import RiskLevel, get_action_risk_level
+from security.risk import RiskLevel, get_action_risk_level
 from security.authorization import AuthorizationPolicy
 from security.path_policy import PathDecision, PathPolicy
 

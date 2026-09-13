@@ -4,6 +4,7 @@ from .authentication import AuthPrincipal, is_user_allowed, normalize_user_id, r
 from .authorization import AuthorizationDecision, AuthorizationPolicy
 from .path_policy import PathDecision, PathPolicy
 from .policy_engine import PolicyDecision, PolicyEngine
+from .risk import RiskLevel, get_action_risk_level
 
 __all__ = [
     "AuthPrincipal",
@@ -13,6 +14,8 @@ __all__ = [
     "PathPolicy",
     "PolicyDecision",
     "PolicyEngine",
+    "RiskLevel",
+    "get_action_risk_level",
     "is_user_allowed",
     "normalize_user_id",
     "register_allowed_user",

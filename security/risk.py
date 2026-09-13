@@ -11,7 +11,7 @@ class RiskLevel(str, Enum):
     DENY = "deny"
 
 
-# Action risk mappings
+# Unified Action risk mapping across all system intents
 ACTION_RISK_MAP: dict[str, RiskLevel] = {
     # SAFE
     "open_application": RiskLevel.SAFE,

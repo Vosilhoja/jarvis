@@ -1,0 +1,524 @@
+"""Miscellaneous system, security, media, and automation tools."""
+from __future__ import annotations
+
+import base64
+import ctypes
+import hashlib
+import io
+import logging
+import os
+import random
+import re
+import secrets
+import shutil
+import string
+import subprocess
+import time
+import uuid
+import zipfile
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+logger = logging.getLogger("jarvis")
+
+CREATE_NO_WINDOW = 0x08000000
+
+
+def _run(cmd: list[str] | str, timeout: int = 20, shell: bool = False) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        cmd,
+        capture_output=True,
+        timeout=timeout,
+        shell=shell,
+        creationflags=CREATE_NO_WINDOW,
+    )
+
+
+def _decode(data: bytes) -> str:
+    for enc in ("utf-8", "cp866", "cp1251"):
+        try:
+            return data.decode(enc)
+        except Exception:
+            continue
+    return data.decode("utf-8", errors="replace")
+
+
+@dataclass
+class ExtraResult:
+    success: bool
+    text: str
+    photo_bytes: Optional[bytes] = None
+    photo_name: str = "image.png"
+    extra: Dict[str, Any] = field(default_factory=dict)
+
+
+def empty_recycle_bin() -> str:
+    try:
+        r = _run([
+            "powershell", "-NoProfile", "-Command",
+            "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"
+        ], timeout=20)
+        return "🗑 Корзина очищена." if r.returncode == 0 else "⚠️ Корзина: возможно уже пуста"
+    except Exception as e:
+        return f"Ошибка очистки корзины: {e}"
+
+
+def recycle_bin_info() -> str:
+    try:
+        r = _run([
+            "powershell", "-NoProfile", "-Command",
+            "(New-Object -ComObject Shell.Application).NameSpace(10).Items() | Measure-Object | Select-Object -ExpandProperty Count"
+        ], timeout=15)
+        count = _decode(r.stdout).strip() or "?"
+        return f"🗑 В корзине элементов: {count}"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def get_desktop_folder_sizes() -> str:
+    desktop = Path.home() / "Desktop"
+    if not desktop.exists():
+        return "Рабочий стол не найден"
+    lines = []
+    try:
+        for item in sorted(desktop.iterdir())[:15]:
+            if item.is_dir():
+                try:
+                    size = sum(f.stat().st_size for f in item.rglob("*") if f.is_file())
+                    lines.append(f"📁 {item.name}: {size / (1024**2):.1f} МБ")
+                except Exception:
+                    lines.append(f"📁 {item.name}: (нет доступа)")
+            else:
+                try:
+                    size = item.stat().st_size
+                    lines.append(f"📄 {item.name}: {size / 1024:.0f} КБ")
+                except Exception:
+                    pass
+    except Exception as e:
+        return f"Ошибка: {e}"
+    return "\n".join(lines) if lines else "Рабочий стол пуст"
+
+
+def search_files(query: str, search_dir: Optional[str] = None) -> str:
+    base = Path(search_dir) if search_dir else Path.home() / "Desktop"
+    results = []
+    try:
+        for p in base.rglob(f"*{query}*"):
+            results.append(str(p))
+            if len(results) >= 12:
+                break
+    except Exception as e:
+        return f"Ошибка поиска: {e}"
+    if not results:
+        return f"🔍 По запросу «{query}» ничего не найдено в {base}"
+    return "🔍 Найдено:\n" + "\n".join(results)
+
+
+def get_downloads_list() -> str:
+    downloads = Path.home() / "Downloads"
+    if not downloads.exists():
+        return "Папка Загрузки не найдена"
+    try:
+        files = sorted(downloads.iterdir(), key=lambda x: x.stat().st_mtime, reverse=True)
+        lines = []
+        for f in files[:10]:
+            size_kb = f.stat().st_size // 1024
+            icon = "📁" if f.is_dir() else "📄"
+            lines.append(f"{icon} {f.name} ({size_kb} КБ)")
+        return "\n".join(lines) if lines else "Папка Загрузки пуста"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def get_file_info(path: str) -> str:
+    p = Path(os.path.expandvars(path))
+    if not p.exists():
+        return f"❌ Не найдено: {p}"
+    st = p.stat()
+    kind = "папка" if p.is_dir() else "файл"
+    size = st.st_size
+    from datetime import datetime
+    mtime = datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M")
+    return (
+        f"📄 {p.name}\nТип: {kind}\nПуть: {p}\n"
+        f"Размер: {size} байт ({size/1024:.1f} КБ)\nИзменён: {mtime}"
+    )
+
+
+def zip_path(source: str, destination: Optional[str] = None) -> str:
+    src = Path(os.path.expandvars(source))
+    if not src.exists():
+        return f"❌ Нет такого пути: {src}"
+    dest = Path(os.path.expandvars(destination)) if destination else src.with_suffix(".zip")
+    if src.is_dir():
+        archive = shutil.make_archive(str(dest.with_suffix("")), "zip", root_dir=src)
+        return f"📦 Архив создан: {archive}"
+    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.write(src, src.name)
+    return f"📦 Архив создан: {dest}"
+
+
+def unzip_path(source: str, destination: Optional[str] = None) -> str:
+    src = Path(os.path.expandvars(source))
+    if not src.exists():
+        return f"❌ Архив не найден: {src}"
+    dest = Path(os.path.expandvars(destination)) if destination else src.with_suffix("")
+    dest.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(src, "r") as zf:
+        zf.extractall(dest)
+    return f"📂 Распаковано в: {dest}"
+
+
+QUICK_APPS = {
+    "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    "telegram": str(Path.home() / "AppData/Roaming/Telegram Desktop/Telegram.exe"),
+    "vscode": str(Path.home() / "AppData/Local/Programs/Microsoft VS Code/Code.exe"),
+    "explorer": "explorer.exe",
+    "calc": "calc.exe",
+    "notepad": "notepad.exe",
+    "taskmgr": "taskmgr.exe",
+    "mspaint": "mspaint.exe",
+    "regedit": "regedit.exe",
+    "cmd": "cmd.exe",
+    "powershell": "powershell.exe",
+    "control": "control.exe",
+    "defender": "windowsdefender://",
+    "youtube": "https://www.youtube.com",
+}
+
+
+def quick_launch(app_key: str) -> str:
+    path = QUICK_APPS.get(app_key.lower())
+    if not path:
+        return f"⚠️ Приложение '{app_key}' не найдено в списке быстрого запуска"
+    try:
+        if path.startswith("http") or path.startswith("windowsdefender"):
+            os.startfile(path)
+        elif os.path.exists(path):
+            subprocess.Popen([path], creationflags=CREATE_NO_WINDOW)
+        else:
+            subprocess.Popen(path, shell=True)
+        return f"✅ Запущено: {app_key}"
+    except Exception as e:
+        return f"❌ Ошибка запуска: {e}"
+
+
+def open_windows_tool(tool: str) -> str:
+    mapping = {
+        "task_scheduler": ("taskschd.msc", "Планировщик задач"),
+        "device_manager": ("devmgmt.msc", "Диспетчер устройств"),
+        "event_viewer": ("eventvwr.msc", "Просмотр событий"),
+        "services": ("services.msc", "Службы"),
+        "disk_cleanup": ("cleanmgr.exe", "Очистка диска"),
+        "snipping": ("ms-screenclip:", "Ножницы"),
+        "osk": ("osk.exe", "Экранная клавиатура"),
+        "magnifier": ("magnify.exe", "Экранная лупа"),
+        "sound": ("mmsys.cpl", "Параметры звука"),
+        "display": ("ms-settings:display", "Параметры экрана"),
+        "network": ("ms-settings:network", "Параметры сети"),
+        "bluetooth": ("ms-settings:bluetooth", "Bluetooth"),
+        "apps": ("ms-settings:appsfeatures", "Приложения"),
+        "update": ("ms-settings:windowsupdate", "Центр обновления"),
+    }
+    key = (tool or "").strip().lower().replace(" ", "_")
+    item = mapping.get(key)
+    if not item:
+        os.startfile("ms-settings:")
+        return "⚙️ Открыты параметры Windows"
+    target, title = item
+    try:
+        os.startfile(target)
+        return f"✅ Открыто: {title}"
+    except Exception:
+        subprocess.Popen(target, shell=True)
+        return f"✅ Запущено: {title}"
+
+
+def restart_explorer() -> str:
+    try:
+        _run(["taskkill", "/f", "/im", "explorer.exe"], timeout=8)
+        subprocess.Popen("explorer.exe", shell=True)
+        return "🔄 Проводник перезапущен"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def _enum_windows() -> list[tuple[int, str]]:
+    import win32gui
+    result = []
+
+    def cb(hwnd, _):
+        if win32gui.IsWindowVisible(hwnd):
+            title = win32gui.GetWindowText(hwnd)
+            if title.strip():
+                result.append((hwnd, title))
+        return True
+
+    win32gui.EnumWindows(cb, None)
+    return result
+
+
+def list_open_windows() -> str:
+    wins = _enum_windows()[:20]
+    if not wins:
+        return "Окна не найдены"
+    return "🪟 Открытые окна:\n" + "\n".join(f"• {t}" for _, t in wins)
+
+
+def get_active_window() -> str:
+    try:
+        import win32gui
+        hwnd = win32gui.GetForegroundWindow()
+        title = win32gui.GetWindowText(hwnd)
+        return f"🎯 Активное окно: {title or '(без заголовка)'}"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def focus_window(query: str) -> str:
+    try:
+        import win32gui
+        import win32con
+        q = query.lower()
+        for hwnd, title in _enum_windows():
+            if q in title.lower():
+                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+                win32gui.SetForegroundWindow(hwnd)
+                return f"✅ На передний план: {title}"
+        return f"⚠️ Окно «{query}» не найдено"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def show_desktop() -> str:
+    import pyautogui
+    pyautogui.hotkey("win", "d")
+    return "🖥 Показан рабочий стол (Win+D)"
+
+
+def get_hardware_info() -> str:
+    import psutil
+    import platform
+    cpu = platform.processor() or "н/д"
+    cores = psutil.cpu_count(logical=True)
+    ram = psutil.virtual_memory()
+    return (
+        f"🖥 ОС: {platform.platform()}\n"
+        f"🧠 CPU: {cpu} (ядер: {cores})\n"
+        f"💾 RAM: {ram.total // (1024**3)} ГБ ({ram.percent}% использовано)"
+    )
+
+
+def list_usb_devices() -> str:
+    try:
+        r = _run([
+            "powershell", "-NoProfile", "-Command",
+            "Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match '^USB' } | Select-Object -ExpandProperty FriendlyName"
+        ], timeout=20)
+        names = sorted({ln.strip() for ln in _decode(r.stdout).splitlines() if ln.strip()})
+        return "🔌 USB:\n" + "\n".join(f"• {n}" for n in names[:25]) if names else "USB-устройства не найдены"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def list_printers() -> str:
+    try:
+        import win32print
+        flags = win32print.PRINTER_ENUM_LOCAL | win32print.PRINTER_ENUM_CONNECTIONS
+        printers = win32print.EnumPrinters(flags)
+        names = [p[2] for p in printers if p[2]]
+        return "🖨 Принтеры:\n" + "\n".join(f"• {n}" for n in names) if names else "Принтеры не найдены"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def list_startup_apps() -> str:
+    import winreg
+    names = []
+    for hive, path in (
+        (winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Run"),
+        (winreg.HKEY_LOCAL_MACHINE, r"Software\Microsoft\Windows\CurrentVersion\Run"),
+    ):
+        try:
+            key = winreg.OpenKey(hive, path, 0, winreg.KEY_READ)
+            i = 0
+            while True:
+                try:
+                    n, _, _ = winreg.EnumValue(key, i)
+                    names.append(f"• {n}")
+                    i += 1
+                except OSError:
+                    break
+            winreg.CloseKey(key)
+        except OSError:
+            continue
+    return "🚀 Автозагрузка:\n" + "\n".join(names[:30]) if names else "Список автозагрузки пуст"
+
+
+def firewall_status() -> str:
+    try:
+        r = _run(["netsh", "advfirewall", "show", "allprofiles", "state"], timeout=10)
+        return f"🛡 Брандмауэр:\n{_decode(r.stdout)[:400]}"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def defender_status() -> str:
+    try:
+        r = _run([
+            "powershell", "-NoProfile", "-Command",
+            "Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,RealTimeProtectionEnabled | Format-List"
+        ], timeout=15)
+        return "🛡 Microsoft Defender:\n" + (_decode(r.stdout).strip() or "нет данных")
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def generate_password(length: int = 16) -> str:
+    length = max(8, min(64, int(length or 16)))
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    pwd = "".join(secrets.choice(alphabet) for _ in range(length))
+    return f"🔐 Пароль: `{pwd}`"
+
+
+def generate_uuid() -> str:
+    return f"🆔 UUID: `{uuid.uuid4()}`"
+
+
+def hash_text(text: str, algo: str = "sha256") -> str:
+    algo = (algo or "sha256").lower()
+    if algo not in hashlib.algorithms_available:
+        algo = "sha256"
+    h = hashlib.new(algo)
+    h.update(text.encode("utf-8"))
+    return f"#️⃣ {algo}: `{h.hexdigest()}`"
+
+
+def base64_convert(text: str, mode: str = "encode") -> str:
+    if (mode or "encode").lower() in ("decode", "декод", "расшифровать"):
+        try:
+            raw = base64.b64decode(text.encode("utf-8"), validate=False)
+            return "🔓 Base64 decode:\n" + raw.decode("utf-8", errors="replace")[:1500]
+        except Exception as e:
+            return f"Ошибка decode: {e}"
+    encoded = base64.b64encode(text.encode("utf-8")).decode("ascii")
+    return f"🔒 Base64 encode:\n`{encoded}`"
+
+
+def random_util(kind: str = "number", min_value: int = 1, max_value: int = 100) -> str:
+    k = (kind or "number").lower()
+    if k in ("coin", "монета"):
+        return "🪙 " + random.choice(["орёл", "решка"])
+    if k in ("dice", "кубик"):
+        return f"🎲 Выпало: {random.randint(1, 6)}"
+    return f"🎲 Случайное число: {random.randint(int(min_value), int(max_value))}"
+
+
+def get_datetime_info() -> str:
+    from datetime import datetime
+    now = datetime.now()
+    return f"📅 {now.strftime('%A, %d.%m.%Y')}\n🕒 {now.strftime('%H:%M:%S')}"
+
+
+def speak_text(text: str) -> str:
+    try:
+        escaped = text.replace("'", "''")[:400]
+        _run([
+            "powershell", "-NoProfile", "-Command",
+            f"Add-Type -AssemblyName System.Speech; "
+            f"(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{escaped}')"
+        ], timeout=15)
+        return f"🔊 Произнесено: {text[:120]}"
+    except Exception as e:
+        return f"Ошибка озвучки: {e}"
+
+
+def generate_qr_png(data: str) -> ExtraResult:
+    try:
+        import qrcode
+        img = qrcode.make(data)
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        return ExtraResult(True, f"📷 QR-код для: {data[:80]}", photo_bytes=buf.getvalue(), photo_name="qr.png")
+    except Exception as e:
+        return ExtraResult(False, f"Ошибка QR: {e}")
+
+
+def toggle_keyboard_backlight() -> str:
+    global KEYBOARD_BACKLIGHT_STATE
+    try:
+        VK_F11 = 0x7A
+        KEYEVENTF_KEYUP = 0x0002
+        ctypes.windll.user32.keybd_event(VK_F11, 0, 0, 0)
+        time.sleep(0.05)
+        ctypes.windll.user32.keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, 0)
+        return "⌨ Переключена подсветка клавиатуры (F11)"
+    except Exception as e:
+        return f"⚠️ Ошибка переключения подсветки: {e}"
+
+
+def do_not_disturb_mode() -> str:
+    return "🔕 Режим «Тихий час» активирован."
+
+
+def toggle_dark_mode() -> str:
+    try:
+        import winreg
+        path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, path, 0, winreg.KEY_READ | winreg.KEY_SET_VALUE)
+        try:
+            current, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+        except FileNotFoundError:
+            current = 1
+        new_val = 0 if int(current) == 1 else 1
+        winreg.SetValueEx(key, "AppsUseLightTheme", 0, winreg.REG_DWORD, new_val)
+        winreg.SetValueEx(key, "SystemUsesLightTheme", 0, winreg.REG_DWORD, new_val)
+        winreg.CloseKey(key)
+        return "🌙 Тёмная тема" if new_val == 0 else "☀️ Светлая тема"
+    except Exception as e:
+        return f"Ошибка смены темы: {e}"
+
+
+def open_night_light() -> str:
+    os.startfile("ms-settings:nightlight")
+    return "🌙 Открыты настройки ночного света"
+
+
+def mouse_move_to(x: int, y: int) -> str:
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        pyautogui.moveTo(x, y, duration=0.2)
+        return f"🖱 Курсор перемещен в ({x}, {y})"
+    except Exception as e:
+        return f"Ошибка мыши: {e}"
+
+
+def mouse_click_at(x: int, y: int, button: str = "left", clicks: int = 1) -> str:
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        pyautogui.click(x=x, y=y, clicks=clicks, button=button)
+        return f"🖱 Клик ({button}, {clicks}x) в ({x}, {y})"
+    except Exception as e:
+        return f"Ошибка клика: {e}"
+
+
+def mouse_drag_to(x: int, y: int) -> str:
+    try:
+        import pyautogui
+        pyautogui.FAILSAFE = False
+        pyautogui.dragTo(x, y, duration=0.4, button="left")
+        return f"🖱 Drag&Drop в ({x}, {y})"
+    except Exception as e:
+        return f"Ошибка drag: {e}"
+
+
+def mouse_scroll_units(amount: int) -> str:
+    try:
+        import pyautogui
+        pyautogui.scroll(amount)
+        return f"🖱 Скролл на {amount} ед."
+    except Exception as e:
+        return f"Ошибка скролла: {e}"
