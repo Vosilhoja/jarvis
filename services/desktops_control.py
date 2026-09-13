@@ -180,6 +180,9 @@ def delete_desktop_number(target_num: int) -> str:
     except Exception as e:
         logger.error(f"Fallback удаления стола не сработал: {e}")
         return f"❌ Не удалось удалить рабочий стол {target_num}: {e}"
+
+
+def create_virtual_desktop() -> int:
     try:
         import pyvda
         pyvda.VirtualDesktop.create()
