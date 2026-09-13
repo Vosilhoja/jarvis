@@ -241,7 +241,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     # 2. СКРИНШОТ
     if text == "📸 Весь экран":
         from handlers.system_commands import send_screenshot
-        await send_screenshot(update, context, monitor_index=0)
+        await send_screenshot(update, context, monitor_index=0, reply_markup=get_screenshot_reply_keyboard())
         return True
 
     if text == "📝 Выбрать столы вручную":
@@ -280,7 +280,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if m_desk and ("Снимок" in text or "Стол" in text) and not text.startswith("🎛") and not text.startswith("📍 Стол"):
         desk_num = int(m_desk.group(1))
         from handlers.system_commands import send_screenshot
-        await send_screenshot(update, context, monitor_index=0, desktop_num=desk_num)
+        await send_screenshot(update, context, monitor_index=0, desktop_num=desk_num, reply_markup=get_screenshot_reply_keyboard())
         return True
 
     # 3. ПРОЦЕССЫ, ИИ-ЧАТ, НАПОМИНАНИЯ
@@ -653,25 +653,37 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     m_switch = re.search(r"Стол\s+(\d+)", text)
     if m_switch and ("🎛" in text or "📍" in text or "стол" in text.lower()) and "снимок" not in text.lower() and "новый" not in text.lower():
         desk_num = int(m_switch.group(1))
+        import asyncio
         from services.desktops_control import switch_to_desktop_number
-        switch_to_desktop_number(desk_num)
-        # Отправляем подтверждение с обновленной клавиатурой (метка активного стола 📍 переместится)
-        await update.message.reply_text(
-            f"🎛 Переключено на *Рабочий стол {desk_num}*",
-            reply_markup=get_control_reply_keyboard(),
-            parse_mode="Markdown"
-        )
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, switch_to_desktop_number, desk_num)
+            # Отправляем подтверждение с обновлённой клавиатурой (метка активного стола 📍 переместится)
+            await update.message.reply_text(
+                f"🎛 Переключено на *Рабочий стол {desk_num}*",
+                reply_markup=get_control_reply_keyboard(),
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            logger.error(f"Ошибка переключения стола {desk_num}: {e}", exc_info=True)
+            await update.message.reply_text(f"⚠️ Не удалось переключиться на стол {desk_num}: {e}")
         return True
 
     if text == "➕ Новый стол":
-        from services.desktops_control import create_virtual_desktop, get_desktop_count
-        new_total = create_virtual_desktop()
-        # Отправляем подтверждение с обновленной клавиатурой (новая кнопка стола сразу появится в меню)
-        await update.message.reply_text(
-            f"➕ Создан новый виртуальный рабочий стол! (Всего столов: *{new_total}*)",
-            reply_markup=get_control_reply_keyboard(),
-            parse_mode="Markdown"
-        )
+        import asyncio
+        from services.desktops_control import create_virtual_desktop
+        try:
+            loop = asyncio.get_running_loop()
+            new_total = await loop.run_in_executor(None, create_virtual_desktop)
+            # Отправляем подтверждение с обновлённой клавиатурой (новая кнопка стола сразу появится в меню)
+            await update.message.reply_text(
+                f"➕ Создан новый виртуальный рабочий стол! (Всего столов: *{new_total}*)",
+                reply_markup=get_control_reply_keyboard(),
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            logger.error(f"Ошибка создания стола: {e}", exc_info=True)
+            await update.message.reply_text(f"⚠️ Не удалось создать рабочий стол: {e}")
         return True
 
     if text == "🖱 Пульт мыши":

@@ -119,7 +119,7 @@ async def cmd_sysinfo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(text, reply_markup=kb, parse_mode="Markdown")
 
 @restricted
-async def send_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, monitor_index: int | None = None, desktop_num: int | None = None):
+async def send_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, monitor_index: int | None = None, desktop_num: int | None = None, reply_markup=None):
     """Создает и отправляет скриншот пользователю (поддерживает выбор монитора и виртуального рабочего стола)."""
     chat_id = update.effective_chat.id
     status_msg = None
@@ -142,6 +142,7 @@ async def send_screenshot(update: Update, context: ContextTypes.DEFAULT_TYPE, mo
             chat_id=chat_id,
             photo=buf,
             caption=caption,
+            reply_markup=reply_markup,
             parse_mode="Markdown"
         )
     except Exception as e:

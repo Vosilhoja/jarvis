@@ -12,8 +12,8 @@ from services.ai_client import parse_user_instruction_to_plan
 
 logger = logging.getLogger("jarvis")
 
-# Failsafe: движение мыши в левый верхний угол прерывает операцию
-pyautogui.FAILSAFE = True
+# Failsafe отключаем, чтобы случайное положение курсора в углу экрана не блокировало системные команды
+pyautogui.FAILSAFE = False
 
 
 @restricted

@@ -2,31 +2,44 @@ import time
 import logging
 import winreg
 import uuid
-import pyautogui
+import subprocess
+import tempfile
+import sys
+import os
 
 logger = logging.getLogger("jarvis")
+PYTHON = sys.executable
+
 
 def get_desktop_count() -> int:
-    """
-    Возвращает актуальное количество виртуальных рабочих столов Windows
-    путем чтения массива VirtualDesktopIDs из реестра.
-    """
+    try:
+        import pyvda
+        desktops = pyvda.get_virtual_desktops()
+        if desktops:
+            return len(desktops)
+    except Exception as e:
+        logger.debug(f"pyvda get_virtual_desktops failed: {e}")
+
     try:
         key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VirtualDesktops"
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
             val, _ = winreg.QueryValueEx(key, "VirtualDesktopIDs")
             if isinstance(val, bytes) and len(val) >= 16:
-                count = len(val) // 16
-                return max(1, count)
+                return max(1, len(val) // 16)
     except Exception as e:
-        logger.debug(f"Не удалось прочитать VirtualDesktopIDs из реестра: {e}")
+        logger.debug(f"Реестр VirtualDesktopIDs failed: {e}")
     return 1
 
+
 def get_current_desktop_number() -> int:
-    """
-    Определяет текущий активный виртуальный рабочий стол (1-indexed).
-    Сравнивает CurrentVirtualDesktop с элементами массива VirtualDesktopIDs.
-    """
+    try:
+        import pyvda
+        cur = pyvda.VirtualDesktop.current()
+        if cur and cur.number:
+            return cur.number
+    except Exception as e:
+        logger.debug(f"pyvda current failed: {e}")
+
     try:
         key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\VirtualDesktops"
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
@@ -38,62 +51,104 @@ def get_current_desktop_number() -> int:
                 if cur_uuid in all_uuids:
                     return all_uuids.index(cur_uuid) + 1
     except Exception as e:
-        logger.debug(f"Не удалось определить CurrentVirtualDesktop: {e}")
+        logger.debug(f"Реестр CurrentVirtualDesktop failed: {e}")
     return 1
 
-def switch_desktop_direction(direction: str):
-    """Переключает рабочий стол влево или вправо (Win+Ctrl+Left / Win+Ctrl+Right)."""
-    if direction == "left":
-        pyautogui.hotkey("win", "ctrl", "left")
-    else:
-        pyautogui.hotkey("win", "ctrl", "right")
-    time.sleep(0.35)
+
+def _switch_via_subprocess(steps: int, direction: str):
+    """
+    Нажимает Win+Ctrl+Right/Left через subprocess.
+    Subprocess запускается в контексте рабочего стола и имеет полный доступ к вводу.
+    """
+    script_file = tempfile.mktemp(suffix="_switch.py")
+    script_code = f"""\
+import pyautogui, time
+pyautogui.FAILSAFE = False
+for _ in range({steps}):
+    pyautogui.hotkey('win', 'ctrl', '{direction}')
+    time.sleep(0.4)
+"""
+    try:
+        with open(script_file, "w", encoding="utf-8") as f:
+            f.write(script_code)
+
+        subprocess.run(
+            [PYTHON, script_file],
+            timeout=30,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+    except Exception as e:
+        logger.error(f"subprocess switch failed: {e}")
+    finally:
+        try:
+            os.unlink(script_file)
+        except Exception:
+            pass
+
 
 def switch_to_desktop_number(target_num: int):
     """
-    Надежно переключается на указанный рабочий стол.
-    Использует разницу между текущим столом или сброс в крайний левый (1-й) стол.
+    Переключается на рабочий стол target_num (1-indexed).
+    Сначала пробует pyvda COM API, при сбое — subprocess Win+Ctrl+←/→.
     """
+    logger.info(f"Переключение на рабочий стол {target_num}")
+
+    # 1. pyvda COM API (надёжно, работает из любого потока)
+    try:
+        import pyvda
+        desktops = pyvda.get_virtual_desktops()
+        if desktops and 1 <= target_num <= len(desktops):
+            desktops[target_num - 1].go()
+            time.sleep(0.4)
+            logger.info(f"pyvda: переключено на стол {target_num}")
+            return
+    except Exception as e:
+        logger.warning(f"pyvda switch failed: {e}, используем subprocess Win+Ctrl+←/→")
+
+    # 2. Subprocess Win+Ctrl+←/→ (с анимацией)
     total = get_desktop_count()
     target_num = max(1, min(target_num, total))
     current = get_current_desktop_number()
 
-    logger.info(f"Переключение на рабочий стол: целевой={target_num}, текущий={current}, всего={total}")
-
     if current == target_num:
         return
 
-    # Относительное переключение если текущий стол известен
     diff = target_num - current
-    if diff > 0:
-        for _ in range(diff):
-            pyautogui.hotkey("win", "ctrl", "right")
-            time.sleep(0.18)
-    elif diff < 0:
-        for _ in range(abs(diff)):
-            pyautogui.hotkey("win", "ctrl", "left")
-            time.sleep(0.18)
-    else:
-        # Fallback сброс
-        for _ in range(total + 2):
-            pyautogui.hotkey("win", "ctrl", "left")
-            time.sleep(0.08)
-        for _ in range(target_num - 1):
-            pyautogui.hotkey("win", "ctrl", "right")
-            time.sleep(0.15)
+    steps = abs(diff)
+    direction = "right" if diff > 0 else "left"
 
-    # Дать Windows обновить реестр и дождаться совпадения CurrentVirtualDesktop
-    for _ in range(10):
-        time.sleep(0.08)
-        if get_current_desktop_number() == target_num:
-            break
+    logger.info(f"subprocess: {current} -> {target_num}, {steps}x {direction}")
+    _switch_via_subprocess(steps, direction)
+    time.sleep(0.5)
+
+
+def switch_desktop_direction(direction: str):
+    cur = get_current_desktop_number()
+    if direction == "left":
+        switch_to_desktop_number(cur - 1)
+    else:
+        switch_to_desktop_number(cur + 1)
+
 
 def create_virtual_desktop() -> int:
-    """Создает новый виртуальный рабочий стол (Win+Ctrl+D) и возвращает общее количество."""
-    old_count = get_desktop_count()
-    pyautogui.hotkey("win", "ctrl", "d")
-    for _ in range(12):
-        time.sleep(0.1)
-        if get_desktop_count() > old_count:
-            break
-    return get_desktop_count()
+    try:
+        import pyvda
+        pyvda.VirtualDesktop.create()
+        time.sleep(0.3)
+        return len(pyvda.get_virtual_desktops())
+    except Exception as e:
+        logger.warning(f"pyvda create failed: {e}")
+        old_count = get_desktop_count()
+        script_file = tempfile.mktemp(suffix="_newdesk.py")
+        with open(script_file, "w") as f:
+            f.write("import pyautogui, time\npyautogui.FAILSAFE=False\npyautogui.hotkey('win','ctrl','d')\ntime.sleep(0.5)\n")
+        try:
+            subprocess.run([PYTHON, script_file], timeout=5, creationflags=subprocess.CREATE_NO_WINDOW)
+        finally:
+            try: os.unlink(script_file)
+            except: pass
+        for _ in range(12):
+            time.sleep(0.1)
+            if get_desktop_count() > old_count:
+                break
+        return get_desktop_count()

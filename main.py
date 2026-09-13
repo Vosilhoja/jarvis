@@ -11,6 +11,10 @@ from telegram.ext import (
     filters,
 )
 from telegram import Update
+from telegram.request import HTTPXRequest
+
+import pyautogui
+pyautogui.FAILSAFE = False
 
 from config import TELEGRAM_BOT_TOKEN, validate_config
 from logger_setup import setup_logging
@@ -73,9 +77,16 @@ def main():
     logger.info("Инициализация резидента Jarvis AI Agent...")
 
     try:
+        request = HTTPXRequest(
+            connect_timeout=20.0,
+            read_timeout=30.0,
+            write_timeout=20.0,
+            pool_timeout=20.0,
+        )
         app = (
             Application.builder()
             .token(TELEGRAM_BOT_TOKEN)
+            .request(request)
             .post_init(post_init)
             .concurrent_updates(False)
             .build()
@@ -99,6 +110,10 @@ def main():
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_command))
 
         async def error_handler(update, context):
+            from telegram.error import TimedOut, NetworkError
+            if isinstance(context.error, (TimedOut, NetworkError)):
+                logger.warning(f"Telegram network error (non-fatal): {context.error}")
+                return
             logger.error(f"Исключение при обработке обновления {update}: {context.error}", exc_info=context.error)
 
         app.add_error_handler(error_handler)

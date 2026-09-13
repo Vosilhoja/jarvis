@@ -166,5 +166,19 @@ def run_watchdog():
             time.sleep(3)
 
 
+def acquire_watchdog_lock():
+    """Гарантирует, что запущен строго один экземпляр watchdog."""
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", 49877))
+        s.listen(1)
+        return s
+    except Exception:
+        logger.warning("Другой экземпляр watchdog уже запущен. Завершаем дублирующий процесс.")
+        sys.exit(0)
+
+
 if __name__ == "__main__":
+    _watchdog_lock = acquire_watchdog_lock()
     run_watchdog()

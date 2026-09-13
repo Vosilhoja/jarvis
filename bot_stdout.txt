@@ -37325,3 +37325,1303 @@ Traceback (most recent call last):
   File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 375, in _request_wrapper
     raise exception
 telegram.error.Conflict: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+2026-09-13 15:44:13 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 15:44:13 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 15:44:14 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 15:44:14 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 15:44:14 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 15:44:14 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 15:57:09 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 15:57:10 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 15:57:17 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 15:57:17 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 15:57:17 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 15:57:17 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 15:57:21 [WARNING] [jarvis] Обнаружен другой работающий экз�2026-09-13 15:57:29 [INFO] [jarvis] Вызов /start от пользователя id=5879131172
+2026-09-13 15:58:27 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 15:58:33 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 10, 58, 25, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1544, supergroup_chat_created=False, text='🖥 Система'), update_id=995573948): Timed out
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 101, in handle_async_request
+    raise exc
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 78, in handle_async_request
+    stream = await self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 156, in _connect
+    stream = await stream.start_tls(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_backends\anyio.py", line 67, in start_tls
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 279, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 223, in handle_reply_keyboard
+    await update.message.reply_text(
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_message.py", line 2228, in reply_text
+    return await self.get_bot().send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 3150, in send_message
+    return await super().send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 1138, in send_message
+    return await self._send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 638, in _send_message
+    result = await super()._send_message(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 828, in _send_message
+    result = await self._post(
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 712, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 378, in _do_post
+    return await super()._do_post(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 741, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 198, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 305, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 296, in do_request
+    raise TimedOut from err
+telegram.error.TimedOut: Timed out
+2026-09-13 16:01:44 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:01:51 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:01:58 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🤖 ИИ-чат'
+2026-09-13 16:02:06 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 1, 54, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1555, supergroup_chat_created=False, text='🤖 ИИ-чат'), update_id=995573951): Timed out
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 101, in handle_async_request
+    raise exc
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 78, in handle_async_request
+    stream = await self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 156, in _connect
+    stream = await stream.start_tls(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_backends\anyio.py", line 67, in start_tls
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 279, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 299, in handle_reply_keyboard
+    await update.message.reply_text(
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_message.py", line 2228, in reply_text
+    return await self.get_bot().send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 3150, in send_message
+    return await super().send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 1138, in send_message
+    return await self._send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 638, in _send_message
+    result = await super()._send_message(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 828, in _send_message
+    result = await self._post(
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 712, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 378, in _do_post
+    return await super()._do_post(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 741, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 198, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 305, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 296, in do_request
+    raise TimedOut from err
+telegram.error.TimedOut: Timed out
+2026-09-13 16:02:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-13 16:02:11 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 1, 59, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1557, supergroup_chat_created=False, text='🌐 Сеть'), update_id=995573952): Timed out
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 101, in handle_async_request
+    raise exc
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 78, in handle_async_request
+    stream = await self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 156, in _connect
+    stream = await stream.start_tls(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_backends\anyio.py", line 67, in start_tls
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 279, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectTimeout
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 223, in handle_reply_keyboard
+    await update.message.reply_text(
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_message.py", line 2228, in reply_text
+    return await self.get_bot().send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 3150, in send_message
+    return await super().send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 1138, in send_message
+    return await self._send_message(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 638, in _send_message
+    result = await super()._send_message(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 828, in _send_message
+    result = await self._post(
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 712, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 378, in _do_post
+    return await super()._do_post(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 741, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 198, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 305, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 296, in do_request
+    raise TimedOut from err
+telegram.error.TimedOut: Timed out
+2026-09-13 16:02:19 [WARNING] [jarvis] Обнаружен другой работающий экземпляр Jarvis. Завершаем дублирующий процесс.
+2026-09-13 16:02:25 [WARNING] [jarvis] Обнаружен другой работающий экземпляр Jarvis. Завершаем дублирующий процесс.
+2026-09-13 16:03:46 [WARNING] [jarvis] Обнаружен другой работающий экземпляр Jarvis. Завершаем дублирующий процесс.
+2026-09-13 16:05:08 [WARNING] [jarvis] Обнаружен другой работающий экземпляр Jarvis. Завершаем дублирующий процесс.
+2026-09-13 16:05:21 [WARNING] [jarvis] Обнаружен другой работающий экземпляр Jarvis. Завершаем дублирующий процесс.
+2026-09-13 16:14:06 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:14:07 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:14:22 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:14:22 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:14:22 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:14:22 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:14:23 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:14:46 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:14:49 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-13 16:14:51 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:14:52 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🚀 Приложения'
+2026-09-13 16:14:56 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:14:57 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📁 Файлы'
+2026-09-13 16:14:59 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:15:00 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-13 16:15:02 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:15:03 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:15:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:15:06 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:15:06 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 6, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1587, supergroup_chat_created=False, text='🎛 Стол 2'), update_id=995573964): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 3'
+2026-09-13 16:15:16 [INFO] [jarvis] Переключение на рабочий стол: целевой=3, текущий=1, всего=5
+2026-09-13 16:15:16 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 16, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1588, supergroup_chat_created=False, text='🎛 Стол 3'), update_id=995573965): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:17 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 4'
+2026-09-13 16:15:17 [INFO] [jarvis] Переключение на рабочий стол: целевой=4, текущий=1, всего=5
+2026-09-13 16:15:17 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 17, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1589, supergroup_chat_created=False, text='🎛 Стол 4'), update_id=995573966): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:17 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:15:17 [INFO] [jarvis] Переключение на рабочий стол: целевой=5, текущий=1, всего=5
+2026-09-13 16:15:17 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 18, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1590, supergroup_chat_created=False, text='🎛 Стол 5'), update_id=995573967): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:18 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📍 Стол 1'
+2026-09-13 16:15:18 [INFO] [jarvis] Переключение на рабочий стол: целевой=1, текущий=1, всего=5
+2026-09-13 16:15:19 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:15:19 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:15:19 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 19, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1593, supergroup_chat_created=False, text='🎛 Стол 2'), update_id=995573969): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:23 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📍 Стол 1'
+2026-09-13 16:15:23 [INFO] [jarvis] Переключение на рабочий стол: целевой=1, текущий=1, всего=5
+2026-09-13 16:15:24 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:15:24 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:15:24 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 24, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1596, supergroup_chat_created=False, text='🎛 Стол 2'), update_id=995573971): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:24 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:15:24 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:15:24 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 25, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1597, supergroup_chat_created=False, text='🎛 Стол 2'), update_id=995573972): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:25 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:15:25 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:15:25 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 25, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1598, supergroup_chat_created=False, text='🎛 Стол 2'), update_id=995573973): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:15:25 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:15:25 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:15:25 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 15, 25, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1599, supergroup_chat_created=False, text='🎛 Стол 2'), update_id=995573974): PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 657, in handle_reply_keyboard
+    switch_to_desktop_number(desk_num)
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:16:44 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:17:23 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:17:23 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:17:24 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:17:24 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:17:24 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:17:24 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:17:25 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:17:27 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:18:03 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:18:05 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:18:05 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:18:05 [ERROR] [jarvis] Ошибка переключения стола 2: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 660, in handle_reply_keyboard
+    await loop.run_in_executor(None, switch_to_desktop_number, desk_num)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:18:11 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 3'
+2026-09-13 16:18:11 [INFO] [jarvis] Переключение на рабочий стол: целевой=3, текущий=1, всего=5
+2026-09-13 16:18:11 [ERROR] [jarvis] Ошибка переключения стола 3: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 660, in handle_reply_keyboard
+    await loop.run_in_executor(None, switch_to_desktop_number, desk_num)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:18:11 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📍 Стол 1'
+2026-09-13 16:18:11 [INFO] [jarvis] Переключение на рабочий стол: целевой=1, текущий=1, всего=5
+2026-09-13 16:18:13 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 4'
+2026-09-13 16:18:13 [INFO] [jarvis] Переключение на рабочий стол: целевой=4, текущий=1, всего=5
+2026-09-13 16:18:13 [ERROR] [jarvis] Ошибка переключения стола 4: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 660, in handle_reply_keyboard
+    await loop.run_in_executor(None, switch_to_desktop_number, desk_num)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:18:14 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:18:14 [INFO] [jarvis] Переключение на рабочий стол: целевой=5, текущий=1, всего=5
+2026-09-13 16:18:14 [ERROR] [jarvis] Ошибка переключения стола 5: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 660, in handle_reply_keyboard
+    await loop.run_in_executor(None, switch_to_desktop_number, desk_num)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:21:02 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:21:04 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:21:05 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:21:05 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:21:05 [ERROR] [jarvis] Ошибка переключения стола 2: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 660, in handle_reply_keyboard
+    await loop.run_in_executor(None, switch_to_desktop_number, desk_num)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\desktops_control.py", line 70, in switch_to_desktop_number
+    pyautogui.hotkey("win", "ctrl", "right")
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
+2026-09-13 16:21:07 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📍 Стол 1'
+2026-09-13 16:21:07 [INFO] [jarvis] Переключение на рабочий стол: целевой=1, текущий=1, всего=5
+2026-09-13 16:30:37 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:30:37 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:30:38 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:30:38 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:30:38 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:30:38 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:30:48 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:30:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:50 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 51, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1629, supergroup_chat_created=False, text='🖥 Система'), update_id=995573989): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:53 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 54, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1630, supergroup_chat_created=False, text='🖥 Система'), update_id=995573990): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:53 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 54, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1631, supergroup_chat_created=False, text='🖥 Система'), update_id=995573991): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:54 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:54 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 55, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1632, supergroup_chat_created=False, text='🖥 Система'), update_id=995573992): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:54 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:54 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 55, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1633, supergroup_chat_created=False, text='🖥 Система'), update_id=995573993): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:55 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:55 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 55, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1634, supergroup_chat_created=False, text='🖥 Система'), update_id=995573994): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:55 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:55 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 55, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1635, supergroup_chat_created=False, text='🖥 Система'), update_id=995573995): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:55 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:30:55 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 56, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1636, supergroup_chat_created=False, text='🖥 Система'), update_id=995573996): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:56 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-13 16:30:56 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 56, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1637, supergroup_chat_created=False, text='🎵 Медиа / Звук'), update_id=995573997): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:57 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📁 Файлы'
+2026-09-13 16:30:57 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 57, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1638, supergroup_chat_created=False, text='📁 Файлы'), update_id=995573998): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:57 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-13 16:30:57 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 57, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1639, supergroup_chat_created=False, text='🌐 Сеть'), update_id=995573999): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:57 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🚀 Приложения'
+2026-09-13 16:30:57 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 58, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1640, supergroup_chat_created=False, text='🚀 Приложения'), update_id=995574000): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:58 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:30:58 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 58, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1641, supergroup_chat_created=False, text='🖱 Управление ПК'), update_id=995574001): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:30:58 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-13 16:30:58 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 30, 59, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1642, supergroup_chat_created=False, text='📸 Скриншот'), update_id=995574002): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:31:00 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📋 Процессы'
+2026-09-13 16:31:00 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 11, 31, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1643, supergroup_chat_created=False, text='📋 Процессы'), update_id=995574003): cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 42, in handle_text_command
+    if await handle_reply_keyboard(update, context):
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 217, in handle_reply_keyboard
+    "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'get_screenshot_reply_keyboard' where it is not associated with a value
+2026-09-13 16:33:11 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:33:11 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:33:13 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:33:13 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:33:13 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:33:13 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:33:14 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 16:33:20 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:33:22 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-13 16:33:25 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:33:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📁 Файлы'
+2026-09-13 16:33:40 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🗂 Рабочий стол'
+2026-09-13 16:34:00 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:34:04 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:34:04 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:34:13 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 3'
+2026-09-13 16:34:13 [INFO] [jarvis] Переключение на рабочий стол: целевой=3, текущий=1, всего=5
+2026-09-13 16:34:15 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 4'
+2026-09-13 16:34:15 [INFO] [jarvis] Переключение на рабочий стол: целевой=4, текущий=1, всего=5
+2026-09-13 16:34:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Ctrl+V'
+2026-09-13 16:34:21 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Ctrl+V'
+2026-09-13 16:36:25 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:36:25 [INFO] [jarvis] Переключение на рабочий стол: целевой=2, текущий=1, всего=5
+2026-09-13 16:36:43 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:36:44 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:36:44 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:36:44 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:36:44 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:36:44 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:36:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:36:50 [INFO] [jarvis] Переключение на рабочий стол: целевой=2
+2026-09-13 16:36:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 3'
+2026-09-13 16:36:53 [INFO] [jarvis] Переключение на рабочий стол: целевой=3
+2026-09-13 16:36:58 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:36:58 [INFO] [jarvis] Переключение на рабочий стол: целевой=5
+2026-09-13 16:37:02 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 1'
+2026-09-13 16:37:02 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:37:04 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 16:37:04 [INFO] [jarvis] Переключение на рабочий стол: целевой=2
+2026-09-13 16:37:08 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:37:10 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-13 16:37:12 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Все столы подряд'
+2026-09-13 16:37:12 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:37:13 [WARNING] [jarvis] mss screenshot не сработал (Windows graphics function failed (no error provided): BitBlt), переключаемся на PIL ImageGrab...
+2026-09-13 16:37:13 [WARNING] [jarvis] ImageGrab не сработал (screen grab failed), переключаемся на pyautogui...
+2026-09-13 16:37:13 [ERROR] [jarvis] Все методы создания скриншота завершились ошибкой: screen grab failed
+2026-09-13 16:37:13 [INFO] [jarvis] Завершен пакетный снимок, возвращаемся на исходный стол 1
+2026-09-13 16:37:13 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:37:14 [ERROR] [jarvis] Ошибка пакетного скриншота: Не удалось сделать скриншот: screen grab failed
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 78, in take_screenshot
+    img = pyautogui.screenshot()
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyscreeze\__init__.py", line 538, in _screenshot_win32
+    im = ImageGrab.grab(all_screens=allScreens)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\PIL\ImageGrab.py", line 96, in grab
+    offset, size, data = Image.core.grabscreen_win32(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: screen grab failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 264, in handle_reply_keyboard
+    results = take_multiple_desktops_screenshots(list(range(1, count + 1)), monitor_index=0)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 127, in take_multiple_desktops_screenshots
+    buf = take_screenshot(monitor_index)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 84, in take_screenshot
+    raise RuntimeError(f"Не удалось сделать скриншот: {e}")
+RuntimeError: Не удалось сделать скриншот: screen grab failed
+2026-09-13 16:46:22 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:46:23 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:46:23 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:46:23 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:46:23 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:46:23 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:46:47 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:46:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:46:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:46:53 [INFO] [jarvis] Переключение на рабочий стол: целевой=5
+2026-09-13 16:46:53 [INFO] [jarvis] Переключение: 1 -> 5, шагов: 4, направление: right
+2026-09-13 16:47:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:47:08 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-13 16:47:10 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Все столы подряд'
+2026-09-13 16:47:10 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:47:10 [INFO] [jarvis] Уже на рабочем столе 1, переключение не нужно
+2026-09-13 16:47:11 [WARNING] [jarvis] mss screenshot попытка 1 не сработал (Windows graphics function failed (no error provided): BitBlt), пробуем PIL ImageGrab...
+2026-09-13 16:47:11 [WARNING] [jarvis] ImageGrab попытка 1 не сработал (screen grab failed), пробуем pyautogui...
+2026-09-13 16:47:11 [WARNING] [jarvis] Все методы скриншота попытка 1 провалились: screen grab failed
+2026-09-13 16:47:11 [WARNING] [jarvis] mss screenshot попытка 2 не сработал (Windows graphics function failed (no error provided): BitBlt), пробуем PIL ImageGrab...
+2026-09-13 16:47:11 [WARNING] [jarvis] ImageGrab попытка 2 не сработал (screen grab failed), пробуем pyautogui...
+2026-09-13 16:47:11 [WARNING] [jarvis] Все методы скриншота попытка 2 провалились: screen grab failed
+2026-09-13 16:47:12 [WARNING] [jarvis] mss screenshot попытка 3 не сработал (Windows graphics function failed (no error provided): BitBlt), пробуем PIL ImageGrab...
+2026-09-13 16:47:12 [WARNING] [jarvis] ImageGrab попытка 3 не сработал (screen grab failed), пробуем pyautogui...
+2026-09-13 16:47:12 [WARNING] [jarvis] Все методы скриншота попытка 3 провалились: screen grab failed
+2026-09-13 16:47:12 [ERROR] [jarvis] Все попытки создания скриншота завершились ошибкой: screen grab failed
+2026-09-13 16:47:12 [INFO] [jarvis] Завершен пакетный снимок, возвращаемся на исходный стол 1
+2026-09-13 16:47:12 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:47:12 [INFO] [jarvis] Уже на рабочем столе 1, переключение не нужно
+2026-09-13 16:47:12 [ERROR] [jarvis] Ошибка пакетного скриншота: Не удалось сделать скриншот: screen grab failed
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 264, in handle_reply_keyboard
+    results = take_multiple_desktops_screenshots(list(range(1, count + 1)), monitor_index=0)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 135, in take_multiple_desktops_screenshots
+    buf = take_screenshot(monitor_index)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 92, in take_screenshot
+    raise RuntimeError(f"Не удалось сделать скриншот: {last_error}")
+RuntimeError: Не удалось сделать скриншот: screen grab failed
+2026-09-13 16:49:20 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 16:49:21 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 16:49:21 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:49:21 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 16:49:21 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 16:49:21 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 16:49:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:49:31 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:49:33 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:49:33 [INFO] [jarvis] Переключение на рабочий стол: целевой=5
+2026-09-13 16:49:34 [INFO] [jarvis] pyvda: переключено на стол 5
+2026-09-13 16:49:40 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:49:41 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-13 16:49:43 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Все столы подряд'
+2026-09-13 16:49:43 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:49:44 [INFO] [jarvis] pyvda: переключено на стол 1
+2026-09-13 16:49:45 [WARNING] [jarvis] PIL ImageGrab не сработал: screen grab failed, пробуем subprocess mss...
+2026-09-13 16:49:45 [WARNING] [jarvis] subprocess mss вернул код 1: <string>:4: DeprecationWarning: mss.mss is deprecated and will be removed in a future release; use mss.MSS instead
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\mss\base.py", line 312, in grab
+    img_data_and_maybe_size = self._impl.grab(monitor)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\mss\windows\gdi.py", line 380, in grab
+    gdi.BitBlt(memdc, 0, 0, width, height, srcdc, monitor["left"], monitor["top"], SRCCOPY | CAPTUREBLT)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\mss\windows\gdi.py", line 127, in _errcheck
+    raise ScreenShotError(msg, details=details)
+mss.exception.ScreenShotError: Windows graphics function failed (no error provided): BitBlt
+
+2026-09-13 16:49:45 [WARNING] [jarvis] subprocess pyautogui вернул код 1: Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyscreeze\__init__.py", line 538, in _screenshot_win32
+    im = ImageGrab.grab(all_screens=allScreens)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\PIL\ImageGrab.py", line 96, in grab
+    offset, size, data = Image.core.grabscreen_win32(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: screen grab failed
+
+2026-09-13 16:49:45 [INFO] [jarvis] Завершен пакетный снимок, возвращаемся на исходный стол 1
+2026-09-13 16:49:45 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:49:45 [INFO] [jarvis] pyvda: переключено на стол 1
+2026-09-13 16:49:46 [ERROR] [jarvis] Ошибка пакетного скриншота: Не удалось сделать скриншот: все методы провалились
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 264, in handle_reply_keyboard
+    results = take_multiple_desktops_screenshots(list(range(1, count + 1)), monitor_index=0)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 168, in take_multiple_desktops_screenshots
+    buf = take_screenshot(monitor_index)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 125, in take_screenshot
+    raise RuntimeError("Не удалось сделать скриншот: все методы провалились")
+RuntimeError: Не удалось сделать скриншот: все методы провалились
+2026-09-13 16:52:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:52:31 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 16:52:36 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:52:36 [INFO] [jarvis] Переключение на рабочий стол: целевой=5
+2026-09-13 16:52:37 [INFO] [jarvis] pyvda: переключено на стол 5
+2026-09-13 16:52:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 1'
+2026-09-13 16:52:39 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:52:39 [INFO] [jarvis] pyvda: переключено на стол 1
+2026-09-13 16:53:58 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 16:53:58 [INFO] [jarvis] Переключение на рабочий стол: целевой=5
+2026-09-13 16:53:59 [INFO] [jarvis] pyvda: переключено на стол 5
+2026-09-13 16:54:00 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 1'
+2026-09-13 16:54:00 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:54:01 [INFO] [jarvis] pyvda: переключено на стол 1
+2026-09-13 16:54:03 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 16:54:05 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-13 16:54:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Все столы подряд'
+2026-09-13 16:54:06 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:54:07 [INFO] [jarvis] pyvda: переключено на стол 1
+2026-09-13 16:54:08 [WARNING] [jarvis] PIL ImageGrab не сработал: screen grab failed, пробуем subprocess mss...
+2026-09-13 16:54:08 [WARNING] [jarvis] subprocess mss вернул код 1: <string>:4: DeprecationWarning: mss.mss is deprecated and will be removed in a future release; use mss.MSS instead
+Traceback (most recent call last):
+  File "<string>", line 9, in <module>
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\mss\base.py", line 312, in grab
+    img_data_and_maybe_size = self._impl.grab(monitor)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\mss\windows\gdi.py", line 380, in grab
+    gdi.BitBlt(memdc, 0, 0, width, height, srcdc, monitor["left"], monitor["top"], SRCCOPY | CAPTUREBLT)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\mss\windows\gdi.py", line 127, in _errcheck
+    raise ScreenShotError(msg, details=details)
+mss.exception.ScreenShotError: Windows graphics function failed (no error provided): BitBlt
+
+2026-09-13 16:54:08 [WARNING] [jarvis] subprocess pyautogui вернул код 1: Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\pyscreeze\__init__.py", line 538, in _screenshot_win32
+    im = ImageGrab.grab(all_screens=allScreens)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\PIL\ImageGrab.py", line 96, in grab
+    offset, size, data = Image.core.grabscreen_win32(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: screen grab failed
+
+2026-09-13 16:54:08 [INFO] [jarvis] Завершен пакетный снимок, возвращаемся на исходный стол 1
+2026-09-13 16:54:08 [INFO] [jarvis] Переключение на рабочий стол: целевой=1
+2026-09-13 16:54:09 [INFO] [jarvis] pyvda: переключено на стол 1
+2026-09-13 16:54:09 [ERROR] [jarvis] Ошибка пакетного скриншота: Не удалось сделать скриншот: все методы провалились
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py", line 264, in handle_reply_keyboard
+    results = take_multiple_desktops_screenshots(list(range(1, count + 1)), monitor_index=0)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 168, in take_multiple_desktops_screenshots
+  File "C:\Users\vosil\Desktop\jarvis\services\screenshot.py", line 125, in take_screenshot
+RuntimeError: Не удалось сделать скриншот: все методы провалились
+2026-09-13 18:01:43 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 18:01:58 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 18:01:58 [CRITICAL] [jarvis] Критическая ошибка работы/запуска main():
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 394, in handle_async_request
+    resp = await self._pool.handle_async_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 256, in handle_async_request
+    raise exc from None
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection_pool.py", line 236, in handle_async_request
+    response = await connection.handle_async_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 101, in handle_async_request
+    raise exc
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 78, in handle_async_request
+    stream = await self._connect(request)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_async\connection.py", line 124, in _connect
+    stream = await self._network_backend.connect_tcp(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_backends\auto.py", line 31, in connect_tcp
+    return await self._backend.connect_tcp(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_backends\anyio.py", line 113, in connect_tcp
+    with map_exceptions(exc_map):
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpcore\_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ConnectError: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 279, in do_request
+    res = await self._client.request(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1540, in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1629, in send
+    response = await self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1657, in _send_handling_auth
+    response = await self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1694, in _send_handling_redirects
+    response = await self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_client.py", line 1730, in _send_single_request
+    response = await transport.handle_async_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 393, in handle_async_request
+    with map_httpcore_exceptions():
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\httpx\_transports\default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ConnectError: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\vosil\Desktop\jarvis\main.py", line 122, in main
+    app.run_polling(drop_pending_updates=False)
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 839, in run_polling
+    return self.__run(
+           ^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1054, in __run
+    loop.run_until_complete(self._bootstrap_initialize(max_retries=bootstrap_retries))
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\asyncio\base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1014, in _bootstrap_initialize
+    await network_retry_loop(
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_utils\networkloop.py", line 161, in network_retry_loop
+    await do_action()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_utils\networkloop.py", line 136, in do_action
+    await action_cb()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 489, in initialize
+    await self.bot.initialize()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 324, in initialize
+    await super().initialize()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 865, in initialize
+    await self.get_me()
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 2040, in get_me
+    return await super().get_me(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 1005, in get_me
+    result = await self._post(
+             ^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 712, in _post
+    return await self._do_post(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_extbot.py", line 378, in _do_post
+    return await super()._do_post(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\_bot.py", line 741, in _do_post
+    result = await request.post(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 198, in post
+    result = await self._request_wrapper(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_baserequest.py", line 305, in _request_wrapper
+    code, payload = await self.do_request(
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\request\_httpxrequest.py", line 303, in do_request
+    raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
+telegram.error.NetworkError: httpx.ConnectError: [Errno 11001] getaddrinfo failed
+
+2026-09-13 18:02:04 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 18:02:05 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 18:02:05 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 18:02:05 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 18:02:05 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 18:02:05 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 18:02:28 [WARNING] [jarvis] Telegram network error (non-fatal): httpx.ReadError: 
+2026-09-13 18:03:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 18:03:30 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 18:05:36 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
