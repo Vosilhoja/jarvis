@@ -56,6 +56,15 @@ from services.misc_tools import (
     toggle_keyboard_backlight,
     unzip_path,
     zip_path,
+    clear_browser_cache,
+    create_restore_point,
+    set_wallpaper,
+    toggle_caps_lock,
+    list_audio_devices,
+    set_process_volume,
+    close_active_window,
+    minimize_all_windows,
+    get_installed_updates,
 )
 from services.network_tools import (
     flush_dns,
@@ -78,6 +87,8 @@ from services.power_tools import (
     get_screen_resolution,
     hibernate_pc,
     set_power_plan,
+    laptop_screen_sleep,
+    sleep_pc_mode,
 )
 
 logger = logging.getLogger("jarvis")
@@ -211,6 +222,24 @@ def dispatch_extra(intent: str, params: Dict[str, Any], session: Any) -> Optiona
             return ExtraResult(True, mouse_scroll_units(int(params.get("amount", 300))))
         if intent == "keyboard_backlight":
             return ExtraResult(True, toggle_keyboard_backlight())
+        if intent == "clear_browser_cache":
+            return ExtraResult(True, clear_browser_cache())
+        if intent == "create_restore_point":
+            return ExtraResult(True, create_restore_point(params.get("text", "Jarvis Backup")))
+        if intent == "set_wallpaper":
+            return ExtraResult(True, set_wallpaper(params.get("path", "")))
+        if intent == "toggle_caps_lock":
+            return ExtraResult(True, toggle_caps_lock())
+        if intent == "list_audio_devices":
+            return ExtraResult(True, list_audio_devices())
+        if intent == "set_process_volume":
+            return ExtraResult(True, set_process_volume(params.get("process_name", ""), int(params.get("volume", 50))))
+        if intent == "close_active_window":
+            return ExtraResult(True, close_active_window())
+        if intent == "laptop_screen_sleep":
+            return ExtraResult(True, laptop_screen_sleep())
+        if intent == "installed_updates":
+            return ExtraResult(True, get_installed_updates())
     except Exception as e:
         logger.error("dispatch_extra error on %s: %s", intent, e, exc_info=True)
         return ExtraResult(False, f"❌ {intent}: {e}")

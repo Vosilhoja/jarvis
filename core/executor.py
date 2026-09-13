@@ -68,6 +68,14 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "watch_process": actions.handle_watch_process,
     "chat_reply": actions.handle_chat_reply,
     "clarify": actions.handle_clarify,
+    "clear_browser_cache": actions.handle_clear_browser_cache,
+    "create_restore_point": actions.handle_create_restore_point,
+    "set_wallpaper": actions.handle_set_wallpaper,
+    "toggle_caps_lock": actions.handle_toggle_caps_lock,
+    "list_audio_devices": actions.handle_list_audio_devices,
+    "set_process_volume": actions.handle_set_process_volume,
+    "close_active_window": actions.handle_close_active_window,
+    "laptop_screen_sleep": actions.handle_laptop_screen_sleep,
 }
 
 

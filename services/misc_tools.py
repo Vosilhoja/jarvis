@@ -235,6 +235,21 @@ def open_windows_tool(tool: str) -> str:
         return f"✅ Запущено: {title}"
 
 
+def open_device_manager() -> str:
+    subprocess.Popen("devmgmt.msc", shell=True)
+    return "🖥 Диспетчер устройств открыт."
+
+
+def open_event_viewer() -> str:
+    subprocess.Popen("eventvwr.msc", shell=True)
+    return "📋 Просмотр событий открыт."
+
+
+def open_task_scheduler() -> str:
+    subprocess.Popen("taskschd.msc", shell=True)
+    return "⏱ Планировщик заданий открыт."
+
+
 def restart_explorer() -> str:
     try:
         _run(["taskkill", "/f", "/im", "explorer.exe"], timeout=8)
@@ -522,3 +537,123 @@ def mouse_scroll_units(amount: int) -> str:
         return f"🖱 Скролл на {amount} ед."
     except Exception as e:
         return f"Ошибка скролла: {e}"
+
+
+def clear_browser_cache() -> str:
+    """Очищает временные кэши Chrome, Edge и Яндекс Браузера."""
+    user_local = Path(os.environ.get("LOCALAPPDATA", ""))
+    cache_dirs = [
+        user_local / "Google/Chrome/User Data/Default/Cache",
+        user_local / "Google/Chrome/User Data/Default/Code Cache",
+        user_local / "Microsoft/Edge/User Data/Default/Cache",
+        user_local / "Yandex/YandexBrowser/User Data/Default/Cache",
+    ]
+    freed_bytes = 0
+    count = 0
+    for d in cache_dirs:
+        if d.exists():
+            try:
+                for f in d.rglob("*"):
+                    if f.is_file():
+                        try:
+                            s = f.stat().st_size
+                            f.unlink()
+                            freed_bytes += s
+                            count += 1
+                        except Exception:
+                            pass
+            except Exception:
+                pass
+    mb = freed_bytes / (1024 * 1024)
+    return f"🧹 Очистка кэша браузеров: удалено {count} файлов, освобождено {mb:.1f} МБ."
+
+
+def create_restore_point(description: str = "Jarvis Backup") -> str:
+    """Создает контрольную точку восстановления системы Windows."""
+    try:
+        ps_cmd = f"Checkpoint-Computer -Description '{description}' -RestorePointType 'MODIFY_SETTINGS' -ErrorAction SilentlyContinue"
+        _run(["powershell", "-NoProfile", "-Command", ps_cmd], timeout=30)
+        return f"🛡 Запрос на создание точки восстановления «{description}» выполнен."
+    except Exception as e:
+        return f"Ошибка точки восстановления: {e}"
+
+
+def set_wallpaper(path: str) -> str:
+    """Устанавливает обои рабочего стола Windows."""
+    p = Path(os.path.expandvars(path))
+    if not p.exists() or p.suffix.lower() not in (".jpg", ".jpeg", ".png", ".bmp"):
+        return "❌ Укажите существующий файл изображения (.jpg/.png/.bmp)"
+    SPI_SETDESKWALLPAPER = 20
+    ok = ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, str(p), 3)
+    return "✅ Обои рабочего стола обновлены" if ok else "⚠️ Windows не принял файл обоев"
+
+
+def toggle_caps_lock() -> str:
+    """Переключает Caps Lock."""
+    try:
+        import pyautogui
+        pyautogui.press("capslock")
+        return "⌨ Нажат Caps Lock"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def list_audio_devices() -> str:
+    """Выводит список устройств воспроизведения звука."""
+    try:
+        ps_cmd = "Get-CimInstance Win32_SoundDevice | Select-Object -ExpandProperty Name"
+        r = _run(["powershell", "-NoProfile", "-Command", ps_cmd], timeout=8)
+        lines = [ln.strip() for ln in _decode(r.stdout).splitlines() if ln.strip()]
+        return "🎧 Аудиоустройства:\n" + "\n".join(f"• {x}" for x in lines[:10]) if lines else "Аудиоустройства не найдены"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def set_process_volume(process_name: str, volume_percent: int) -> str:
+    """Устанавливает уровень звука для конкретной программы (например chrome.exe, telegram.exe)."""
+    try:
+        from pycaw.pycaw import AudioUtilities
+        sessions = AudioUtilities.GetAllSessions()
+        target = process_name.lower().replace(".exe", "")
+        found = False
+        for s in sessions:
+            if s.Process and target in s.Process.name().lower():
+                vol = s.SimpleAudioVolume
+                vol.SetMasterVolume(max(0.0, min(1.0, volume_percent / 100.0)), None)
+                found = True
+        if found:
+            return f"🔊 Громкость для приложения «{process_name}» установлена на {volume_percent}%"
+        return f"⚠️ Процесс «{process_name}» не найден в списке активных источников звука."
+    except Exception as e:
+        return f"Ошибка звука процесса: {e}"
+
+
+def close_active_window() -> str:
+    """Мягко закрывает текущее активное окно (Alt+F4)."""
+    try:
+        import pyautogui
+        pyautogui.hotkey("alt", "f4")
+        return "❌ Нажато Alt+F4 для активного окна"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def minimize_all_windows() -> str:
+    """Сворачивает все окна (Win+D)."""
+    try:
+        import pyautogui
+        pyautogui.hotkey("win", "d")
+        return "🖥 Все окна свернуты / показан рабочий стол"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def get_installed_updates() -> str:
+    """Показывает последние установленные обновления Windows."""
+    try:
+        ps_cmd = "Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5 HotFixID, Description, InstalledOn | Format-Table -HideTableHeaders"
+        r = _run(["powershell", "-NoProfile", "-Command", ps_cmd], timeout=10)
+        lines = [ln.strip() for ln in _decode(r.stdout).splitlines() if ln.strip()]
+        return "🔄 Последние обновления Windows:\n" + "\n".join(lines[:8]) if lines else "Нет данных об обновлениях"
+    except Exception as e:
+        return f"Ошибка: {e}"

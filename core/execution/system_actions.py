@@ -202,3 +202,48 @@ async def handle_chat_reply(step: StepModel, session: UserTaskSession, bot: Bot)
 async def handle_clarify(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     await bot.send_message(chat_id=session.user_id, text=f"❓ {step.params['question']}")
     return True, "✅ Задан уточняющий вопрос"
+
+async def handle_clear_browser_cache(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import clear_browser_cache
+    msg = await asyncio.to_thread(clear_browser_cache)
+    return True, msg
+
+async def handle_create_restore_point(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import create_restore_point
+    desc = step.params.get("text") or "Jarvis Backup"
+    msg = await asyncio.to_thread(create_restore_point, desc)
+    return True, msg
+
+async def handle_set_wallpaper(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import set_wallpaper
+    path = step.params.get("path", "")
+    msg = await asyncio.to_thread(set_wallpaper, path)
+    return True, msg
+
+async def handle_toggle_caps_lock(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import toggle_caps_lock
+    msg = await asyncio.to_thread(toggle_caps_lock)
+    return True, msg
+
+async def handle_list_audio_devices(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import list_audio_devices
+    msg = await asyncio.to_thread(list_audio_devices)
+    await bot.send_message(chat_id=session.user_id, text=msg)
+    return True, "✅ Список аудиоустройств отправлен"
+
+async def handle_set_process_volume(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import set_process_volume
+    proc = step.params.get("process_name", "")
+    vol = int(step.params.get("volume", 50))
+    msg = await asyncio.to_thread(set_process_volume, proc, vol)
+    return True, msg
+
+async def handle_close_active_window(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import close_active_window
+    msg = await asyncio.to_thread(close_active_window)
+    return True, msg
+
+async def handle_laptop_screen_sleep(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.power_tools import laptop_screen_sleep
+    msg = await asyncio.to_thread(laptop_screen_sleep)
+    return True, msg

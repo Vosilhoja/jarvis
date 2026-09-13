@@ -104,3 +104,21 @@ def get_battery_report() -> str:
     if out.exists():
         return f"🔋 Отчет о батарее сгенерирован: `{out}`"
     return "⚠️ Не удалось сгенерировать отчет о батарее"
+
+
+def laptop_screen_sleep() -> str:
+    """Переводит экран ноутбука в режим ожидания/сна для экономии энергии."""
+    try:
+        ctypes.windll.user32.SendMessageW(0xFFFF, 0x0112, 0xF170, 2)
+        return "💻 Экран ноутбука переведен в режим энергосбережения (включится от любого касания клавиатуры или мыши)."
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def sleep_pc_mode() -> str:
+    """Переводит ноутбук в спящий режим."""
+    try:
+        _run(["powershell", "-NoProfile", "-Command", "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState('Suspend', $false, $false)"], timeout=5)
+        return "😴 Ноутбук переведен в спящий режим"
+    except Exception as e:
+        return f"Ошибка сна: {e}"

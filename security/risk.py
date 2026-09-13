@@ -31,6 +31,7 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "get_public_ip": RiskLevel.SAFE,
     "get_screen_info": RiskLevel.SAFE,
     "get_datetime": RiskLevel.SAFE,
+    "list_audio_devices": RiskLevel.SAFE,
     "chat_reply": RiskLevel.SAFE,
     "clarify": RiskLevel.SAFE,
 
@@ -53,6 +54,11 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "get_clipboard": RiskLevel.LOW,
     "close_application": RiskLevel.LOW,
     "cleanup_temp": RiskLevel.LOW,
+    "set_wallpaper": RiskLevel.LOW,
+    "toggle_caps_lock": RiskLevel.LOW,
+    "set_process_volume": RiskLevel.LOW,
+    "close_active_window": RiskLevel.LOW,
+    "laptop_screen_sleep": RiskLevel.LOW,
 
     # CONFIRM
     "delete_file": RiskLevel.CONFIRM,

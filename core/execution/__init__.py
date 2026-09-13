@@ -51,6 +51,14 @@ from core.execution.system_actions import (
     handle_watch_process,
     handle_chat_reply,
     handle_clarify,
+    handle_clear_browser_cache,
+    handle_create_restore_point,
+    handle_set_wallpaper,
+    handle_toggle_caps_lock,
+    handle_list_audio_devices,
+    handle_set_process_volume,
+    handle_close_active_window,
+    handle_laptop_screen_sleep,
 )
 
 __all__ = [
@@ -98,4 +106,12 @@ __all__ = [
     "handle_watch_process",
     "handle_chat_reply",
     "handle_clarify",
+    "handle_clear_browser_cache",
+    "handle_create_restore_point",
+    "handle_set_wallpaper",
+    "handle_toggle_caps_lock",
+    "handle_list_audio_devices",
+    "handle_set_process_volume",
+    "handle_close_active_window",
+    "handle_laptop_screen_sleep",
 ]

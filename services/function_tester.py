@@ -40,6 +40,17 @@ TEST_REGISTRY: Dict[str, List[Any]] = {
     "services.screenshot.take_screenshot": [],
     "services.extra_functions.get_battery_info": [],
     "services.new_features.generate_system_health_summary": [],
+    "services.extra_functions.open_device_manager": [],
+    "services.extra_functions.open_event_viewer": [],
+    "services.extra_functions.open_task_scheduler": [],
+    "services.extra_functions.clear_browser_cache": [],
+    "services.extra_functions.create_restore_point": ["Jarvis Test Point"],
+    "services.extra_functions.set_wallpaper": [""],
+    "services.extra_functions.toggle_caps_lock": [],
+    "services.extra_functions.list_audio_devices": [],
+    "services.extra_functions.set_process_volume": ["chrome", 50],
+    "services.extra_functions.close_active_window": [],
+    "services.extra_functions.laptop_screen_sleep": [],
 }
 
 # Auto-discovery settings: when new functions are added under services/, discover and add safe ones to TEST_REGISTRY
