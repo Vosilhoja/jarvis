@@ -570,23 +570,31 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         return True
 
     if text == "📡 Адаптеры сети":
+        import asyncio
         from services.extra_functions import get_network_adapters
-        await safe_reply(update, f"📡 *Сетевые адаптеры:*\n\n{get_network_adapters()}")
+        result = await asyncio.to_thread(get_network_adapters)
+        await safe_reply(update, f"📡 *Сетевые адаптеры:*\n\n{result}")
         return True
 
     if text == "📶 Wi-Fi сети":
+        import asyncio
         from services.extra_functions import get_wifi_networks
-        await safe_reply(update, f"📶 *Wi-Fi сети:*\n\n{get_wifi_networks()}")
+        result = await asyncio.to_thread(get_wifi_networks)
+        await safe_reply(update, f"📶 *Wi-Fi сети:*\n\n{result}")
         return True
 
     if text == "🏓 Ping 8.8.8.8":
+        import asyncio
         from services.extra_functions import ping_host
-        await safe_reply(update, f"🏓 *Ping 8.8.8.8:*\n\n```\n{ping_host('8.8.8.8')}\n```")
+        result = await asyncio.to_thread(ping_host, "8.8.8.8")
+        await safe_reply(update, f"🏓 *Ping 8.8.8.8:*\n\n```\n{result}\n```")
         return True
 
     if text == "🏓 Ping Яндекс":
+        import asyncio
         from services.extra_functions import ping_host
-        await safe_reply(update, f"🏓 *Ping ya.ru:*\n\n```\n{ping_host('ya.ru')}\n```")
+        result = await asyncio.to_thread(ping_host, "ya.ru")
+        await safe_reply(update, f"🏓 *Ping ya.ru:*\n\n```\n{result}\n```")
         return True
 
     # 8. БЫСТРЫЙ ЗАПУСК ПРИЛОЖЕНИЙ

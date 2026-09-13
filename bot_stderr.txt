@@ -354,3 +354,6 @@ Traceback (most recent call last):
     raise NetworkError(f"httpx.{err.__class__.__name__}: {err}") from err
 telegram.error.NetworkError: httpx.ConnectError: [Errno 11001] getaddrinfo failed
 
+C:\Users\vosil\Desktop\jarvis\handlers\menu\reply_router.py:404: RuntimeWarning: coroutine 'ExtBot.send_message' was never awaited
+  context.application.loop
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback

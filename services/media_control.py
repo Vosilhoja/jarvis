@@ -95,9 +95,12 @@ def toggle_mute_pycaw() -> bool:
     """Переключает режим Mute через pycaw."""
     try:
         volume = _get_endpoint_volume()
-        cur_mute = volume.GetMute()
-        volume.SetMute(0 if cur_mute else 1, None)
-        return not cur_mute
+        # Жмём РЕАЛЬНУЮ клавишу mute — она сама переключит системный mute
+        # И зажжёт аппаратный индикатор на клавиатуре (чего SetMute() через COM не делает).
+        _press_key(VK_VOLUME_MUTE)
+        import time as _t
+        _t.sleep(0.05)
+        return bool(volume.GetMute())
     except Exception:
         _press_key(VK_VOLUME_MUTE)
         return True

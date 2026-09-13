@@ -171,7 +171,7 @@ def parse_user_instruction_to_plan_local(text: str, recent_actions: Optional[Lis
                 pass
 
         # Напоминание
-        m = re.search(r"напомни(?: меня|)")
+        m = re.search(r"напомни(?: меня|)", t)
         if m or "напомни" in t:
             # Попробуем вытащить время 'через 20 минут' и текст
             # Простейший подход: 'напомни через 20 минут позвонить маме'

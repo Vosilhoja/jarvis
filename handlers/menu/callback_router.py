@@ -1,4 +1,5 @@
 import os
+import asyncio
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -197,11 +198,11 @@ async def _execute_tool_action(data: str, query, update, context):
             await query.edit_message_text(res[:2000], reply_markup=_back_kb)
         elif data == "tool_ping_google":
             from services.extra_functions import ping_host
-            res = ping_host("8.8.8.8")
+            res = await asyncio.to_thread(ping_host, "8.8.8.8")
             await query.edit_message_text(f"🏓 *Ping 8.8.8.8:*\n```\n{res[:1500]}\n```", reply_markup=_back_kb, parse_mode="Markdown")
         elif data == "tool_ping_yandex":
             from services.extra_functions import ping_host
-            res = ping_host("ya.ru")
+            res = await asyncio.to_thread(ping_host, "ya.ru")
             await query.edit_message_text(f"🏓 *Ping ya.ru:*\n```\n{res[:1500]}\n```", reply_markup=_back_kb, parse_mode="Markdown")
         elif data == "tool_ip_info":
             from services.extra_functions import get_local_ip, get_public_ip
@@ -211,11 +212,11 @@ async def _execute_tool_action(data: str, query, update, context):
             )
         elif data == "tool_flush_dns":
             from services.extra_functions import flush_dns
-            res = flush_dns()
+            res = await asyncio.to_thread(flush_dns)
             await query.edit_message_text(res, reply_markup=_back_kb)
         elif data == "tool_net_adapters":
             from services.extra_functions import get_network_adapters
-            res = get_network_adapters()
+            res = await asyncio.to_thread(get_network_adapters)
             await query.edit_message_text(res[:3000], reply_markup=_back_kb)
         elif data == "tool_screenshot":
             from handlers.system_commands import send_screenshot

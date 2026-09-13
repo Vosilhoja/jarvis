@@ -38625,3 +38625,121 @@ telegram.error.NetworkError: httpx.ConnectError: [Errno 11001] getaddrinfo faile
 2026-09-13 18:03:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
 2026-09-13 18:03:30 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
 2026-09-13 18:05:36 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 18:42:51 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 18:42:55 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔒 Заблокировать'
+2026-09-13 18:43:00 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 18:59:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 18:59:44 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛡 Включить охрану'
+2026-09-13 18:59:44 [INFO] [jarvis] Режим охраны: задержка 5 сек...
+2026-09-13 18:59:49 [INFO] [jarvis] Режим охраны АКТИВИРОВАН. Исходная позиция: (1531, 609)
+2026-09-13 19:05:04 [WARNING] [jarvis] 🚨 ОХРАНА СРАБОТАЛА! Мышь переместилась из (1531, 609) в (1514, 619)!
+2026-09-13 19:05:04 [ERROR] [jarvis] Не удалось отправить тревожное сообщение: 'Application' object has no attribute 'loop'
+2026-09-13 19:07:03 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 19:07:04 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 19:07:05 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 19:07:05 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 19:07:05 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 19:07:05 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 19:07:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:07:33 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 19:07:35 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 19:07:35 [INFO] [jarvis] Переключение (анимация): 1 -> 2, 1x right
+2026-09-13 19:07:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 19:07:37 [INFO] [jarvis] Переключение (анимация): 2 -> 5, 3x right
+2026-09-13 19:07:41 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 1'
+2026-09-13 19:07:41 [INFO] [jarvis] Переключение (анимация): 5 -> 1, 4x left
+2026-09-13 19:07:44 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:07:46 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Скриншот'
+2026-09-13 19:07:47 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📸 Все столы подряд'
+2026-09-13 19:07:48 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:07:48 [INFO] [jarvis] Переключение (анимация): 1 -> 2, 1x right
+2026-09-13 19:07:49 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:07:49 [INFO] [jarvis] Переключение (анимация): 2 -> 3, 1x right
+2026-09-13 19:07:50 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:07:50 [INFO] [jarvis] Переключение (анимация): 3 -> 4, 1x right
+2026-09-13 19:07:52 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:07:52 [INFO] [jarvis] Переключение (анимация): 4 -> 5, 1x right
+2026-09-13 19:07:53 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:07:53 [INFO] [jarvis] Переключение (анимация): 5 -> 1, 4x left
+2026-09-13 19:08:11 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Снимок Стола 5'
+2026-09-13 19:08:11 [INFO] [jarvis] Скриншот стола 5: исходный был 1
+2026-09-13 19:08:11 [INFO] [jarvis] Переключение (анимация): 1 -> 5, 4x right
+2026-09-13 19:08:14 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:08:14 [INFO] [jarvis] Переключение (анимация): 5 -> 1, 4x left
+2026-09-13 19:08:18 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📝 Выбрать столы вручную'
+2026-09-13 19:08:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '3, 5, 1'
+2026-09-13 19:08:28 [INFO] [jarvis] Переключение (анимация): 1 -> 3, 2x right
+2026-09-13 19:08:30 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:08:30 [INFO] [jarvis] Переключение (анимация): 3 -> 5, 2x right
+2026-09-13 19:08:32 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:08:32 [INFO] [jarvis] Переключение (анимация): 5 -> 1, 4x left
+2026-09-13 19:08:35 [INFO] [jarvis] Скриншот: PIL ImageGrab OK (попытка 1)
+2026-09-13 19:14:52 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:14:55 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-13 19:14:56 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Mute'
+2026-09-13 19:15:03 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Mute'
+2026-09-13 19:15:05 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Mute'
+2026-09-13 19:15:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 19:15:16 [INFO] [jarvis] pycaw: громкость точно установлена на 44%
+2026-09-13 19:15:17 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 19:15:17 [INFO] [jarvis] pycaw: громкость точно установлена на 54%
+2026-09-13 19:15:18 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 19:15:19 [INFO] [jarvis] pycaw: громкость точно установлена на 64%
+2026-09-13 19:15:20 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 19:15:20 [INFO] [jarvis] pycaw: громкость точно установлена на 54%
+2026-09-13 19:15:21 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 19:15:21 [INFO] [jarvis] pycaw: громкость точно установлена на 44%
+2026-09-13 19:15:23 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:15:24 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📁 Файлы'
+2026-09-13 19:15:28 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:15:29 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-13 19:15:31 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧹 Flush DNS'
+2026-09-13 19:15:37 [ERROR] [jarvis] Исключение при обработке обновления Update(message=Message(channel_chat_created=False, chat=Chat(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, type=<ChatType.PRIVATE>, username='saidamnv01'), date=datetime.datetime(2026, 9, 13, 14, 15, 31, tzinfo=datetime.timezone.utc), delete_chat_photo=False, from_user=User(first_name='𝑆𝑎𝑖𝑑𝑎𝑚𝑖𝑛𝑜𝑣.01', id=5879131172, is_bot=False, language_code='ru', username='saidamnv01'), group_chat_created=False, message_id=1818, supergroup_chat_created=False, text='🧹 Flush DNS'), update_id=995574086): 'list' object has no attribute 'get'
+Traceback (most recent call last):
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_application.py", line 1315, in process_update
+    await coroutine
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\site-packages\telegram\ext\_handlers\basehandler.py", line 159, in handle_update
+    return await self.callback(update, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\auth.py", line 44, in wrapper
+    return await func(update, context, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\handlers\remote_control.py", line 166, in handle_text_command
+    plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan, text, recent_actions)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vosil\Desktop\jarvis\services\ai_client.py", line 219, in parse_user_instruction_to_plan
+    steps_raw = data.get("steps", [])
+                ^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+2026-09-13 19:15:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 ipconfig'
+2026-09-13 19:15:38 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 21.494300795s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '21s'}]}}
+2026-09-13 19:15:40 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 19:15:40 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⚡ Скорость сети'
+2026-09-13 19:15:41 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 18.677460086s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '18s'}]}}
+2026-09-13 19:15:43 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 19:15:43 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛤 Трассировка'
+2026-09-13 19:15:44 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 15.800957896s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '15s'}]}}
+2026-09-13 19:15:46 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 19:16:32 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🏓 Ping 8.8.8.8'
+2026-09-13 19:16:34 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🏓 Ping Яндекс'
+2026-09-13 19:16:36 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📶 Wi-Fi сети'
+2026-09-13 19:16:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📡 Адаптеры сети'
+2026-09-13 19:16:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌍 Внешний IP'
+2026-09-13 19:16:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🏠 Локальный IP'
+2026-09-13 19:16:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:16:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:16:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:16:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:16:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:16:38 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:16:43 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📋 Процессы'
+2026-09-13 19:16:52 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧰 Инструменты'
+2026-09-13 19:17:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⏰ Напоминания'
+2026-09-13 19:17:40 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🤖 ИИ-чат'
+2026-09-13 19:17:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 19:17:44 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⏰ Напоминания'
+2026-09-13 19:18:02 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: 'Напомни через 10 сек что надо выключить пк'
+2026-09-13 19:18:02 [INFO] [jarvis.local_ai] local_ai: ask_local_llm prompt prepared; invoking local LLM

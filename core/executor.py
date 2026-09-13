@@ -93,8 +93,13 @@ class StepExecutor:
                 return await handler(step, session, bot)
 
             # Fallback к расширенным функциям (dispatch_extra)
+            # ВАЖНО: dispatch_extra синхронный и может содержать блокирующие
+            # subprocess-вызовы (ping, tracert, flush dns и т.д. до 45 сек).
+            # Обязательно выполняем в отдельном потоке, иначе весь бот
+            # замораживается для ВСЕХ пользователей на время вызова,
+            # так как main.py использует concurrent_updates(False).
             from services.extra_functions import dispatch_extra
-            extra = dispatch_extra(intent, params, session)
+            extra = await asyncio.to_thread(dispatch_extra, intent, params, session)
             if extra is not None:
                 if extra.photo_bytes:
                     await bot.send_photo(
