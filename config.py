@@ -21,9 +21,22 @@ for item in _raw_ids.split(","):
 # Для обратной совместимости
 ALLOWED_USER_ID = ALLOWED_USER_IDS[0] if ALLOWED_USER_IDS else 0
 
-# Настройки ИИ
-AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-2.5-flash-preview-04-17").strip()
-AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-2.5-flash-lite-preview-06-17").strip()
+# Настройки ИИ (модели с большим бесплатным лимитом, не gemini-3.x-flash)
+AI_MODEL_NAME = os.getenv("AI_MODEL_NAME", "gemini-2.0-flash").strip()
+AI_FALLBACK_MODEL_NAME = os.getenv("AI_FALLBACK_MODEL_NAME", "gemini-2.5-flash").strip()
+AI_MODEL_CHAIN = [
+    m for m in (
+        AI_MODEL_NAME,
+        AI_FALLBACK_MODEL_NAME,
+        "gemini-2.0-flash",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash-lite",
+        "gemini-flash-latest",
+    ) if m
+]
+# уникальный порядок
+_seen = set()
+AI_MODEL_CHAIN = [m for m in AI_MODEL_CHAIN if not (m in _seen or _seen.add(m))]
 AI_MAX_STEPS_PER_MESSAGE = int(os.getenv("AI_MAX_STEPS_PER_MESSAGE", "15"))
 AI_TEMPERATURE = float(os.getenv("AI_TEMPERATURE", "0.2"))
 

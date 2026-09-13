@@ -198,6 +198,35 @@ async def background_monitoring_loop():
                     urgency="high"
                 )
 
+                # Проактивное действие: при критических системных алертах создаём напоминание
+                try:
+                    # Попытаемся добавить напоминание для первого разрешённого пользователя
+                    from config import ALLOWED_USER_ID
+                    chat_for_reminder = ALLOWED_USER_ID if ALLOWED_USER_ID else None
+                    if chat_for_reminder:
+                        # Предотвращаем дубли: проверим активные напоминания на похожий текст
+                        existing = reminder_manager.get_active_reminders(chat_for_reminder)
+                        found_similar = False
+                        for r in existing:
+                            txt = (r.get("text") or "").lower()
+                            if alert.get("key", "").lower() in txt or alert.get("msg", "").split()[0].lower() in txt:
+                                found_similar = True
+                                break
+                        if not found_similar:
+                            # Подбираем разумное время напоминания в зависимости от типа аларта
+                            when = "через 1 час"
+                            if alert.get("type") == "cpu":
+                                when = "через 10 минут"
+                            elif alert.get("type") == "ram":
+                                when = "через 30 минут"
+                            elif alert.get("type") == "disk":
+                                when = "через 2 часа"
+
+                            reminder_manager.add_reminder(chat_for_reminder, alert.get("msg", "Проверьте систему"), when)
+                except Exception:
+                    # Не фатально — лог и продолжаем
+                    logger.debug("Не удалось автоматически создать напоминание для аларта")
+
             # 3. Зависшие приложения (IsHungAppWindow)
             hung = find_hung_windows()
             if hung:

@@ -148,6 +148,21 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     # parse_user_instruction_to_plan делает сетевые вызовы — выполняем в потоках
     import asyncio
     loop = asyncio.get_running_loop()
+
+    # Оптимизация: если запрос выглядит как локальная команда управления — сначала попытаться распарсить локальным планером
+    try:
+        from services.local_ai import is_control_query, parse_user_instruction_to_plan_local
+        if is_control_query(text):
+            plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan_local, text, recent_actions)
+            if plan_steps:
+                session.add_steps(plan_steps)
+                await task_executor.process_user_queue(session, context.bot)
+                return
+            # Если локальный парсер не распознал — продолжим с облачным планером
+    except Exception:
+        # Если локальный модуль недоступен — молча fallback на облачный парсер
+        pass
+
     plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan, text, recent_actions)
     session.add_steps(plan_steps)
 

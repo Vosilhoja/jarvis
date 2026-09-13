@@ -48,7 +48,25 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
             # Передаем в единый планировщик задач
             session = task_queue_manager.get_session(chat_id)
             recent_actions = [h["intent"] for h in session.history[-5:]]
-            # parse_user_instruction_to_plan делает сетевые вызовы — выполняем в пуле
+
+            # Попробуем локальный парсер для команд управления (низкая задержка, приватность)
+            try:
+                from services.local_ai import is_control_query, parse_user_instruction_to_plan_local
+                if is_control_query(recognized_text):
+                    logger.info("voice: detected control query in recognized speech; invoking local parser")
+                    plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan_local, recognized_text, recent_actions)
+                    if plan_steps:
+                        logger.info("voice: local parser returned %d steps", len(plan_steps))
+                        session.add_steps(plan_steps)
+                        await task_executor.process_user_queue(session, context.bot)
+                        return
+                    else:
+                        logger.info("voice: local parser returned no actionable steps; falling back to cloud parser")
+            except Exception as ex:
+                logger.warning("voice: local parser exception, falling back to cloud: %s", ex)
+
+            # fallback: облачный парсер
+            logger.info("voice: invoking cloud parser for instruction")
             plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan, recognized_text, recent_actions)
             session.add_steps(plan_steps)
             await task_executor.process_user_queue(session, context.bot)

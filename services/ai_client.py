@@ -10,6 +10,7 @@ from config import (
     GOOGLE_API_KEY,
     AI_MODEL_NAME,
     AI_FALLBACK_MODEL_NAME,
+    AI_MODEL_CHAIN,
     AI_TEMPERATURE,
     AI_MAX_STEPS_PER_MESSAGE
 )
@@ -28,46 +29,55 @@ def get_genai_client() -> genai.Client:
         _client = genai.Client(api_key=GOOGLE_API_KEY)
     return _client
 
-def ask_gemini(prompt: str, history: Optional[List[Dict[str, Any]]] = None) -> str:
-    """
-    Прямой текстовый запрос к Gemini для диалоговых сообщений.
-    При ошибке 429 (rate limit) — делает 1 повтор через 12 секунд.
-    """
-    for attempt in range(2):
-        try:
-            client = get_genai_client()
-            contents = []
-            if history:
-                for item in history:
-                    contents.append(types.Content(
-                        role=item.get("role", "user"),
-                        parts=[types.Part.from_text(text=p.get("text", "")) for p in item.get("parts", [])]
-                    ))
-            contents.append(types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=prompt)]
-            ))
+def friendly_ai_error(exc: Exception) -> str:
+    """Короткое сообщение пользователю без сырого JSON API."""
+    err = str(exc)
+    if "429" in err or "RESOURCE_EXHAUSTED" in err or "quota" in err.lower():
+        return (
+            "⚠️ Лимит запросов к ИИ исчерпан.\n"
+            "Подождите 1–2 минуты и напишите снова.\n"
+            "Если это повторяется каждый день — в `.env` поставьте "
+            "`AI_MODEL_NAME=gemini-2.0-flash` (больше бесплатных запросов)."
+        )
+    if "API_KEY" in err or "401" in err or "403" in err or "UNAUTHENTICATED" in err:
+        return "⚠️ Ключ Gemini API не принят. Проверьте GOOGLE_API_KEY в файле .env."
+    if "404" in err or "NOT_FOUND" in err:
+        return "⚠️ Модель ИИ не найдена. Смените AI_MODEL_NAME в .env на gemini-2.0-flash."
+    logger.error("Ошибка Gemini (скрыта от пользователя): %s", exc)
+    return "⚠️ ИИ временно недоступен. Попробуйте ещё раз через минуту."
 
+
+def ask_gemini(prompt: str, history: Optional[List[Dict[str, Any]]] = None) -> str:
+    """Диалог с Gemini: перебор моделей без блокирующего sleep."""
+    last_err: Optional[Exception] = None
+    client = get_genai_client()
+    contents = []
+    if history:
+        for item in history:
+            contents.append(types.Content(
+                role=item.get("role", "user"),
+                parts=[types.Part.from_text(text=p.get("text", "")) for p in item.get("parts", [])]
+            ))
+    contents.append(types.Content(
+        role="user",
+        parts=[types.Part.from_text(text=prompt)]
+    ))
+
+    for model_name in AI_MODEL_CHAIN:
+        try:
             response = client.models.generate_content(
-                model=AI_MODEL_NAME,
+                model=model_name,
                 contents=contents
             )
-            return response.text or "Ответ пуст."
+            text = (response.text or "").strip()
+            if text:
+                return text
         except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                if attempt == 0:
-                    logger.warning(f"Gemini 429 rate limit, повтор через 12 сек...")
-                    time.sleep(12)
-                    continue
-                else:
-                    logger.error(f"Gemini 429 rate limit после повтора: {e}")
-                    return (
-                        "⚠️ Превышен лимит запросов к Gemini API.\n"
-                        "Подождите минуту и попробуйте снова, или проверьте квоту на https://ai.dev/rate-limit"
-                    )
-            logger.error(f"Ошибка ask_gemini: {e}")
-            return f"⚠️ Ошибка ИИ: {e}"
+            last_err = e
+            logger.warning("ask_gemini модель %s: %s", model_name, e)
+            continue
+
+    return friendly_ai_error(last_err or RuntimeError("пустой ответ ИИ"))
 
 def build_system_prompt(recent_actions: Optional[List[str]] = None) -> str:
     """Динамически формирует системный промпт с реестром интентов и контекстом системы."""
@@ -99,8 +109,10 @@ def build_system_prompt(recent_actions: Optional[List[str]] = None) -> str:
 ВАЖНЫЕ ПРАВИЛА:
 1. Если пользователь называет приложение неточно, сленгом, опечаткой или сокращением (например 'яндекс музыка', 'янд музыка', 'ymusic', 'хром', 'стим', 'vs code') — ВСЕГДА используй `open_application` с параметром `app_query`, равным тому, что сказал пользователь. Внутренний модуль app_resolver сам найдет нужное приложение.
 2. Если в сообщении несколько действий подряд — верни их в поле `steps` строго в порядке их выполнения.
-3. Если запрос не связан с управлением ПК или поиском — верни ОДИН шаг `chat_reply` с твоим вежливым и полезным ответом.
-4. Ответ ДОЛЖЕН БЫТЬ СТРОГИМ JSON объектом следующего формата без markdown кавычек или лишнего текста:
+3. Если пользователь присылает только номера (например `4,9,5` или `1 3 5`) — это номера виртуальных рабочих столов для скриншота. Верни шаги `take_screenshot` с `desktop_number` для каждого номера. Не задавай уточняющих вопросов.
+4. Не предлагай создавать сайты или веб-приложения. Jarvis — Telegram-бот для управления ПК.
+5. Если запрос не связан с управлением ПК — верни ОДИН шаг `chat_reply` с коротким ответом.
+6. Ответ ДОЛЖЕН БЫТЬ СТРОГИМ JSON объектом следующего формата без markdown кавычек или лишнего текста:
 {{
   "steps": [
     {{"intent": "имя_интента", "params": {{"параметр1": "значение"}}}},
@@ -116,46 +128,32 @@ def parse_user_instruction_to_plan(user_text: str, recent_actions: Optional[List
     """
     client = get_genai_client()
     system_prompt = build_system_prompt(recent_actions)
-
-    model_to_use = AI_MODEL_NAME
     raw_response_text = ""
+    last_err: Optional[Exception] = None
+    config = types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        temperature=AI_TEMPERATURE,
+        response_mime_type="application/json"
+    )
 
-    for attempt in range(2):
+    for model_to_use in AI_MODEL_CHAIN:
         try:
-            config = types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                temperature=AI_TEMPERATURE,
-                response_mime_type="application/json"
-            )
-
             response = client.models.generate_content(
                 model=model_to_use,
                 contents=[user_text],
                 config=config
             )
             raw_response_text = response.text.strip() if response.text else ""
-            break
+            if raw_response_text:
+                break
         except Exception as e:
-            err_str = str(e)
-            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                if attempt == 0:
-                    logger.warning(f"Gemini 429 на планировщике, повтор через 12 сек...")
-                    time.sleep(12)
-                    continue
-                else:
-                    logger.error(f"Gemini 429 после повтора: {e}")
-                    return [StepModel(intent="chat_reply", params={
-                        "message": (
-                            "⚠️ Превышен лимит запросов к Gemini API.\n"
-                            "Подождите минуту и попробуйте снова."
-                        )
-                    })]
-            logger.warning(f"Ошибка модели {model_to_use} (попытка {attempt+1}): {e}")
-            model_to_use = AI_FALLBACK_MODEL_NAME
+            last_err = e
+            logger.warning("Планировщик, модель %s: %s", model_to_use, e)
 
     if not raw_response_text:
-        # Fallback: обычный разговор
-        return [StepModel(intent="chat_reply", params={"message": "Извините, не удалось связаться с сервером ИИ."})]
+        return [StepModel(intent="chat_reply", params={
+            "message": friendly_ai_error(last_err or RuntimeError("пустой ответ ИИ"))
+        })]
 
     # Парсинг JSON
     try:
@@ -165,8 +163,10 @@ def parse_user_instruction_to_plan(user_text: str, recent_actions: Optional[List
             cleaned = cleaned.split("\n", 1)[1].rsplit("\n", 1)[0]
         data = json.loads(cleaned)
     except Exception as e:
-        logger.error(f"Не удалось распарсить JSON от LLM: {raw_response_text} ({e})")
-        return [StepModel(intent="chat_reply", params={"message": raw_response_text})]
+        logger.error("Не удалось распарсить JSON от LLM: %s (%s)", raw_response_text[:500], e)
+        return [StepModel(intent="chat_reply", params={
+            "message": "Не понял команду. Напишите иначе или используйте кнопки меню."
+        })]
 
     steps_raw = data.get("steps", [])
     validated_steps: List[StepModel] = []

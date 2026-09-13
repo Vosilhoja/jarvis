@@ -57,7 +57,13 @@ def main():
     logger.info("Инициализация резидента Jarvis AI Agent...")
 
     try:
-        app = Application.builder().token(TELEGRAM_BOT_TOKEN).post_init(post_init).build()
+        app = (
+            Application.builder()
+            .token(TELEGRAM_BOT_TOKEN)
+            .post_init(post_init)
+            .concurrent_updates(False)
+            .build()
+        )
 
         # Команды
         app.add_handler(CommandHandler("start", cmd_start))
