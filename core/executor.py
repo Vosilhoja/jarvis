@@ -28,25 +28,54 @@ from services.web_client import open_url_or_search, search_web_summary, download
 logger = logging.getLogger("jarvis")
 
 def resolve_path_aliases(raw_path: str) -> Path:
-    """Разворачивает русские/английские алиасы и переменные окружения в реальные пути Windows."""
-    user_home = Path(os.environ.get("USERPROFILE", "C:\\Users\\Default"))
-    cleaned = raw_path.strip().lower()
+    """Разворачивает алиасы путей и переменные окружения в реальный путь.
 
-    if cleaned in ("рабочий стол", "десктоп", "desktop"):
-        return user_home / "Desktop"
-    elif cleaned in ("загрузки", "скачанные", "downloads"):
-        return user_home / "Downloads"
-    elif cleaned in ("документы", "мои документы", "documents"):
-        return user_home / "Documents"
-    elif cleaned in ("изображения", "картинки", "pictures"):
-        return user_home / "Pictures"
-    elif cleaned in ("видео", "videos"):
-        return user_home / "Videos"
-    elif cleaned in ("музыка", "music"):
-        return user_home / "Music"
+    Поддерживает привычные алиасы (рабочий стол, downloads, documents), а также
+    Windows- и Unix-форматы путей. Если пользователь передал относительный путь,
+    он резолвится относительно домашней директории пользователя, а не C:\Users\Default.
+    """
+    if raw_path is None:
+        return Path.home()
 
-    expanded = os.path.expandvars(raw_path)
-    return Path(expanded)
+    value = str(raw_path).strip()
+    if not value:
+        return Path.home()
+
+    user_home = Path.home()
+    userprofile = os.environ.get("USERPROFILE")
+    if userprofile:
+        user_home = Path(userprofile)
+
+    aliases = {
+        "рабочий стол": user_home / "Desktop",
+        "десктоп": user_home / "Desktop",
+        "desktop": user_home / "Desktop",
+        "загрузки": user_home / "Downloads",
+        "скачанные": user_home / "Downloads",
+        "downloads": user_home / "Downloads",
+        "документы": user_home / "Documents",
+        "мои документы": user_home / "Documents",
+        "documents": user_home / "Documents",
+        "изображения": user_home / "Pictures",
+        "картинки": user_home / "Pictures",
+        "pictures": user_home / "Pictures",
+        "видео": user_home / "Videos",
+        "videos": user_home / "Videos",
+        "музыка": user_home / "Music",
+        "music": user_home / "Music",
+        "home": user_home,
+        "~": user_home,
+    }
+
+    cleaned = value.lower()
+    if cleaned in aliases:
+        return aliases[cleaned]
+
+    expanded = os.path.expandvars(os.path.expanduser(value))
+    path = Path(expanded)
+    if not path.is_absolute():
+        path = user_home / path
+    return path
 
 class StepExecutor:
     """Исполняет шаги интентов, отправляет отчеты и управляет контекстом сессии."""

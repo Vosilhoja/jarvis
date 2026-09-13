@@ -1,4 +1,5 @@
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -10,13 +11,47 @@ load_dotenv(dotenv_path=BASE_DIR / ".env")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "").strip()
 
+
+def parse_allowed_user_ids(raw_value: str) -> list[int]:
+    """Разбирает список Telegram user IDs из .env.
+
+    Поддерживает форматы: "123, 456", "123\n456", "123;456" и одиночный ID.
+    Список очищается от пустых значений и дубликатов.
+    """
+    if raw_value is None:
+        return []
+
+    values = re.split(r"[\s,;]+", str(raw_value).strip())
+    normalized: list[int] = []
+    seen: set[int] = set()
+    for item in values:
+        if not item:
+            continue
+        try:
+            user_id = int(item)
+        except ValueError:
+            continue
+        if user_id not in seen:
+            normalized.append(user_id)
+            seen.add(user_id)
+    return normalized
+
+
+def parse_allowed_user_ids_from_env_file(env_text: str) -> list[int]:
+    """Читает только значение ALLOWED_TELEGRAM_USER_IDS из .env-файла."""
+    if not env_text:
+        return []
+
+    for line in env_text.splitlines():
+        key, _, value = line.partition("=")
+        if key.strip() == "ALLOWED_TELEGRAM_USER_IDS":
+            return parse_allowed_user_ids(value)
+    return []
+
+
 # Поддержка как ALLOWED_TELEGRAM_USER_IDS (список через запятую), так и ALLOWED_USER_ID (один ID)
 _raw_ids = os.getenv("ALLOWED_TELEGRAM_USER_IDS", "").strip() or os.getenv("ALLOWED_USER_ID", "0").strip()
-ALLOWED_USER_IDS = []
-for item in _raw_ids.split(","):
-    item = item.strip()
-    if item.isdigit():
-        ALLOWED_USER_IDS.append(int(item))
+ALLOWED_USER_IDS = parse_allowed_user_ids(_raw_ids)
 
 # Для обратной совместимости
 ALLOWED_USER_ID = ALLOWED_USER_IDS[0] if ALLOWED_USER_IDS else 0

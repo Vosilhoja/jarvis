@@ -1,5 +1,5 @@
 {
-  "updated_at": 1789148373.6817684,
+  "updated_at": 1789285870.754943,
   "apps": [
     {
       "display_name": "Administrative Tools",
@@ -35,15 +35,6 @@
       "aliases": [
         "cursor",
         "cursor"
-      ]
-    },
-    {
-      "display_name": "Devin",
-      "exec_path": "C:\\Users\\vosil\\AppData\\Local\\Programs\\Devin\\Devin.exe",
-      "source": "User Start Menu",
-      "aliases": [
-        "devin",
-        "devin"
       ]
     },
     {
@@ -1178,15 +1169,6 @@
       "aliases": [
         "power bi desktop",
         "powerbidesktop"
-      ]
-    },
-    {
-      "display_name": "охрана",
-      "exec_path": "C:\\Users\\vosil\\Desktop\\охрана.bat",
-      "source": "User Desktop",
-      "aliases": [
-        "охрана",
-        "охрана"
       ]
     },
     {
@@ -9884,6 +9866,15 @@
       ]
     },
     {
+      "display_name": "restart_bot",
+      "exec_path": "C:\\Users\\vosil\\Desktop\\jarvis\\restart_bot.bat",
+      "source": "User Desktop",
+      "aliases": [
+        "restart_bot",
+        "restart_bot"
+      ]
+    },
+    {
       "display_name": "call_generator",
       "exec_path": "C:\\Users\\vosil\\Desktop\\PythonProject1\\generate_number_v1\\call_generator.exe",
       "source": "User Desktop",
@@ -9980,15 +9971,6 @@
       "aliases": [
         "ringtone_editor_trial_installer",
         "ringtone_editor_trial_installer"
-      ]
-    },
-    {
-      "display_name": "TradingView",
-      "exec_path": "C:\\Users\\vosil\\Desktop\\Прогграммы\\TradingView.lnk",
-      "source": "User Desktop",
-      "aliases": [
-        "tradingview",
-        "tradingview"
       ]
     },
     {

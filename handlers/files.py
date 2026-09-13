@@ -12,29 +12,71 @@ logger = logging.getLogger("jarvis")
 MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024  # 50 MB лимит Telegram для ботов
 PAGE_SIZE = 8
 
+
+def get_user_home() -> Path:
+    """Возвращает домашнюю директорию текущего пользователя независимо от ОС."""
+    return Path(os.environ.get("USERPROFILE") or os.environ.get("HOME") or Path.home())
+
+
+def safe_user_path(path: str | os.PathLike[str] | None) -> Path:
+    """Нормализует путь и ограничивает доступ только пользовательскими папками."""
+    if path is None:
+        return get_desktop_path()
+
+    resolved = Path(path).expanduser()
+    if not resolved.is_absolute():
+        resolved = get_user_home() / resolved
+
+    root = get_user_home().resolve()
+    try:
+        if resolved.resolve().is_relative_to(root):
+            return resolved.resolve()
+    except (RuntimeError, ValueError):
+        pass
+
+    # Если путь не находится в домашней папке, но он существует как диск/корень,
+    # разрешаем только стандартные системные каталоги рабочего стола и загрузок.
+    for allowed_root in get_system_roots():
+        try:
+            if resolved.resolve().is_relative_to(allowed_root.resolve()):
+                return resolved.resolve()
+        except (RuntimeError, ValueError):
+            pass
+
+    return get_desktop_path().resolve()
+
+
 def get_desktop_path() -> Path:
-    """Возвращает путь к рабочему столу текущего пользователя Windows."""
-    return Path(os.environ.get("USERPROFILE", "C:\\Users\\Default")) / "Desktop"
+    """Возвращает путь к рабочему столу текущего пользователя."""
+    return get_user_home() / "Desktop"
+
 
 def get_system_roots() -> list[Path]:
-    """Возвращает список доступных корней/дисков системы (C:\\, D:\\, Desktop, Downloads)."""
+    """Возвращает список доступных корней/дисков системы."""
     roots = []
-    user_home = Path(os.environ.get("USERPROFILE", "C:\\Users\\Default"))
-    roots.append(user_home / "Desktop")
-    roots.append(user_home / "Downloads")
-    roots.append(user_home / "Documents")
-    
-    # Диски
-    for drive_letter in "CDEFGHIJK":
-        p = Path(f"{drive_letter}:\\")
-        if p.exists():
-            roots.append(p)
+    user_home = get_user_home()
+    for candidate in ["Desktop", "Downloads", "Documents", "Pictures"]:
+        path = user_home / candidate
+        if path.exists():
+            roots.append(path)
+
+    # Диски / корни файловой системы
+    if os.name == "nt":
+        for drive_letter in "CDEFGHIJK":
+            p = Path(f"{drive_letter}:\\")
+            if p.exists():
+                roots.append(p)
+    else:
+        roots.append(Path("/"))
     return roots
 
 @restricted
 async def show_files_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, current_path: Path | None = None, page: int = 0):
     """Полнофункциональный быстрый файловый менеджер с пагинацией и выбором дисков."""
-    if current_path is None or not current_path.exists():
+    if current_path is None:
+        current_path = get_desktop_path()
+    current_path = safe_user_path(current_path)
+    if not current_path.exists():
         current_path = get_desktop_path()
 
     context.user_data["current_files_dir"] = str(current_path)
@@ -161,7 +203,7 @@ async def handle_file_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     query = update.callback_query
     data = query.data
     current_dir_str = context.user_data.get("current_files_dir", str(get_desktop_path()))
-    current_path = Path(current_dir_str)
+    current_path = safe_user_path(current_dir_str)
     listed_files = context.user_data.get("listed_files", [])
     current_page = context.user_data.get("current_files_page", 0)
 
@@ -177,7 +219,7 @@ async def handle_file_callback(update: Update, context: ContextTypes.DEFAULT_TYP
         idx = int(data.replace("file_root_", ""))
         roots = context.user_data.get("root_paths", [])
         if 0 <= idx < len(roots):
-            await show_files_menu(update, context, Path(roots[idx]), page=0)
+            await show_files_menu(update, context, safe_user_path(roots[idx]), page=0)
             return
 
     if data.startswith("file_page_"):
@@ -193,7 +235,7 @@ async def handle_file_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     if data.startswith("file_open_"):
         idx = int(data.replace("file_open_", ""))
         if 0 <= idx < len(listed_files):
-            target_dir = Path(listed_files[idx])
+            target_dir = safe_user_path(listed_files[idx])
             if target_dir.is_dir():
                 await show_files_menu(update, context, target_dir, page=0)
                 return
@@ -201,7 +243,7 @@ async def handle_file_callback(update: Update, context: ContextTypes.DEFAULT_TYP
     if data.startswith("file_dl_"):
         idx = int(data.replace("file_dl_", ""))
         if 0 <= idx < len(listed_files):
-            target_file = Path(listed_files[idx])
+            target_file = safe_user_path(listed_files[idx])
             if target_file.is_file():
                 try:
                     size = target_file.stat().st_size
