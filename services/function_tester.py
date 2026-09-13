@@ -42,6 +42,73 @@ TEST_REGISTRY: Dict[str, List[Any]] = {
     "services.new_features.generate_system_health_summary": [],
 }
 
+# Auto-discovery settings: when new functions are added under services/, discover and add safe ones to TEST_REGISTRY
+AUTO_REGISTRY_PATH = Path.cwd() / ".auto_test_registry.json"
+DANGEROUS_KEYWORDS = [
+    'shutdown', 'restart', 'format', 'delete', 'erase', 'factory', 'empty_recycle_bin',
+    'hibernate', 'sleep', 'shutdown_pc', 'restart_pc', 'poweroff', 'reboot', 'factory_reset'
+]
+
+
+def discover_tests() -> Dict[str, Dict[str, object]]:
+    """Discover callables under services/ and return a mapping with metadata.
+    Safe functions (no dangerous keywords) are merged into TEST_REGISTRY with default args=[]
+    Returns a dict of discovered entries: {path: {'args': [], 'skipped': bool, 'reason': str}}
+    """
+    discovered: Dict[str, Dict[str, object]] = {}
+    services_dir = Path(__file__).parent
+    for p in services_dir.glob('*.py'):
+        name = p.stem
+        if name.startswith('_') or name in ('function_tester',):
+            continue
+        mod_path = f"services.{name}"
+        try:
+            mod = importlib.import_module(mod_path)
+        except Exception as e:
+            logger.debug("discover_tests: failed to import %s: %s", mod_path, e)
+            continue
+        for attr_name, obj in inspect.getmembers(mod, inspect.isfunction):
+            if getattr(obj, '__module__', None) != mod.__name__:
+                continue
+            if attr_name.startswith('_'):
+                continue
+            path = f"{mod.__name__}.{attr_name}"
+            # default metadata
+            meta = {'args': [], 'skipped': False, 'reason': ''}
+            doc = inspect.getdoc(obj) or ''
+            # parse AUTO_TEST: JSON-like in docstring, e.g. AUTO_TEST: [1,2]
+            import ast
+            for line in doc.splitlines():
+                if line.strip().startswith('AUTO_TEST:'):
+                    try:
+                        raw = line.split(':', 1)[1].strip()
+                        meta['args'] = ast.literal_eval(raw)
+                    except Exception:
+                        meta['reason'] = 'AUTO_TEST parse failed'
+            # detect dangerous names
+            lname = attr_name.lower()
+            if any(k in lname for k in DANGEROUS_KEYWORDS):
+                meta['skipped'] = True
+                meta['reason'] = 'Matches dangerous keyword'
+            discovered[path] = meta
+            # Merge safe ones into TEST_REGISTRY if not present
+            if not meta['skipped'] and path not in TEST_REGISTRY:
+                logger.info('discover_tests: adding %s to TEST_REGISTRY (args=%s)', path, meta['args'])
+                TEST_REGISTRY[path] = meta['args']
+
+    # write auto registry to disk for review
+    try:
+        AUTO_REGISTRY_PATH.write_text(json.dumps(discovered, ensure_ascii=False, indent=2), encoding='utf-8')
+    except Exception:
+        logger.exception('Failed to write auto registry')
+    return discovered
+
+# Run discovery at module import time so new functions are visible automatically
+try:
+    _ = discover_tests()
+except Exception:
+    logger.exception('discover_tests failed during import')
+
 # Stubs for system-affecting operations
 class StubCompletedProcess:
     def __init__(self, returncode=0, stdout=b"", stderr=b""):
