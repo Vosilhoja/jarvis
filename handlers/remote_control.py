@@ -145,7 +145,10 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
-    plan_steps = parse_user_instruction_to_plan(text, recent_actions)
+    # parse_user_instruction_to_plan делает сетевые вызовы — выполняем в потоках
+    import asyncio
+    loop = asyncio.get_running_loop()
+    plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan, text, recent_actions)
     session.add_steps(plan_steps)
 
     await task_executor.process_user_queue(session, context.bot)

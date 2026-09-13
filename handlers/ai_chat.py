@@ -23,12 +23,15 @@ async def handle_ai_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     history = context.user_data.setdefault("gemini_history", [])
 
     try:
-        reply = ask_gemini(user_text, history)
-        
+        # ask_gemini может быть блокирующим (сетевая операция) — выполняем в пуле потоков
+        import asyncio
+        loop = asyncio.get_running_loop()
+        reply = await loop.run_in_executor(None, ask_gemini, user_text, history)
+
         # Сохраняем в историю
         history.append({"role": "user", "parts": [{"text": user_text}]})
         history.append({"role": "model", "parts": [{"text": reply}]})
-        
+
         # Ограничиваем историю 10 парами сообщений
         context.user_data["gemini_history"] = history[-(MAX_HISTORY * 2):]
 

@@ -28,7 +28,10 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
         file = await context.bot.get_file(voice.file_id)
         audio_bytes = await file.download_as_bytearray()
 
-        recognized_text = transcribe_audio_bytes(bytes(audio_bytes), mime_type="audio/ogg")
+        # Выполняем транскрипцию в пуле потоков, т.к. это может блокировать
+        import asyncio
+        loop = asyncio.get_running_loop()
+        recognized_text = await loop.run_in_executor(None, transcribe_audio_bytes, bytes(audio_bytes), "audio/ogg")
         if not recognized_text:
             await status_msg.edit_text("🤷‍♂️ Не удалось распознать речь. Попробуйте сказать четче.")
             return
@@ -45,7 +48,8 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
             # Передаем в единый планировщик задач
             session = task_queue_manager.get_session(chat_id)
             recent_actions = [h["intent"] for h in session.history[-5:]]
-            plan_steps = parse_user_instruction_to_plan(recognized_text, recent_actions)
+            # parse_user_instruction_to_plan делает сетевые вызовы — выполняем в пуле
+            plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan, recognized_text, recent_actions)
             session.add_steps(plan_steps)
             await task_executor.process_user_queue(session, context.bot)
 
