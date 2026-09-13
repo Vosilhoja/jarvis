@@ -108,7 +108,7 @@ def get_media_reply_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton("🔉 Тише (-10%)"),    KeyboardButton("🔇 Mute"),       KeyboardButton("🔊 Громче (+10%)")],
         [KeyboardButton("🎚 Звук 0%"),        KeyboardButton("🎚 Звук 25%"),   KeyboardButton("🎚 Звук 50%"), KeyboardButton("🎚 Звук 100%")],
         [KeyboardButton("🎙 Установить громкость"),                             KeyboardButton("⏹ Стоп")],
-        [KeyboardButton("🎬 YouTube"),        KeyboardButton("⬅️ Назад в меню")],
+        [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 
@@ -287,6 +287,89 @@ async def _ask_for_number(update, context, state_key: str, prompt: str):
     await update.message.reply_text(prompt, parse_mode="Markdown")
 
 
+_AWAITING_INPUT_KEYS = (
+    "awaiting_screenshot_choice", "awaiting_brightness",
+    "awaiting_volume", "awaiting_file_search", "awaiting_app_search",
+    "awaiting_qr",
+)
+
+
+def _clear_awaiting(context: ContextTypes.DEFAULT_TYPE) -> None:
+    for key in _AWAITING_INPUT_KEYS:
+        context.user_data.pop(key, None)
+
+
+def _looks_like_keyboard_button(text: str) -> bool:
+    if text.startswith(("📸", "🖥", "🎛", "📍", "⬅️", "🚀", "🧰", "🤖", "📋", "⏰",
+                        "🖱", "🌐", "📁", "🎵", "🔑", "⌨", "🧹", "🛤", "⚡", "🏓",
+                        "🔐", "📷", "🆔", "🗣", "🎲", "🪙", "🪟", "🎯", "🌙", "🔋",
+                        "🔌", "🖨", "🛡", "⏱", "🗑", "🔄", "📌", "📦", "🔍")):
+        return True
+    return False
+
+
+def parse_desktop_selection(text: str):
+    """
+    Разбирает ввод номеров столов.
+    Возвращает 'all', список int, или None если это не выбор столов.
+    """
+    raw = (text or "").strip().lower()
+    if raw in ("все", "all", "*", "всё"):
+        return "all"
+    if _looks_like_keyboard_button(text):
+        return None
+    parts = [p.strip() for p in re.split(r"[,;]+", raw) if p.strip()]
+    if not parts:
+        return None
+    nums = []
+    for p in parts:
+        if p.isdigit():
+            nums.append(int(p))
+        else:
+            return None
+    return nums or None
+
+
+async def send_desktop_screenshots(update: Update, context: ContextTypes.DEFAULT_TYPE, selection) -> None:
+    from services.desktops_control import get_desktop_count
+    from handlers.system_commands import send_screenshot
+    from services.screenshot import take_multiple_desktops_screenshots
+
+    count = get_desktop_count()
+    if selection == "all":
+        desks = list(range(1, count + 1))
+    else:
+        valid = [n for n in selection if 1 <= n <= count]
+        invalid = [n for n in selection if n not in valid]
+        if invalid:
+            await update.message.reply_text(
+                f"⚠️ Столов {', '.join(map(str, invalid))} нет (сейчас 1–{count})."
+            )
+        desks = valid
+
+    if not desks:
+        await update.message.reply_text(f"⚠️ Нет подходящих номеров. Сейчас рабочих столов: {count}.")
+        return
+
+    if len(desks) == 1:
+        await send_screenshot(update, context, monitor_index=0, desktop_num=desks[0])
+        return
+
+    await update.message.reply_text(f"📸 Делаю скриншоты столов: {', '.join(map(str, desks))}...")
+    try:
+        results = take_multiple_desktops_screenshots(desks, monitor_index=0)
+        for desk_num, buf in results:
+            await context.bot.send_photo(
+                chat_id=update.effective_chat.id,
+                photo=buf,
+                caption=f"📸 Снимок: Рабочий стол {desk_num}",
+            )
+        await update.message.reply_text("✅ Скриншоты готовы, вы на исходном рабочем столе.")
+    except Exception as e:
+        logger.error("Ошибка пакетного скриншота: %s", e, exc_info=True)
+        await update.message.reply_text(f"⚠️ Ошибка скриншота: {e}")
+
+
 # ═══════════════════════════════════════════════════════════
 #  ОБРАБОТЧИК НАЖАТИЙ НИЖНЕЙ КЛАВИАТУРЫ (ReplyKeyboard)
 # ═══════════════════════════════════════════════════════════
@@ -304,11 +387,9 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     # 0. КНОПКА ВОЗВРАТА (всегда перехватываем, даже в ИИ-режиме)
     # ──────────────────────────────────────────────────────────
     if text in ("⬅️ Назад в меню", "назад в меню", "главное меню", "/menu"):
-        context.user_data.pop("ai_mode", None)  # Выходим из ИИ-режима
-        # Сбрасываем все состояния ожидания ввода
-        for key in ("awaiting_screenshot_choice", "awaiting_brightness",
-                    "awaiting_volume", "awaiting_file_search", "awaiting_app_search"):
-            context.user_data.pop(key, None)
+        context.user_data.pop("ai_mode", None)
+        context.user_data.pop("menu_section", None)
+        _clear_awaiting(context)
         await update.message.reply_text(
             "🏠 *Главное меню:* выберите категорию",
             reply_markup=get_main_reply_keyboard(),
@@ -323,25 +404,20 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
 
     # Ожидание выбора рабочих столов для скриншота
     if context.user_data.get("awaiting_screenshot_choice"):
-        context.user_data.pop("awaiting_screenshot_choice")
-        from handlers.system_commands import send_screenshot
-        raw = text.strip().lower()
-        if raw in ("все", "all", "0", "*"):
-            await send_screenshot(update, context, monitor_index=0)
+        selection = parse_desktop_selection(text)
+        if selection is not None:
+            context.user_data.pop("awaiting_screenshot_choice", None)
+            await send_desktop_screenshots(update, context, selection)
+            return True
+        if _looks_like_keyboard_button(text):
+            context.user_data.pop("awaiting_screenshot_choice", None)
         else:
-            try:
-                nums = [int(x.strip()) for x in re.split(r"[,;\s]+", raw) if x.strip().isdigit()]
-                if not nums:
-                    raise ValueError("no numbers")
-                for n in nums:
-                    await send_screenshot(update, context, monitor_index=0, desktop_num=n)
-            except ValueError:
-                await update.message.reply_text(
-                    "⚠️ Неверный формат. Введите числа через запятую или напишите `все`\n"
-                    "_Пример: `1,3` или `2`_",
-                    parse_mode="Markdown"
-                )
-        return True
+            await update.message.reply_text(
+                "⚠️ Неверный формат. Введите числа через запятую или напишите `все`\n"
+                "_Пример: `1,3` или `2`_",
+                parse_mode="Markdown"
+            )
+            return True
 
     # Ожидание ввода яркости
     if context.user_data.get("awaiting_brightness"):
@@ -403,14 +479,34 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             await update.message.reply_text(f"⚠️ Программа по запросу «{text}» не найдена.")
         return True
 
-    # ──────────────────────────────────────────────────────────
-    # РЕЖИМ ИИ-ДИАЛОГА: если активен — все сообщения идут в ИИ
-    # (кроме кнопки возврата и awaiting-состояний, обработанных выше)
-    # ──────────────────────────────────────────────────────────
+    # Ожидание текста для QR
+    if context.user_data.get("awaiting_qr"):
+        if _looks_like_keyboard_button(text):
+            context.user_data.pop("awaiting_qr", None)
+        else:
+            context.user_data.pop("awaiting_qr", None)
+            from services.extra_functions import generate_qr_png
+            extra = generate_qr_png(text)
+            if extra.photo_bytes:
+                from telegram import InputFile
+                import io
+                await update.message.reply_photo(
+                    photo=InputFile(io.BytesIO(extra.photo_bytes), extra.photo_name or "qr.png"),
+                    caption=extra.text[:900],
+                )
+            else:
+                await update.message.reply_text(extra.text)
+            return True
+
     if context.user_data.get("ai_mode"):
-        from handlers.ai_chat import handle_ai_message
-        await handle_ai_message(update, context)
-        return True
+        # Если сообщение похоже на нажатие клавиаторной кнопки — рассматриваем его как навигацию
+        # и выходим из режима ИИ, чтобы пользователь мог переключать меню.
+        if _looks_like_keyboard_button(text):
+            context.user_data.pop("ai_mode", None)
+        else:
+            from handlers.ai_chat import handle_ai_message
+            await handle_ai_message(update, context)
+            return True
 
     # ──────────────────────────────────────────────────────────
     # 1. ПЕРЕКЛЮЧЕНИЕ КАТЕГОРИЙ (Смена нижней клавиатуры)
@@ -426,6 +522,8 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     }
 
     if text in CATEGORY_MAP:
+        # При переключении категории явно выход из режима ИИ, чтобы ИИ не перехватывал дальнейший ввод
+        context.user_data.pop("ai_mode", None)
         keyboard_fn, title = CATEGORY_MAP[text]
         await update.message.reply_text(
             title,

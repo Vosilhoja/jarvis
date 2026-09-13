@@ -327,19 +327,64 @@ KEYBOARD_BACKLIGHT_STATE = 0  # 0: Выкл/Начальный, 1: Яркий, 2
 
 def toggle_keyboard_backlight() -> str:
     """
-    Эмулирует чистое нажатие клавиши F11 (код 0x7A) без Fn и других модификаторов,
-    как на ноутбуке пользователя, и отслеживает 3 режима яркости.
+    Пытается переключить подсветку клавиатуры несколькими способами:
+    1) эмуляция нажатия F11 через keybd_event (старый способ),
+    2) эмуляция через SendInput (рекомендовано),
+    3) если ни один способ не сработал — возвращает диагностическую подсказку.
+
+    Замечание: многие ноутбуки требуют аппаратной клавиши Fn+F11 — её нельзя сэмулировать
+    программно, поэтому в таких случаях функция вернёт подсказку пользователю.
     """
     global KEYBOARD_BACKLIGHT_STATE
     try:
         import ctypes
-        VK_F11 = 0x7A
-        KEYEVENTF_KEYUP = 0x0002
-        # Чистое нажатие и отпускание F11
-        ctypes.windll.user32.keybd_event(VK_F11, 0, 0, 0)
-        time.sleep(0.05)
-        ctypes.windll.user32.keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, 0)
+        from ctypes import wintypes
 
+        # Попытка 1: keybd_event (на старых системах)
+        try:
+            VK_F11 = 0x7A
+            KEYEVENTF_KEYUP = 0x0002
+            ctypes.windll.user32.keybd_event(VK_F11, 0, 0, 0)
+            time.sleep(0.05)
+            ctypes.windll.user32.keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, 0)
+            used_method = "keybd_event"
+        except Exception:
+            used_method = None
+
+        # Попытка 2: SendInput (более современный и надежный способ)
+        if not used_method:
+            try:
+                # DEFINE TYPES
+                class KEYBDINPUT(ctypes.Structure):
+                    _fields_ = [("wVk", wintypes.WORD), ("wScan", wintypes.WORD), ("dwFlags", wintypes.DWORD), ("time", wintypes.DWORD), ("dwExtraInfo", wintypes.ULONG_PTR)]
+
+                class INPUT(ctypes.Structure):
+                    _fields_ = [("type", wintypes.DWORD), ("ki", KEYBDINPUT)]
+
+                SendInput = ctypes.windll.user32.SendInput
+                # VK code for F11
+                VK_F11 = 0x7A
+                KEYEVENTF_KEYUP = 0x0002
+                inp = INPUT()
+                inp.type = 1  # INPUT_KEYBOARD
+                inp.ki = KEYBDINPUT(VK_F11, 0, 0, 0, 0)
+                SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
+                time.sleep(0.03)
+                inp.ki = KEYBDINPUT(VK_F11, 0, KEYEVENTF_KEYUP, 0, 0)
+                SendInput(1, ctypes.byref(inp), ctypes.sizeof(INPUT))
+                used_method = "SendInput"
+            except Exception:
+                used_method = None
+
+        # Если ни один метод не сработал — информируем
+        if not used_method:
+            return (
+                "⚠️ Невозможно программно переключить подсветку клавиатуры на этом устройстве.\n"
+                "Часто подсветка управляется аппаратной клавишей Fn+F11, её нельзя сэмулировать программно.\n"
+                "Попробуйте нажать Fn+F11 вручную или используйте утилиту производителя ноутбука."
+            )
+
+        # Обновляем внутреннее состояние (эмуляция трёхпозиционного переключателя)
         KEYBOARD_BACKLIGHT_STATE = (KEYBOARD_BACKLIGHT_STATE % 3) + 1
         mode_names = {
             1: "1️⃣ Максимальная яркость (Яркий)",
@@ -347,9 +392,10 @@ def toggle_keyboard_backlight() -> str:
             3: "3️⃣ Подсветка выключена"
         }
         name = mode_names.get(KEYBOARD_BACKLIGHT_STATE, f"Режим {KEYBOARD_BACKLIGHT_STATE}")
-        return f"⌨ Нажата клавиша F11. Подсветка клавиатуры: *{name}*"
+        return f"⌨ ({used_method}) Подсветка клавиатуры: *{name}*"
     except Exception as e:
-        return f"⚠️ Ошибка переключения подсветки (F11): {e}"
+        logger.exception("toggle_keyboard_backlight failure")
+        return f"⚠️ Ошибка переключения подсветки: {e}"
 
 
 def do_not_disturb_mode() -> str:
