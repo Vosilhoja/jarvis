@@ -132,6 +132,9 @@ class SecurityGuard:
                 # 2. Вызываем колбэк уведомления (если передан)
                 if self._on_trigger_callback:
                     try:
+                        self._on_trigger_callback(start_x, start_y, cur_x, cur_y, trigger_reason)
+                    except TypeError:
+                        # обратная совместимость со старыми колбэками без 5-го аргумента
                         self._on_trigger_callback(start_x, start_y, cur_x, cur_y)
                     except Exception as e:
                         logger.error(f"Ошибка вызова on_trigger_callback охраны: {e}")

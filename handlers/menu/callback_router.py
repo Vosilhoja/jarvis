@@ -48,6 +48,19 @@ async def menu_callback_router(update: Update, context: ContextTypes.DEFAULT_TYP
         await query.edit_message_text("✅ Выключение/перезагрузка отменена!")
         return
 
+    if data.startswith("kill_hung_"):
+        try:
+            pid = int(data.rsplit("_", 1)[-1])
+        except ValueError:
+            await query.edit_message_text("⚠️ Некорректный PID.")
+            return
+        import asyncio
+        from services.system_info import kill_process_by_pid
+        ok = await asyncio.to_thread(kill_process_by_pid, pid)
+        res = f"Процесс (PID {pid}) завершён." if ok else f"Не удалось завершить процесс {pid} (уже закрыт или отказано в доступе)."
+        await query.edit_message_text(f"💀 {res}")
+        return
+
     if data.startswith("do_delete_desktop_"):
         try:
             num = int(data.rsplit("_", 1)[-1])

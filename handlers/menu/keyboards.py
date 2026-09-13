@@ -102,7 +102,6 @@ def get_control_reply_keyboard() -> ReplyKeyboardMarkup:
 
     keyboard.append([KeyboardButton("➕ Новый стол"), KeyboardButton("🗑 Удалить текущий стол")])
     keyboard.append([KeyboardButton("🖱 Пульт мыши")])
-    keyboard.append([KeyboardButton("🛡 Включить охрану"), KeyboardButton("🛑 Снять с охраны")])
     keyboard.append([KeyboardButton("⬅️ Назад в меню")])
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 
@@ -135,16 +134,16 @@ def get_screenshot_reply_keyboard() -> ReplyKeyboardMarkup:
 
 def get_tools_reply_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
-        [KeyboardButton("📅 Планировщик задач"), KeyboardButton("🖥 Диспетчер устройств")],
-        [KeyboardButton("📋 Просмотр событий"),   KeyboardButton("🔧 Панель управления")],
-        [KeyboardButton("🔐 Пароль"), KeyboardButton("📷 QR-код"), KeyboardButton("🆔 UUID")],
-        [KeyboardButton("🗣 Сказать время"), KeyboardButton("🎲 Кубик"), KeyboardButton("🪙 Монета")],
+        [KeyboardButton("🖥 Диспетчер устройств"), KeyboardButton("🔧 Панель управления")],
+        [KeyboardButton("🔐 Пароль"), KeyboardButton("🎲 Кубик"), KeyboardButton("🪙 Монета")],
         [KeyboardButton("🎯 Активное окно"), KeyboardButton("🖥 Свернуть всё")],
         [KeyboardButton("🌙 Тема Windows"), KeyboardButton("🌙 Ночной свет"), KeyboardButton("🔋 Отчет батареи")],
         [KeyboardButton("🔌 USB"), KeyboardButton("🖨 Принтеры"), KeyboardButton("🚀 Автозагрузка ПО")],
         [KeyboardButton("🛡 Firewall"), KeyboardButton("🛡 Defender"), KeyboardButton("⏱ Простой")],
-        [KeyboardButton("🗑 Корзина (счёт)"), KeyboardButton("🔄 Restart Explorer")],
-        [KeyboardButton("📌 Автозапуск Jarvis"), KeyboardButton("⬅️ Назад в меню")],
+        [KeyboardButton("🔄 Restart Explorer"), KeyboardButton("📌 Автозапуск Jarvis")],
+        [KeyboardButton("🔍 Поиск по файлам"), KeyboardButton("📊 Статистика")],
+        [KeyboardButton("🌐 Топ сайтов")],
+        [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 

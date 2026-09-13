@@ -341,20 +341,31 @@ class AppResolver:
     def launch_app(self, app_info: Dict[str, Any]) -> bool:
         """Запускает приложение через explorer (для UWP/Store) или os.startfile/subprocess."""
         exec_path = app_info["exec_path"]
+
+        def _record():
+            try:
+                from services.usage_stats import record_app_launch
+                record_app_launch(app_info.get("display_name", "?"))
+            except Exception:
+                pass
+
         try:
             logger.info(f"Запуск приложения: {app_info['display_name']} -> {exec_path} (via={app_info.get('launch_via')})")
             if app_info.get("launch_via") == "explorer":
                 import subprocess
                 subprocess.Popen(["explorer.exe", exec_path])
+                _record()
                 return True
 
             os.startfile(exec_path)
+            _record()
             return True
         except Exception as e:
             logger.warning(f"os.startfile не сработал для {exec_path}: {e}, пробуем subprocess...")
             try:
                 import subprocess
                 subprocess.Popen(exec_path, shell=True)
+                _record()
                 return True
             except Exception as ex:
                 logger.error(f"Не удалось запустить {exec_path}: {ex}")

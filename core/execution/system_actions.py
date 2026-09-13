@@ -119,12 +119,11 @@ async def handle_start_guard(step: StepModel, session: UserTaskSession, bot: Bot
     chat_id = session.user_id
     loop = asyncio.get_running_loop()
 
-    def on_guard_triggered(sx, sy, cx, cy):
+    def on_guard_triggered(sx, sy, cx, cy, reason="движение мыши"):
         alert_text = (
             f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
-            f"Зафиксировано движение мыши!\n"
-            f"📍 Исходные координаты: `({sx}, {sy})`\n"
-            f"📍 Новые координаты: `({cx}, {cy})`\n\n"
+            f"Причина: {reason}\n"
+            f"📍 Координаты мыши: `({sx}, {sy})` → `({cx}, {cy})`\n\n"
             f"🔒 *Компьютер немедленно заблокирован!*"
         )
         try:

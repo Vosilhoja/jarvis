@@ -25,6 +25,9 @@ class DeleteVirtualDesktopParams(BaseModel):
 class ListRunningProcessesParams(BaseModel):
     filter: Optional[str] = Field(None, description="Фильтр по имени процесса")
 
+class SendFileByNameParams(BaseModel):
+    query: str = Field(..., description="Часть имени файла для поиска (например 'договор', 'отчет.pdf')")
+
 class KillProcessParams(BaseModel):
     name_or_pid: str = Field(..., description="PID (число) или имя процесса (например 'chrome.exe' или 1234)")
 
@@ -269,6 +272,7 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "switch_virtual_desktop": {"model": SwitchVirtualDesktopParams, "desc": "Переключение на виртуальный рабочий стол (по номеру или стрелкам)"},
     "create_virtual_desktop": {"model": CreateVirtualDesktopParams, "desc": "Создание нового виртуального рабочего стола Windows"},
     "delete_virtual_desktop": {"model": DeleteVirtualDesktopParams, "desc": "Удаление виртуального рабочего стола Windows по номеру (или текущего, если номер не указан)"},
+    "send_file_by_name": {"model": SendFileByNameParams, "desc": "Найти файл по части имени в Рабочем столе/Загрузках/Документах/Изображениях и отправить его пользователю в Telegram. Используй, когда просят прислать/скинуть/отправить конкретный файл по названию."},
     "list_running_processes": {"model": ListRunningProcessesParams, "desc": "Получение списка запущенных процессов"},
     "kill_process": {"model": KillProcessParams, "desc": "Завершение процесса по имени или PID"},
     "list_installed_apps": {"model": ListInstalledAppsParams, "desc": "Поиск по установленным приложениям"},

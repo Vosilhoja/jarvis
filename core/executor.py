@@ -27,6 +27,7 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "copy_item": actions.handle_copy_item,
     "rename_item": actions.handle_rename_item,
     "search_files": actions.handle_search_files,
+    "send_file_by_name": actions.handle_send_file_by_name,
     "delete_item": actions.handle_delete_item,
 
     # Screenshots

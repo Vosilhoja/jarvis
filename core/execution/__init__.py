@@ -12,6 +12,7 @@ from core.execution.file_actions import (
     handle_copy_item,
     handle_rename_item,
     handle_search_files,
+    handle_send_file_by_name,
     handle_delete_item,
 )
 from core.execution.screenshot_actions import handle_take_screenshot
@@ -74,6 +75,7 @@ __all__ = [
     "handle_copy_item",
     "handle_rename_item",
     "handle_search_files",
+    "handle_send_file_by_name",
     "handle_delete_item",
     "handle_take_screenshot",
     "handle_set_reminder",

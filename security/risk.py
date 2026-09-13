@@ -19,6 +19,7 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "list_installed_apps": RiskLevel.SAFE,
     "open_explorer_path": RiskLevel.SAFE,
     "search_files": RiskLevel.SAFE,
+    "send_file_by_name": RiskLevel.SAFE,
     "take_screenshot": RiskLevel.SAFE,
     "set_volume": RiskLevel.SAFE,
     "set_brightness": RiskLevel.SAFE,

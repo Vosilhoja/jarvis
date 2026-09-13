@@ -1,7 +1,7 @@
 import time
 import logging
 from typing import Dict, Any, Optional
-from telegram import Bot
+from telegram import Bot, InlineKeyboardMarkup
 from config import ALLOWED_USER_IDS, TELEGRAM_BOT_TOKEN
 
 logger = logging.getLogger("jarvis")
@@ -18,9 +18,11 @@ class Notifier:
     def set_bot(self, bot: Bot):
         self.bot = bot
 
-    async def send_notification(self, text: str, topic_key: Optional[str] = None, min_interval_sec: int = 3600, urgency: str = "normal"):
+    async def send_notification(self, text: str, topic_key: Optional[str] = None, min_interval_sec: int = 3600,
+                                 urgency: str = "normal", reply_markup: Optional[InlineKeyboardMarkup] = None):
         """
         Отправляет уведомление всем авторизованным пользователям с антиспам-проверкой.
+        Опционально можно приложить inline-кнопки (reply_markup), например "Убить процесс".
         """
         if not self.bot:
             logger.warning(f"Notifier: bot не инициализирован, не могу отправить: {text}")
@@ -41,7 +43,7 @@ class Notifier:
             if not user_id:
                 continue
             try:
-                await self.bot.send_message(chat_id=user_id, text=full_text, parse_mode="Markdown")
+                await self.bot.send_message(chat_id=user_id, text=full_text, parse_mode="Markdown", reply_markup=reply_markup)
                 logger.info(f"Проактивное уведомление отправлено пользователю {user_id}")
             except Exception as e:
                 logger.error(f"Не удалось отправить уведомление пользователю {user_id}: {e}")

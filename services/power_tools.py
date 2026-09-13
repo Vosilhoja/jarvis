@@ -53,7 +53,8 @@ def get_screen_resolution() -> str:
         return f"Ошибка: {e}"
 
 
-def get_idle_time() -> str:
+def get_idle_seconds() -> float:
+    """Возвращает секунды простоя ввода (мышь/клавиатура), сырое число."""
     class LASTINPUTINFO(ctypes.Structure):
         _fields_ = [("cbSize", ctypes.c_uint), ("dwTime", ctypes.c_uint)]
 
@@ -61,11 +62,15 @@ def get_idle_time() -> str:
     info.cbSize = ctypes.sizeof(info)
     if ctypes.windll.user32.GetLastInputInfo(ctypes.byref(info)):
         millis = ctypes.windll.kernel32.GetTickCount() - info.dwTime
-        sec = millis // 1000
-        m, s = divmod(sec, 60)
-        h, m = divmod(m, 60)
-        return f"⏱ Простой ввода: {h}ч {m}мин {s}с"
-    return "Не удалось узнать время простоя"
+        return millis / 1000.0
+    return 0.0
+
+
+def get_idle_time() -> str:
+    sec = int(get_idle_seconds())
+    m, s = divmod(sec, 60)
+    h, m = divmod(m, 60)
+    return f"⏱ Простой ввода: {h}ч {m}мин {s}с"
 
 
 def hibernate_pc() -> str:

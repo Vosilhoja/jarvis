@@ -76,6 +76,26 @@ async def handle_search_files(step: StepModel, session: UserTaskSession, bot: Bo
     await bot.send_message(chat_id=session.user_id, text=msg)
     return True, "✅ Поиск файлов выполнен"
 
+async def handle_send_file_by_name(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.misc_tools import find_file_broad
+    query = step.params["query"]
+    matches = await asyncio.to_thread(find_file_broad, query)
+    if not matches:
+        return True, f"🔍 Файл по запросу «{query}» не найден в Рабочем столе/Загрузках/Документах/Изображениях."
+
+    top = matches[0]
+    try:
+        with open(top, "rb") as f:
+            await bot.send_document(chat_id=session.user_id, document=f, filename=top.name)
+    except Exception as e:
+        return False, f"❌ Не удалось отправить файл {top.name}: {e}"
+
+    extra = ""
+    if len(matches) > 1:
+        others = "\n".join(f"• {p}" for p in matches[1:])
+        extra = f"\n\nЕщё найдено похожих (не отправлены):\n{others}"
+    return True, f"📎 Отправлен файл: *{top.name}*{extra}"
+
 async def handle_delete_item(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     target_p = resolve_path_aliases(step.params["path"])
     session.pending_confirmation = {"action": "delete", "path": str(target_p)}

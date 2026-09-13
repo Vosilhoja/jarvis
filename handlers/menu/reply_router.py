@@ -381,12 +381,11 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         from services.security_guard import security_guard
         import asyncio
 
-        def on_guard_triggered(sx, sy, cx, cy):
+        def on_guard_triggered(sx, sy, cx, cy, reason="движение мыши"):
             alert_text = (
                 f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
-                f"Зафиксировано движение мыши!\n"
-                f"📍 Исходные координаты: `({sx}, {sy})`\n"
-                f"📍 Новые координаты: `({cx}, {cy})`\n\n"
+                f"Причина: {reason}\n"
+                f"📍 Координаты мыши: `({sx}, {sy})` → `({cx}, {cy})`\n\n"
                 f"🔒 *Компьютер немедленно заблокирован!*"
             )
             try:
@@ -734,6 +733,18 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         import os as _os
         await _asyncio.to_thread(_os.startfile, "control")
         await update.message.reply_text("🔧 Панель управления открыта")
+        return True
+
+    if text == "🌐 Топ сайтов":
+        from services.usage_stats import get_top_visited_sites
+        res = await _asyncio.to_thread(get_top_visited_sites)
+        await update.message.reply_text(res, parse_mode="Markdown")
+        return True
+
+    if text == "📊 Статистика":
+        from services.usage_stats import get_weekly_report
+        res = await _asyncio.to_thread(get_weekly_report)
+        await update.message.reply_text(res, parse_mode="Markdown")
         return True
 
     if text == "🔐 Пароль":

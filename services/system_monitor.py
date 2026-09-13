@@ -53,7 +53,9 @@ def check_system_thresholds(disk_threshold_gb: float = 10.0, cpu_threshold: floa
 def find_hung_windows() -> List[Dict[str, Any]]:
     """
     Ищет зависшие приложения Windows с помощью Win32 API IsHungAppWindow.
+    Возвращает hwnd, title и pid процесса (для возможности его убить).
     """
+    import win32process
     hung_apps = []
 
     def enum_windows_callback(hwnd, extra):
@@ -61,9 +63,14 @@ def find_hung_windows() -> List[Dict[str, Any]]:
             if win32gui.IsWindowVisible(hwnd) and win32gui.IsHungAppWindow(hwnd):
                 title = win32gui.GetWindowText(hwnd)
                 if title:
+                    try:
+                        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                    except Exception:
+                        pid = None
                     hung_apps.append({
                         "hwnd": hwnd,
-                        "title": title
+                        "title": title,
+                        "pid": pid
                     })
         except Exception:
             pass
