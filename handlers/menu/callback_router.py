@@ -48,6 +48,24 @@ async def menu_callback_router(update: Update, context: ContextTypes.DEFAULT_TYP
         await query.edit_message_text("✅ Выключение/перезагрузка отменена!")
         return
 
+    if data.startswith("do_delete_desktop_"):
+        try:
+            num = int(data.rsplit("_", 1)[-1])
+        except ValueError:
+            await query.edit_message_text("⚠️ Некорректный номер стола.")
+            return
+        import asyncio
+        from services.desktops_control import delete_desktop_number
+        from handlers.menu.keyboards import get_control_reply_keyboard
+        res = await asyncio.to_thread(delete_desktop_number, num)
+        await query.edit_message_text(res)
+        await query.message.reply_text(
+            "🖱 *Управление окнами, клавишами и ПК:*",
+            reply_markup=get_control_reply_keyboard(),
+            parse_mode="Markdown"
+        )
+        return
+
     if data == "sys_info":
         from handlers.system_commands import cmd_sysinfo
         await cmd_sysinfo(update, context)

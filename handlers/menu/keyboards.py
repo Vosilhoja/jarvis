@@ -100,7 +100,8 @@ def get_control_reply_keyboard() -> ReplyKeyboardMarkup:
     if desk_row:
         keyboard.append(desk_row)
 
-    keyboard.append([KeyboardButton("➕ Новый стол"), KeyboardButton("🖱 Пульт мыши")])
+    keyboard.append([KeyboardButton("➕ Новый стол"), KeyboardButton("🗑 Удалить текущий стол")])
+    keyboard.append([KeyboardButton("🖱 Пульт мыши")])
     keyboard.append([KeyboardButton("🛡 Включить охрану"), KeyboardButton("🛑 Снять с охраны")])
     keyboard.append([KeyboardButton("⬅️ Назад в меню")])
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
@@ -134,9 +135,11 @@ def get_screenshot_reply_keyboard() -> ReplyKeyboardMarkup:
 
 def get_tools_reply_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
+        [KeyboardButton("📅 Планировщик задач"), KeyboardButton("🖥 Диспетчер устройств")],
+        [KeyboardButton("📋 Просмотр событий"),   KeyboardButton("🔧 Панель управления")],
         [KeyboardButton("🔐 Пароль"), KeyboardButton("📷 QR-код"), KeyboardButton("🆔 UUID")],
         [KeyboardButton("🗣 Сказать время"), KeyboardButton("🎲 Кубик"), KeyboardButton("🪙 Монета")],
-        [KeyboardButton("🪟 Окна"), KeyboardButton("🎯 Активное окно"), KeyboardButton("🖥 Свернуть всё")],
+        [KeyboardButton("🎯 Активное окно"), KeyboardButton("🖥 Свернуть всё")],
         [KeyboardButton("🌙 Тема Windows"), KeyboardButton("🌙 Ночной свет"), KeyboardButton("🔋 Отчет батареи")],
         [KeyboardButton("🔌 USB"), KeyboardButton("🖨 Принтеры"), KeyboardButton("🚀 Автозагрузка ПО")],
         [KeyboardButton("🛡 Firewall"), KeyboardButton("🛡 Defender"), KeyboardButton("⏱ Простой")],

@@ -51,6 +51,7 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     # System Controls & Monitors
     "switch_virtual_desktop": actions.handle_switch_virtual_desktop,
     "create_virtual_desktop": actions.handle_create_virtual_desktop,
+    "delete_virtual_desktop": actions.handle_delete_virtual_desktop,
     "list_running_processes": actions.handle_list_running_processes,
     "kill_process": actions.handle_kill_process,
     "get_disk_space": actions.handle_get_disk_space,

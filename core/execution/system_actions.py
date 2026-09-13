@@ -7,7 +7,7 @@ import psutil
 from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
 from core.intent_schema import StepModel
 from core.task_queue import UserTaskSession
-from services.desktops_control import switch_to_desktop_number, switch_desktop_direction, create_virtual_desktop
+from services.desktops_control import switch_to_desktop_number, switch_desktop_direction, create_virtual_desktop, delete_desktop_number
 from services.media_control import change_volume, set_brightness, media_play_pause, media_next, media_prev, media_stop
 from services.system_info import get_system_metrics, get_top_processes, kill_process_by_pid
 from services.system_monitor import preview_and_cleanup_temp
@@ -18,16 +18,22 @@ async def handle_switch_virtual_desktop(step: StepModel, session: UserTaskSessio
     num = step.params.get("desktop_number")
     direction = step.params.get("direction")
     if num:
-        switch_to_desktop_number(int(num))
+        await asyncio.to_thread(switch_to_desktop_number, int(num))
         return True, f"✅ Переключился на рабочий стол *{num}*"
     elif direction:
-        switch_desktop_direction(direction)
+        await asyncio.to_thread(switch_desktop_direction, direction)
         return True, f"✅ Переключился на рабочий стол ({direction})"
     return False, "Не указан номер стола или направление"
 
 async def handle_create_virtual_desktop(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    create_virtual_desktop()
+    await asyncio.to_thread(create_virtual_desktop)
     return True, "✅ Создан новый виртуальный рабочий стол"
+
+async def handle_delete_virtual_desktop(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
+    from services.desktops_control import get_current_desktop_number
+    num = step.params.get("desktop_number") or await asyncio.to_thread(get_current_desktop_number)
+    result_text = await asyncio.to_thread(delete_desktop_number, int(num))
+    return True, result_text
 
 async def handle_list_running_processes(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     procs = get_top_processes(limit=8, sort_by="memory")

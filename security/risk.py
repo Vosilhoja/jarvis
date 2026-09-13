@@ -50,6 +50,7 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "cancel_reminder": RiskLevel.LOW,
     "switch_virtual_desktop": RiskLevel.LOW,
     "create_virtual_desktop": RiskLevel.LOW,
+    "delete_virtual_desktop": RiskLevel.CONFIRM,
     "set_clipboard": RiskLevel.LOW,
     "get_clipboard": RiskLevel.LOW,
     "close_application": RiskLevel.LOW,

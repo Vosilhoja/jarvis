@@ -34,6 +34,7 @@ from core.execution.search_actions import (
 from core.execution.system_actions import (
     handle_switch_virtual_desktop,
     handle_create_virtual_desktop,
+    handle_delete_virtual_desktop,
     handle_list_running_processes,
     handle_kill_process,
     handle_get_disk_space,
@@ -89,6 +90,7 @@ __all__ = [
     "handle_get_exchange_rate",
     "handle_switch_virtual_desktop",
     "handle_create_virtual_desktop",
+    "handle_delete_virtual_desktop",
     "handle_list_running_processes",
     "handle_kill_process",
     "handle_get_disk_space",

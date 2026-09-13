@@ -7,7 +7,7 @@ from handlers.menu.common import safe_reply
 from handlers.menu.keyboards import (
     get_main_reply_keyboard, get_system_reply_keyboard, get_media_reply_keyboard,
     get_files_reply_keyboard, get_network_reply_keyboard, get_apps_reply_keyboard,
-    get_control_reply_keyboard, get_screenshot_reply_keyboard
+    get_control_reply_keyboard, get_screenshot_reply_keyboard, get_tools_reply_keyboard
 )
 
 logger = logging.getLogger("jarvis")
@@ -26,7 +26,8 @@ def _looks_like_keyboard_button(text: str) -> bool:
     if text.startswith(("📸", "🖥", "🎛", "📍", "⬅️", "🚀", "🧰", "🤖", "📋", "⏰",
                         "🖱", "🌐", "📁", "🎵", "🔑", "⌨", "🧹", "🛤", "⚡", "🏓",
                         "🔐", "📷", "🆔", "🗣", "🎲", "🪙", "🪟", "🎯", "🌙", "🔋",
-                        "🔌", "🖨", "🛡", "⏱", "🗑", "🔄", "📌", "📦", "🔍")):
+                        "🔌", "🖨", "🛡", "⏱", "🗑", "🔄", "📌", "📦", "🔍",
+                        "📅", "🔧")):
         return True
     return False
 
@@ -215,6 +216,7 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         "🚀 Приложения":  (get_apps_reply_keyboard,     "🚀 *Быстрый запуск приложений:*"),
         "🖱 Управление ПК":(get_control_reply_keyboard, "🖱 *Управление окнами, клавишами и ПК:*"),
         "📸 Скриншот":    (get_screenshot_reply_keyboard,"📸 *Выберите рабочий стол для скриншота:*"),
+        "🧰 Инструменты": (get_tools_reply_keyboard,     "🧰 *Инструменты:*"),
     }
 
     if text in CATEGORY_MAP:
@@ -225,17 +227,6 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             reply_markup=keyboard_fn(),
             parse_mode="Markdown"
         )
-        return True
-
-    if text == "🧰 Инструменты":
-        context.user_data.pop("ai_mode", None)
-        kb = InlineKeyboardMarkup([
-            [InlineKeyboardButton("🛠 Оснастки Windows", callback_data="tools_windows")],
-            [InlineKeyboardButton("🧹 Обслуживание системы", callback_data="tools_maintenance")],
-            [InlineKeyboardButton("⚙️ Диагностика / Сеть", callback_data="tools_network")],
-            [InlineKeyboardButton("📸 Экран и медиа", callback_data="tools_media")],
-        ])
-        await update.message.reply_text("🧰 *Инструменты:* выберите категорию", reply_markup=kb, parse_mode="Markdown")
         return True
 
     # 2. СКРИНШОТ
@@ -694,9 +685,176 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
             await update.message.reply_text(f"⚠️ Не удалось создать рабочий стол: {e}")
         return True
 
+    if text == "🗑 Удалить текущий стол":
+        from services.desktops_control import get_current_desktop_number, get_desktop_count
+        current = get_current_desktop_number()
+        total = get_desktop_count()
+        if total <= 1:
+            await update.message.reply_text("⚠️ Нельзя удалить единственный оставшийся рабочий стол.")
+            return True
+        kb = InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"⚠️ Да, удалить Стол {current}!", callback_data=f"do_delete_desktop_{current}")],
+            [InlineKeyboardButton("❌ Отмена", callback_data="cancel_action")]
+        ])
+        await update.message.reply_text(
+            f"⚠️ *Удалить рабочий стол {current}?* Все открытые на нём окна свернутся на соседний стол.",
+            reply_markup=kb, parse_mode="Markdown"
+        )
+        return True
+
     if text == "🖱 Пульт мыши":
         from handlers.remote_control import show_remote_control_menu
         await show_remote_control_menu(update, context)
+        return True
+
+    # ═══════════════════════════════════════════════════════
+    # 🧰 ИНСТРУМЕНТЫ — прямые обработчики (без похода в облачный ИИ)
+    # ═══════════════════════════════════════════════════════
+    import asyncio as _asyncio
+
+    if text == "📅 Планировщик задач":
+        from services.misc_tools import open_task_scheduler
+        res = await _asyncio.to_thread(open_task_scheduler)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🖥 Диспетчер устройств":
+        from services.misc_tools import open_device_manager
+        res = await _asyncio.to_thread(open_device_manager)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "📋 Просмотр событий":
+        from services.misc_tools import open_event_viewer
+        res = await _asyncio.to_thread(open_event_viewer)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🔧 Панель управления":
+        import os as _os
+        await _asyncio.to_thread(_os.startfile, "control")
+        await update.message.reply_text("🔧 Панель управления открыта")
+        return True
+
+    if text == "🔐 Пароль":
+        from services.misc_tools import generate_password
+        res = await _asyncio.to_thread(generate_password, 16)
+        await update.message.reply_text(res, parse_mode="Markdown")
+        return True
+
+    if text == "📷 QR-код":
+        context.user_data["awaiting_qr"] = True
+        await update.message.reply_text("📷 Отправьте текст или ссылку, которую закодировать в QR:")
+        return True
+
+    if text == "🆔 UUID":
+        from services.misc_tools import generate_uuid
+        res = await _asyncio.to_thread(generate_uuid)
+        await update.message.reply_text(res, parse_mode="Markdown")
+        return True
+
+    if text == "🗣 Сказать время":
+        from services.misc_tools import speak_text
+        from datetime import datetime
+        now_str = datetime.now().strftime("%H:%M")
+        res = await _asyncio.to_thread(speak_text, f"Сейчас {now_str}")
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🎲 Кубик":
+        from services.misc_tools import random_util
+        res = await _asyncio.to_thread(random_util, "dice")
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🪙 Монета":
+        from services.misc_tools import random_util
+        res = await _asyncio.to_thread(random_util, "coin")
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🎯 Активное окно":
+        from services.misc_tools import get_active_window
+        res = await _asyncio.to_thread(get_active_window)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🖥 Свернуть всё":
+        from services.misc_tools import minimize_all_windows
+        res = await _asyncio.to_thread(minimize_all_windows)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🌙 Тема Windows":
+        from services.misc_tools import toggle_dark_mode
+        res = await _asyncio.to_thread(toggle_dark_mode)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🌙 Ночной свет":
+        from services.misc_tools import open_night_light
+        res = await _asyncio.to_thread(open_night_light)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🔋 Отчет батареи":
+        from services.power_tools import get_battery_report
+        res = await _asyncio.to_thread(get_battery_report)
+        await update.message.reply_text(res[:3000])
+        return True
+
+    if text == "🔌 USB":
+        from services.misc_tools import list_usb_devices
+        res = await _asyncio.to_thread(list_usb_devices)
+        await update.message.reply_text(res[:3000])
+        return True
+
+    if text == "🖨 Принтеры":
+        from services.misc_tools import list_printers
+        res = await _asyncio.to_thread(list_printers)
+        await update.message.reply_text(res[:3000])
+        return True
+
+    if text == "🚀 Автозагрузка ПО":
+        from services.misc_tools import list_startup_apps
+        res = await _asyncio.to_thread(list_startup_apps)
+        await update.message.reply_text(res[:3000])
+        return True
+
+    if text == "🛡 Firewall":
+        from services.misc_tools import firewall_status
+        res = await _asyncio.to_thread(firewall_status)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🛡 Defender":
+        from services.misc_tools import defender_status
+        res = await _asyncio.to_thread(defender_status)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "⏱ Простой":
+        from services.power_tools import get_idle_time
+        res = await _asyncio.to_thread(get_idle_time)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🗑 Корзина (счёт)":
+        from services.misc_tools import recycle_bin_info
+        res = await _asyncio.to_thread(recycle_bin_info)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "🔄 Restart Explorer":
+        from services.misc_tools import restart_explorer
+        res = await _asyncio.to_thread(restart_explorer)
+        await update.message.reply_text(res)
+        return True
+
+    if text == "📌 Автозапуск Jarvis":
+        from services.autostart import ensure_autostart, autostart_status
+        res = await _asyncio.to_thread(lambda: ensure_autostart() + "\n\n" + autostart_status())
+        await update.message.reply_text(res)
         return True
 
     return False

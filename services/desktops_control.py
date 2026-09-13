@@ -136,7 +136,50 @@ def switch_desktop_direction(direction: str):
         switch_to_desktop_number(cur + 1)
 
 
-def create_virtual_desktop() -> int:
+def delete_desktop_number(target_num: int) -> str:
+    """
+    Удаляет виртуальный рабочий стол target_num (1-indexed).
+    Windows не даёт удалить единственный оставшийся стол — в этом случае
+    возвращает понятное сообщение без падения.
+    """
+    total = get_desktop_count()
+    if total <= 1:
+        return "⚠️ Нельзя удалить единственный оставшийся рабочий стол."
+    if not (1 <= target_num <= total):
+        return f"⚠️ Стола {target_num} не существует (сейчас столов: {total})."
+
+    # Основной способ: pyvda — напрямую удаляет конкретный стол по индексу
+    try:
+        import pyvda
+        desktops = pyvda.get_virtual_desktops()
+        if desktops and 1 <= target_num <= len(desktops):
+            desktops[target_num - 1].remove()
+            time.sleep(0.3)
+            new_total = get_desktop_count()
+            return f"🗑 Рабочий стол {target_num} удалён. Осталось столов: {new_total}."
+    except Exception as e:
+        logger.warning(f"pyvda remove failed: {e}")
+
+    # Fallback: переключиться на нужный стол и нажать Win+Ctrl+F4
+    # (закрывает ТЕКУЩИЙ активный стол в Windows 10/11)
+    try:
+        switch_to_desktop_number(target_num)
+        time.sleep(0.2)
+        script_file = tempfile.mktemp(suffix="_deldesk.py")
+        with open(script_file, "w") as f:
+            f.write("import pyautogui, time\npyautogui.FAILSAFE=False\npyautogui.hotkey('win','ctrl','f4')\ntime.sleep(0.4)\n")
+        try:
+            subprocess.run([PYTHON, script_file], timeout=5, creationflags=subprocess.CREATE_NO_WINDOW)
+        finally:
+            try:
+                os.unlink(script_file)
+            except Exception:
+                pass
+        new_total = get_desktop_count()
+        return f"🗑 Рабочий стол {target_num} удалён (Win+Ctrl+F4). Осталось столов: {new_total}."
+    except Exception as e:
+        logger.error(f"Fallback удаления стола не сработал: {e}")
+        return f"❌ Не удалось удалить рабочий стол {target_num}: {e}"
     try:
         import pyvda
         pyvda.VirtualDesktop.create()

@@ -19,6 +19,9 @@ class SwitchVirtualDesktopParams(BaseModel):
 class CreateVirtualDesktopParams(BaseModel):
     pass
 
+class DeleteVirtualDesktopParams(BaseModel):
+    desktop_number: Optional[int] = Field(None, description="Номер стола для удаления (1,2,3...). Если не указан — удаляется текущий активный стол.")
+
 class ListRunningProcessesParams(BaseModel):
     filter: Optional[str] = Field(None, description="Фильтр по имени процесса")
 
@@ -265,6 +268,7 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "close_application": {"model": CloseApplicationParams, "desc": "Мягкое/принудительное закрытие запущенной программы"},
     "switch_virtual_desktop": {"model": SwitchVirtualDesktopParams, "desc": "Переключение на виртуальный рабочий стол (по номеру или стрелкам)"},
     "create_virtual_desktop": {"model": CreateVirtualDesktopParams, "desc": "Создание нового виртуального рабочего стола Windows"},
+    "delete_virtual_desktop": {"model": DeleteVirtualDesktopParams, "desc": "Удаление виртуального рабочего стола Windows по номеру (или текущего, если номер не указан)"},
     "list_running_processes": {"model": ListRunningProcessesParams, "desc": "Получение списка запущенных процессов"},
     "kill_process": {"model": KillProcessParams, "desc": "Завершение процесса по имени или PID"},
     "list_installed_apps": {"model": ListInstalledAppsParams, "desc": "Поиск по установленным приложениям"},
