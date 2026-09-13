@@ -38743,3 +38743,99 @@ AttributeError: 'list' object has no attribute 'get'
 2026-09-13 19:17:44 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⏰ Напоминания'
 2026-09-13 19:18:02 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: 'Напомни через 10 сек что надо выключить пк'
 2026-09-13 19:18:02 [INFO] [jarvis.local_ai] local_ai: ask_local_llm prompt prepared; invoking local LLM
+2026-09-13 20:14:05 [INFO] [jarvis] Инициализация резидента Jarvis AI Agent...
+2026-09-13 20:14:05 [INFO] [jarvis] Jarvis успешно запущен и слушает Telegram (long polling)...
+2026-09-13 20:14:05 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 20:14:05 [INFO] [jarvis] Автозапуск при входе в Windows: реестр Run, Автозагрузка (JarvisAssistant.vbs), Планировщик
+2026-09-13 20:14:05 [INFO] [jarvis] Фоновые службы и нотификатор успешно зарегистрированы.
+2026-09-13 20:14:05 [INFO] [jarvis] Фоновый планировщик и система мониторинга Jarvis запущены.
+2026-09-13 20:14:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:14:12 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 20:14:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:14:19 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-13 20:14:21 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:14:34 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖱 Управление ПК'
+2026-09-13 20:14:37 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 5'
+2026-09-13 20:14:37 [INFO] [jarvis] Переключение (анимация): 1 -> 5, 4x right
+2026-09-13 20:14:41 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 1'
+2026-09-13 20:14:41 [INFO] [jarvis] Переключение (анимация): 5 -> 1, 4x left
+2026-09-13 20:14:46 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎛 Стол 2'
+2026-09-13 20:14:46 [INFO] [jarvis] Переключение (анимация): 1 -> 2, 1x right
+2026-09-13 20:14:48 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:14:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🚀 Приложения'
+2026-09-13 20:14:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:14:56 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧰 Инструменты'
+2026-09-13 20:15:15 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 20:15:16 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Подсветка клавы'
+2026-09-13 20:15:20 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⌨ Подсветка клавы'
+2026-09-13 20:15:30 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:15:31 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🎵 Медиа / Звук'
+2026-09-13 20:15:33 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Mute'
+2026-09-13 20:15:34 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔇 Mute'
+2026-09-13 20:15:36 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:36 [INFO] [jarvis] pycaw: громкость точно установлена на 22%
+2026-09-13 20:15:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:39 [INFO] [jarvis] pycaw: громкость точно установлена на 32%
+2026-09-13 20:15:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:39 [INFO] [jarvis] pycaw: громкость точно установлена на 42%
+2026-09-13 20:15:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:39 [INFO] [jarvis] pycaw: громкость точно установлена на 52%
+2026-09-13 20:15:40 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:40 [INFO] [jarvis] pycaw: громкость точно установлена на 62%
+2026-09-13 20:15:40 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:40 [INFO] [jarvis] pycaw: громкость точно установлена на 72%
+2026-09-13 20:15:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:42 [INFO] [jarvis] pycaw: громкость точно установлена на 82%
+2026-09-13 20:15:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:42 [INFO] [jarvis] pycaw: громкость точно установлена на 92%
+2026-09-13 20:15:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:42 [INFO] [jarvis] pycaw: громкость точно установлена на 100%
+2026-09-13 20:15:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:42 [INFO] [jarvis] pycaw: громкость точно установлена на 100%
+2026-09-13 20:15:43 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:43 [INFO] [jarvis] pycaw: громкость точно установлена на 100%
+2026-09-13 20:15:45 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔊 Громче (+10%)'
+2026-09-13 20:15:45 [INFO] [jarvis] pycaw: громкость точно установлена на 100%
+2026-09-13 20:15:49 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:49 [INFO] [jarvis] pycaw: громкость точно установлена на 90%
+2026-09-13 20:15:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:50 [INFO] [jarvis] pycaw: громкость точно установлена на 80%
+2026-09-13 20:15:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:50 [INFO] [jarvis] pycaw: громкость точно установлена на 70%
+2026-09-13 20:15:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:50 [INFO] [jarvis] pycaw: громкость точно установлена на 60%
+2026-09-13 20:15:50 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:50 [INFO] [jarvis] pycaw: громкость точно установлена на 50%
+2026-09-13 20:15:51 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:51 [INFO] [jarvis] pycaw: громкость точно установлена на 40%
+2026-09-13 20:15:51 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:51 [INFO] [jarvis] pycaw: громкость точно установлена на 30%
+2026-09-13 20:15:51 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🔉 Тише (-10%)'
+2026-09-13 20:15:51 [INFO] [jarvis] pycaw: громкость точно установлена на 20%
+2026-09-13 20:15:56 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:17:39 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 Сеть'
+2026-09-13 20:17:41 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌍 Внешний IP'
+2026-09-13 20:17:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🏠 Локальный IP'
+2026-09-13 20:17:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📡 Адаптеры сети'
+2026-09-13 20:17:42 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '📶 Wi-Fi сети'
+2026-09-13 20:17:43 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🏓 Ping 8.8.8.8'
+2026-09-13 20:17:45 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🏓 Ping Яндекс'
+2026-09-13 20:17:47 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🛤 Трассировка'
+2026-09-13 20:17:54 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 5.95872488s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '5s'}]}}
+2026-09-13 20:17:59 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 20:18:45 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⚡ Скорость сети'
+2026-09-13 20:18:46 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 13.728264257s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '13s'}]}}
+2026-09-13 20:18:52 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 20:18:53 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🧹 Flush DNS'
+2026-09-13 20:18:54 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 5.99699606s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '5s'}]}}
+2026-09-13 20:18:59 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 20:18:59 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🌐 ipconfig'
+2026-09-13 20:19:00 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 59.657607532s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '59s'}]}}
+2026-09-13 20:19:05 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 20:19:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:19:06 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⚡ Скорость сети'
+2026-09-13 20:19:07 [WARNING] [jarvis] Планировщик, модель gemini-3.6-flash: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 52.466891765s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '52s'}]}}
+2026-09-13 20:19:12 [INFO] [jarvis] Добавлено 1 шагов в очередь пользователя 5879131172. В очереди: 1
+2026-09-13 20:19:13 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'
+2026-09-13 20:20:11 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '🖥 Система'
+2026-09-13 20:20:14 [INFO] [jarvis] Получено текстовое сообщение от 5879131172: '⬅️ Назад в меню'

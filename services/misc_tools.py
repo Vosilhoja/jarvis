@@ -465,66 +465,53 @@ _DND_STATE: dict = {"enabled": False, "prev_muted": False}
 
 
 def toggle_keyboard_backlight() -> str:
-    """Переключает подсветку клавиатуры. Пробует несколько методов с диагностикой."""
-    VK_F11 = 0x7A
-    KEYEVENTF_KEYUP = 0x0002
-    methods_tried = []
+    """
+    Пытается переключить подсветку клавиатуры через WMI-классы известных производителей.
 
-    # Метод 1: keybd_event (работает на большинстве ПК, но не на всех ноутбуках)
-    try:
-        ctypes.windll.user32.keybd_event(VK_F11, 0, 0, 0)
-        time.sleep(0.05)
-        ctypes.windll.user32.keybd_event(VK_F11, 0, KEYEVENTF_KEYUP, 0)
-        methods_tried.append("keybd_event")
-    except Exception as e:
-        methods_tried.append(f"keybd_event:FAIL({e})")
+    ВАЖНО: F11 здесь больше НЕ используется. F11 — это системный хоткей
+    "полноэкранный режим" почти во всех приложениях и браузерах, и предыдущая
+    версия этой функции по ошибке разворачивала активное окно на весь экран
+    вместо переключения подсветки. Универсального WinAPI для подсветки
+    клавиатуры не существует — это всегда проприетарная функция производителя.
+    """
+    methods_ok = []
 
-    # Метод 2: SendInput (более надёжный способ через Win32 API)
-    try:
-        class KEYBDINPUT(ctypes.Structure):
-            _fields_ = [
-                ("wVk", ctypes.c_ushort),
-                ("wScan", ctypes.c_ushort),
-                ("dwFlags", ctypes.c_ulong),
-                ("time", ctypes.c_ulong),
-                ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
-            ]
-
-        class INPUT(ctypes.Structure):
-            class _INPUT(ctypes.Union):
-                _fields_ = [("ki", KEYBDINPUT)]
-            _anonymous_ = ("_input",)
-            _fields_ = [("type", ctypes.c_ulong), ("_input", _INPUT)]
-
-        INPUT_KEYBOARD = 1
-        inp_down = INPUT(type=INPUT_KEYBOARD)
-        inp_down.ki.wVk = VK_F11
-        inp_up = INPUT(type=INPUT_KEYBOARD)
-        inp_up.ki.wVk = VK_F11
-        inp_up.ki.dwFlags = KEYEVENTF_KEYUP
-        ctypes.windll.user32.SendInput(1, ctypes.byref(inp_down), ctypes.sizeof(INPUT))
-        time.sleep(0.05)
-        ctypes.windll.user32.SendInput(1, ctypes.byref(inp_up), ctypes.sizeof(INPUT))
-        methods_tried.append("SendInput")
-    except Exception as e:
-        methods_tried.append(f"SendInput:FAIL({e})")
-
-    # Метод 3: PowerShell WMI (на некоторых моделях Lenovo/Dell)
+    # Lenovo (Vantage / Legion) — WMI namespace root\WMI, класс LENOVO_GAMEZONE_DATA / LENOVO_UTILITY
     try:
         r = _run(
             ["powershell", "-NoProfile", "-Command",
-             "(Get-WmiObject -Namespace root/WMI -Class WMI_MonitorBrightnessMethods) | % {$_.WmiSetBrightness(1,0)}"],
+             "$m = Get-WmiObject -Namespace root/WMI -Class LENOVO_GAMEZONE_DATA -ErrorAction SilentlyContinue; "
+             "if ($m) { $m.SetKeyboardLight(1) }"],
             timeout=3
         )
-        methods_tried.append("WMI")
+        if r.returncode == 0:
+            methods_ok.append("Lenovo WMI")
     except Exception:
         pass
 
+    # Dell (Alienware/Command Center) — WMI namespace root\WMI, класс DellAbstraction/AWCCWmi
+    try:
+        r = _run(
+            ["powershell", "-NoProfile", "-Command",
+             "$m = Get-WmiObject -Namespace root/WMI -Class AWCCWmi -ErrorAction SilentlyContinue; "
+             "if ($m) { $m.ToggleKeyboardBacklight() }"],
+            timeout=3
+        )
+        if r.returncode == 0:
+            methods_ok.append("Dell WMI")
+    except Exception:
+        pass
+
+    if methods_ok:
+        return f"⌨ Подсветка клавиатуры переключена ({', '.join(methods_ok)})."
+
     return (
-        "⌨ Попытка переключить подсветку выполнена, но учтите: на большинстве ноутбуков "
-        "подсветка НЕ управляется через ОС, а обрабатывается аппаратно (embedded controller).\n"
-        "_Если не сработало — используйте_ `Fn+F11`/`Fn+Space` _или фирменную утилиту "
-        "(Lenovo Vantage, Dell Power Manager, HP Command Center, ASUS Armoury Crate)._"
+        "⌨ Не удалось найти поддерживаемый WMI-интерфейс подсветки клавиатуры для вашей модели ноутбука.\n"
+        "Это ожидаемо: единого системного способа переключить подсветку в Windows не существует — "
+        "у каждого производителя своя закрытая реализация.\n\n"
+        "Используйте аппаратную комбинацию клавиш (обычно `Fn+Пробел` или `Fn+F5..F12`, зависит от модели) "
+        "или фирменную утилиту: Lenovo Vantage, Dell Power Manager/Alienware Command Center, "
+        "HP Command Center, ASUS Armoury Crate, MSI Center."
     )
 
 

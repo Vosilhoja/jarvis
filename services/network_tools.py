@@ -150,8 +150,12 @@ def speed_test() -> str:
     url = "https://speed.cloudflare.com/__down?bytes=2000000"
     try:
         import urllib.request
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) JarvisBot/1.0"}
+        )
         t0 = time.perf_counter()
-        with urllib.request.urlopen(url, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=20) as resp:
             data = resp.read()
         dt = max(time.perf_counter() - t0, 0.001)
         mb = len(data) / (1024 * 1024)

@@ -71,10 +71,29 @@ class SecurityGuard:
             ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
             start_x, start_y = pt.x, pt.y
 
-        logger.info(f"Режим охраны АКТИВИРОВАН. Исходная позиция: ({start_x}, {start_y})")
+        # Запоминаем активное окно (детектирует Alt+Tab, клик по таскбару и т.д.,
+        # даже если это сделано с клавиатуры/тачпада без движения мыши)
+        start_foreground_hwnd = ctypes.windll.user32.GetForegroundWindow()
 
+        # Запоминаем текущий виртуальный рабочий стол (детектирует свайп тачпада
+        # 3-4 пальцами или Win+Ctrl+Left/Right — тоже без движения курсора мыши)
+        try:
+            from services.desktops_control import get_current_desktop_number
+            start_desktop = get_current_desktop_number()
+        except Exception:
+            start_desktop = None
+
+        logger.info(
+            f"Режим охраны АКТИВИРОВАН. Позиция: ({start_x}, {start_y}), "
+            f"окно: {start_foreground_hwnd}, стол: {start_desktop}"
+        )
+
+        desktop_check_counter = 0
         while not self._cancel_event.is_set():
             time.sleep(0.05)
+            trigger_reason = None
+
+            # 1. Проверка движения мыши
             try:
                 cur_x, cur_y = pyautogui.position()
             except Exception:
@@ -82,9 +101,30 @@ class SecurityGuard:
                 ctypes.windll.user32.GetCursorPos(ctypes.byref(pt))
                 cur_x, cur_y = pt.x, pt.y
 
-            # Если мышь сдвинулась больше чем на 3 пикселя (защита от микро-дрожания сенсора)
             if abs(cur_x - start_x) > 3 or abs(cur_y - start_y) > 3:
-                logger.warning(f"🚨 ОХРАНА СРАБОТАЛА! Мышь переместилась из ({start_x}, {start_y}) в ({cur_x}, {cur_y})!")
+                trigger_reason = f"мышь переместилась из ({start_x}, {start_y}) в ({cur_x}, {cur_y})"
+
+            # 2. Проверка смены активного окна (Alt+Tab, клик по таскбару, тачпад-жест)
+            if not trigger_reason:
+                cur_foreground_hwnd = ctypes.windll.user32.GetForegroundWindow()
+                if cur_foreground_hwnd != start_foreground_hwnd:
+                    trigger_reason = "сменилось активное окно (Alt+Tab / переключение приложения)"
+
+            # 3. Проверка смены виртуального рабочего стола (раз в ~0.5 сек — дороже по CPU)
+            if not trigger_reason and start_desktop is not None:
+                desktop_check_counter += 1
+                if desktop_check_counter >= 10:
+                    desktop_check_counter = 0
+                    try:
+                        from services.desktops_control import get_current_desktop_number
+                        cur_desktop = get_current_desktop_number()
+                        if cur_desktop != start_desktop:
+                            trigger_reason = f"сменился рабочий стол ({start_desktop} → {cur_desktop})"
+                    except Exception:
+                        pass
+
+            if trigger_reason:
+                logger.warning(f"🚨 ОХРАНА СРАБОТАЛА! Причина: {trigger_reason}")
                 # 1. Блокируем Windows
                 ctypes.windll.user32.LockWorkStation()
                 self._is_active = False
