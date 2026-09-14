@@ -141,6 +141,9 @@ WEEKLY_REPORT_HOUR = int(os.getenv("WEEKLY_REPORT_HOUR", "9"))
 MORNING_GREETING_HOUR = int(os.getenv("MORNING_GREETING_HOUR", "8"))
 MORNING_GREETING_MINUTE = int(os.getenv("MORNING_GREETING_MINUTE", "0"))
 MORNING_GREETING_CITY = os.getenv("MORNING_GREETING_CITY", "") or None
+ONLINE_GREETING_ENABLED = os.getenv("ONLINE_GREETING_ENABLED", "1").strip().lower() not in {
+    "0", "false", "no", "off"
+}
 
 # Whitelist процессов, которые НИКОГДА не считаются "зависшими" (IsHungAppWindow
 # часто ложно срабатывает на тяжёлых играх/IDE во время загрузки уровня, компиляции

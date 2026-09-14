@@ -26,7 +26,7 @@ from telegram.request import HTTPXRequest
 import pyautogui
 pyautogui.FAILSAFE = False
 
-from config import TELEGRAM_BOT_TOKEN, validate_config
+from config import TELEGRAM_BOT_TOKEN, ONLINE_GREETING_ENABLED, validate_config
 from logger_setup import setup_logging
 from handlers.menu import cmd_start, menu_callback_router
 from handlers.remote_control import handle_text_command
@@ -51,6 +51,12 @@ async def cmd_autostart(update: Update, context):
 async def post_init(application: Application):
     """Инициализация фоновых служб после запуска бота."""
     notifier.set_bot(application.bot)
+    if ONLINE_GREETING_ENABLED:
+        await notifier.send_notification(
+            "🟢 Я снова на связи. Локальное управление ПК готово, напоминания и мониторинг запущены.",
+            topic_key="jarvis_online",
+            min_interval_sec=30,
+        )
     asyncio.create_task(background_monitoring_loop())
     try:
         from services.apscheduler_jobs import start_apscheduler_jobs

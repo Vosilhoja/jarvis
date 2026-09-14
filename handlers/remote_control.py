@@ -42,6 +42,17 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     if await handle_reply_keyboard(update, context):
         return
 
+    # Conversational phrases are not commands. Handle them before the planner
+    # so "Привет" cannot become an empty or accidental PC task.
+    from services.personality import reply_for_small_talk
+    small_talk_reply = reply_for_small_talk(
+        text,
+        update.effective_user.first_name if update.effective_user else None,
+    )
+    if small_talk_reply:
+        await update.message.reply_text(small_talk_reply)
+        return
+
     # ── ПРИОРИТЕТ 2: защита от ИИ при активном ожидании ввода ──
     # (дополнительная страховка, если handle_reply_keyboard не обработала)
     _AWAITING_KEYS = (

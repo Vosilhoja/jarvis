@@ -20,6 +20,15 @@ async def handle_ai_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not user_text:
         return
 
+    from services.personality import reply_for_small_talk
+    small_talk_reply = reply_for_small_talk(
+        user_text,
+        update.effective_user.first_name if update.effective_user else None,
+    )
+    if small_talk_reply:
+        await update.message.reply_text(small_talk_reply)
+        return
+
     # Отправляем действие "печатает..."
     await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
 

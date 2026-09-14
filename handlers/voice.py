@@ -38,6 +38,15 @@ async def handle_voice_message(update: Update, context: ContextTypes.DEFAULT_TYP
 
         await status_msg.edit_text(f"🎤 *Распознал:* «_{recognized_text}_»", parse_mode="Markdown")
 
+        from services.personality import reply_for_small_talk
+        small_talk_reply = reply_for_small_talk(
+            recognized_text,
+            update.effective_user.first_name if update.effective_user else None,
+        )
+        if small_talk_reply:
+            await update.message.reply_text(small_talk_reply)
+            return
+
         # Если активен ИИ-режим — передаём в Gemini-диалог
         if context.user_data.get("ai_mode"):
             from handlers.ai_chat import handle_ai_message
