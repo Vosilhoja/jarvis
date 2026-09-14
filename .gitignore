@@ -36,6 +36,21 @@ env/
 # Logs
 *.log
 logs/
+bot_*.txt
+out.txt
+
+# Runtime state and generated local data
+usage_stats.json
+data/*.json
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Local reports and temporary output
+*.tmp
+*.temp
+*.bak
+*.swp
 
 # IDE files
 .idea/
