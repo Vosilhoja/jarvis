@@ -93,6 +93,7 @@ REMINDERS_DB_PATH = DATA_DIR / "reminders.json"
 APPS_CACHE_PATH = DATA_DIR / "apps_cache.json"
 USER_CONTEXT_PATH = DATA_DIR / "user_context.json"
 SCENARIOS_PATH = DATA_DIR / "scenarios.json"
+WIFI_HISTORY_PATH = DATA_DIR / "wifi_history.json"
 
 # Мониторинг и пороги алертов
 BACKGROUND_CHECK_INTERVAL_SEC = int(os.getenv("BACKGROUND_CHECK_INTERVAL_SEC", "120"))
@@ -132,6 +133,29 @@ WEEKLY_REPORT_HOUR = int(os.getenv("WEEKLY_REPORT_HOUR", "9"))
 MORNING_GREETING_HOUR = int(os.getenv("MORNING_GREETING_HOUR", "8"))
 MORNING_GREETING_MINUTE = int(os.getenv("MORNING_GREETING_MINUTE", "0"))
 MORNING_GREETING_CITY = os.getenv("MORNING_GREETING_CITY", "") or None
+
+# Whitelist процессов, которые НИКОГДА не считаются "зависшими" (IsHungAppWindow
+# часто ложно срабатывает на тяжёлых играх/IDE во время загрузки уровня, компиляции
+# и т.д.) — сравнение по имени процесса, без учёта регистра, через запятую.
+HUNG_APP_WHITELIST = [
+    p.strip().lower() for p in os.getenv(
+        "HUNG_APP_WHITELIST",
+        "devenv.exe,code.exe,pycharm64.exe,idea64.exe,unity.exe,unrealeditor.exe,"
+        "photoshop.exe,premiere.exe,afterfx.exe,blender.exe,davinci resolve.exe"
+    ).split(",") if p.strip()
+]
+
+# Детектор нажатий клавиш в режиме охраны (services/security_guard.py, через pynput).
+# Некоторые антивирусы помечают низкоуровневые keyboard-хуки как подозрительные —
+# если это создаёт проблемы, можно отключить только этот триггер, оставив
+# детекцию по мыши/окну/рабочему столу.
+SECURITY_GUARD_KEYBOARD_DETECTION = os.getenv("SECURITY_GUARD_KEYBOARD_DETECTION", "true").lower() == "true"
+
+# Процессы, которые НЕ сворачиваются командой "🙈 Скрыть все окна"
+# (например сам Telegram Desktop, если вы держите его открытым на этом же ПК).
+HIDE_WINDOWS_EXCLUDE_PROCESSES = [
+    p.strip().lower() for p in os.getenv("HIDE_WINDOWS_EXCLUDE_PROCESSES", "telegram.exe").split(",") if p.strip()
+]
 
 def validate_config() -> None:
     """Проверяет корректность обязательных переменных конфигурации."""

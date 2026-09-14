@@ -56,7 +56,13 @@ def find_hung_windows() -> List[Dict[str, Any]]:
     Ищет зависшие приложения Windows с помощью Win32 API IsHungAppWindow.
     Возвращает hwnd, заголовок, PID и (если доступно) имя процесса —
     PID нужен, чтобы предложить пользователю кнопку "Убить" в алерте.
+
+    Процессы из config.HUNG_APP_WHITELIST исключаются — IsHungAppWindow часто
+    ложно срабатывает на тяжёлых играх/IDE во время загрузки уровня, компиляции
+    и т.д., и без вайтлиста это давало постоянные ложные алерты.
     """
+    from config import HUNG_APP_WHITELIST
+
     hung_apps = []
 
     def enum_windows_callback(hwnd, extra):
@@ -71,6 +77,10 @@ def find_hung_windows() -> List[Dict[str, Any]]:
                         proc_name = psutil.Process(pid).name()
                     except Exception:
                         pass
+
+                    if proc_name and proc_name.lower() in HUNG_APP_WHITELIST:
+                        return True
+
                     hung_apps.append({
                         "hwnd": hwnd,
                         "title": title,

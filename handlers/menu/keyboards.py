@@ -62,6 +62,7 @@ def get_network_reply_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [KeyboardButton("🌍 Внешний IP"),     KeyboardButton("🏠 Локальный IP")],
         [KeyboardButton("📡 Адаптеры сети"),  KeyboardButton("📶 Wi-Fi сети")],
+        [KeyboardButton("📶 Диагностика сигнала")],
         [KeyboardButton("🏓 Ping 8.8.8.8"),   KeyboardButton("🏓 Ping Яндекс")],
         [KeyboardButton("🛤 Трассировка"),    KeyboardButton("⚡ Скорость сети")],
         [KeyboardButton("🧹 Flush DNS"),      KeyboardButton("🌐 ipconfig")],

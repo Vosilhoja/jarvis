@@ -246,6 +246,9 @@ def dispatch_extra(intent: str, params: Dict[str, Any], session: Any) -> Optiona
             return ExtraResult(True, get_folder_changes_today(params.get("path", "")))
         if intent == "hide_all_windows_except_active":
             return ExtraResult(True, hide_all_windows_except_active())
+        if intent == "get_wifi_diagnostics":
+            from services.wifi_monitor import get_wifi_diagnostics_report
+            return ExtraResult(True, get_wifi_diagnostics_report())
     except Exception as e:
         logger.error("dispatch_extra error on %s: %s", intent, e, exc_info=True)
         return ExtraResult(False, f"❌ {intent}: {e}")

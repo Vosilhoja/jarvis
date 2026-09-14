@@ -783,18 +783,36 @@ def hide_all_windows_except_active() -> str:
     Сворачивает все видимые окна, КРОМЕ текущего активного (в отличие от
     minimize_all_windows(), который сворачивает вообще всё через Win+D).
     Полезно для фокус-режима на одном приложении.
+
+    Процессы из config.HIDE_WINDOWS_EXCLUDE_PROCESSES (по умолчанию Telegram.exe)
+    не сворачиваются — иначе, например, свернулся бы и сам Telegram Desktop,
+    если он открыт на этом же ПК, откуда вы управляете ботом.
     """
     try:
         import win32gui
         import win32con
+        import win32process
+        import psutil
+        from config import HIDE_WINDOWS_EXCLUDE_PROCESSES
 
         active_hwnd = win32gui.GetForegroundWindow()
         # Системные окна, которые не стоит трогать (таскбар, панель задач и т.д.)
         skip_titles = {"Program Manager", ""}
         hidden = 0
+        skipped_excluded = 0
         for hwnd, title in _enum_windows():
             if hwnd == active_hwnd or title in skip_titles:
                 continue
+
+            try:
+                _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                proc_name = psutil.Process(pid).name().lower()
+                if proc_name in HIDE_WINDOWS_EXCLUDE_PROCESSES:
+                    skipped_excluded += 1
+                    continue
+            except Exception:
+                pass  # не удалось определить процесс — сворачиваем как раньше
+
             try:
                 win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
                 hidden += 1
@@ -802,9 +820,10 @@ def hide_all_windows_except_active() -> str:
                 continue
 
         active_title = win32gui.GetWindowText(active_hwnd) or "(без заголовка)"
+        excluded_note = f" (не тронуто из исключений: {skipped_excluded})" if skipped_excluded else ""
         if hidden == 0:
-            return f"🙈 Других окон не найдено — активно только «{active_title}»"
-        return f"🙈 Свёрнуто окон: {hidden}. Осталось активным: «{active_title}»"
+            return f"🙈 Других окон не найдено — активно только «{active_title}»{excluded_note}"
+        return f"🙈 Свёрнуто окон: {hidden}. Осталось активным: «{active_title}»{excluded_note}"
     except Exception as e:
         return f"Ошибка: {e}"
 
@@ -812,9 +831,10 @@ def hide_all_windows_except_active() -> str:
 def get_folder_changes_today(path: str) -> str:
     """
     Показывает файлы в указанной папке, изменённые или созданные сегодня
-    ("что изменилось в папке X за сегодня"). Не рекурсивно в подпапки глубже
-    2 уровней и с ограничением по количеству файлов — чтобы не зависнуть
-    на больших деревьях каталогов (см. известные грабли про блокирующие вызовы).
+    ("что изменилось в папке X за сегодня"). С ограничением по количеству
+    просмотренных файлов — чтобы не зависнуть на больших деревьях каталогов
+    (см. известные грабли про блокирующие вызовы) — но, в отличие от первой
+    версии, честно предупреждает, если упёрлись в лимит, а не молча обрезает.
     """
     import humanize
     from datetime import datetime
@@ -828,11 +848,13 @@ def get_folder_changes_today(path: str) -> str:
         today = datetime.now().date()
         changed = []
         checked = 0
-        MAX_CHECK = 5000  # предохранитель от зависания на огромных папках
+        MAX_CHECK = 20000  # предохранитель от зависания на огромных папках
+        hit_limit = False
 
         for item in folder.rglob("*"):
             checked += 1
             if checked > MAX_CHECK:
+                hit_limit = True
                 break
             if not item.is_file():
                 continue
@@ -843,8 +865,14 @@ def get_folder_changes_today(path: str) -> str:
             if mtime.date() == today:
                 changed.append((mtime, item))
 
+        limit_warning = (
+            f"\n\n⚠️ _Папка большая — просмотрены только первые {MAX_CHECK} объектов, "
+            f"возможно, есть ещё изменения глубже в дереве. Уточните запрос подпапкой поменьше._"
+            if hit_limit else ""
+        )
+
         if not changed:
-            return f"📂 За сегодня в «{folder.name}» изменений не найдено."
+            return f"📂 За сегодня в «{folder.name}» изменений не найдено.{limit_warning}"
 
         changed.sort(key=lambda x: x[0], reverse=True)
         lines = []
@@ -856,6 +884,7 @@ def get_folder_changes_today(path: str) -> str:
             lines.append(f"• {mtime.strftime('%H:%M')} — {item.name} ({size})")
 
         extra = f"\n\n…и ещё {len(changed) - 30} файл(ов)" if len(changed) > 30 else ""
-        return f"📂 *Изменено сегодня в «{folder.name}»* ({len(changed)}):\n\n" + "\n".join(lines) + extra
+        return f"📂 *Изменено сегодня в «{folder.name}»* ({len(changed)}):\n\n" + "\n".join(lines) + extra + limit_warning
     except Exception as e:
         return f"Ошибка: {e}"
+

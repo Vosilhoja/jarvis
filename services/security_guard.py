@@ -49,18 +49,23 @@ class SecurityGuard:
         self._on_trigger_callback = on_trigger_callback
 
         if _PYNPUT_AVAILABLE:
-            try:
-                self._keyboard_listener = _pynput_keyboard.Listener(on_press=self._on_key_press)
-                self._keyboard_listener.start()
-            except Exception as e:
-                logger.warning(f"Режим охраны: не удалось запустить pynput-слушатель клавиатуры: {e}")
-                self._keyboard_listener = None
+            from config import SECURITY_GUARD_KEYBOARD_DETECTION
+            if not SECURITY_GUARD_KEYBOARD_DETECTION:
+                logger.info("Режим охраны: детектор клавиатуры отключён настройкой SECURITY_GUARD_KEYBOARD_DETECTION.")
+            else:
+                try:
+                    self._keyboard_listener = _pynput_keyboard.Listener(on_press=self._on_key_press)
+                    self._keyboard_listener.start()
+                except Exception as e:
+                    logger.warning(f"Режим охраны: не удалось запустить pynput-слушатель клавиатуры: {e}")
+                    self._keyboard_listener = None
         else:
             logger.warning("Режим охраны: pynput не установлен, детектор нажатий клавиш отключён.")
 
         self._thread = threading.Thread(target=self._guard_loop, args=(delay_sec,), daemon=True)
         self._thread.start()
-        keyboard_note = "" if _PYNPUT_AVAILABLE else "\n\n⚠️ _Детектор клавиатуры недоступен (pynput не установлен)_"
+        keyboard_active = self._keyboard_listener is not None
+        keyboard_note = "" if keyboard_active else "\n\n⚠️ _Детектор клавиатуры отключён (pynput недоступен или выключен настройкой)_"
         return (
             f"🛡 *Режим охраны активирован!*\n\n"
             f"У вас есть *{delay_sec} секунд*, чтобы убрать руку от мыши и клавиатуры. "
@@ -131,7 +136,7 @@ class SecurityGuard:
         logger.info(
             f"Режим охраны АКТИВИРОВАН. Позиция: ({start_x}, {start_y}), "
             f"окно: {start_foreground_hwnd}, стол: {start_desktop}, "
-            f"детектор клавиатуры: {'вкл' if _PYNPUT_AVAILABLE else 'выкл'}"
+            f"детектор клавиатуры: {'вкл' if self._keyboard_listener is not None else 'выкл'}"
         )
 
         desktop_check_counter = 0

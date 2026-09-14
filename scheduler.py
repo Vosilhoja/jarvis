@@ -209,6 +209,14 @@ async def background_monitoring_loop():
             except Exception:
                 logger.debug("Не удалось записать сэмпл простоя ПК", exc_info=True)
 
+            # 1.6 Сэмпл уровня Wi-Fi сигнала для диагностики во времени
+            # (services/wifi_monitor.py) — копим историю, а не разовый снимок.
+            try:
+                from services.wifi_monitor import record_wifi_sample
+                await asyncio.to_thread(record_wifi_sample)
+            except Exception:
+                logger.debug("Не удалось записать сэмпл Wi-Fi", exc_info=True)
+
             # 2. Пороги системы
             alerts = check_system_thresholds(
                 disk_threshold_gb=DISK_FREE_THRESHOLD_GB,

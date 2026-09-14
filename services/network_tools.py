@@ -147,6 +147,30 @@ def ipconfig_summary() -> str:
 
 
 def speed_test() -> str:
+    """
+    Тест скорости интернета. Основной путь — библиотека speedtest-cli (реальный
+    выбор ближайшего сервера через speedtest.net, без единой точки отказа).
+    Раньше здесь был захардкоженный запрос к одному Cloudflare-URL, который
+    иногда отвечал 403 Forbidden — теперь это fallback, если speedtest-cli
+    недоступен или сам не смог подключиться.
+    """
+    try:
+        import speedtest as speedtest_lib
+        st = speedtest_lib.Speedtest()
+        st.get_best_server()
+        download_mbps = st.download() / 1_000_000
+        upload_mbps = st.upload() / 1_000_000
+        ping_ms = st.results.ping
+        server = st.results.server.get("sponsor", "?")
+        return (
+            f"⚡ *Тест скорости* (сервер: {server}):\n"
+            f"⬇️ Загрузка: {download_mbps:.1f} Мбит/с\n"
+            f"⬆️ Отдача: {upload_mbps:.1f} Мбит/с\n"
+            f"🏓 Пинг: {ping_ms:.0f} мс"
+        )
+    except Exception as e:
+        logger.warning(f"speedtest-cli не сработал ({e}), пробуем запасной метод через Cloudflare")
+
     url = "https://speed.cloudflare.com/__down?bytes=2000000"
     try:
         import urllib.request
@@ -160,6 +184,6 @@ def speed_test() -> str:
         dt = max(time.perf_counter() - t0, 0.001)
         mb = len(data) / (1024 * 1024)
         mbps = (len(data) * 8 / dt) / 1_000_000
-        return f"⚡ Тест загрузки: {mb:.2f} МБ за {dt:.2f} с ≈ {mbps:.1f} Мбит/с (Cloudflare)"
+        return f"⚡ Тест загрузки: {mb:.2f} МБ за {dt:.2f} с ≈ {mbps:.1f} Мбит/с (Cloudflare, запасной метод)"
     except Exception as e:
-        return f"Не удалось измерить скорость: {e}"
+        return f"Не удалось измерить скорость ни одним из методов: {e}"

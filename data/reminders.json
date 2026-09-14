@@ -50,7 +50,7 @@
     "text": "🔥 Загрузка процессора (CPU) критически высока: *100.0%*!",
     "next_trigger_at": "2026-09-14 15:16:08",
     "trigger_timestamp": 1789380968.447451,
-    "active": true,
+    "active": false,
     "created_at": "2026-09-14 15:06:08"
   }
 ]

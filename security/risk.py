@@ -40,6 +40,7 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "list_audio_devices": RiskLevel.SAFE,
     "get_folder_changes_today": RiskLevel.SAFE,
     "hide_all_windows_except_active": RiskLevel.LOW,
+    "get_wifi_diagnostics": RiskLevel.SAFE,
     "chat_reply": RiskLevel.SAFE,
     "clarify": RiskLevel.SAFE,
 

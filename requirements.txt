@@ -35,3 +35,4 @@ pynput>=1.7.7         # доп. детектор нажатий клавиш д�
 send2trash>=1.8.3     # безопасное удаление в корзину вместо permanent delete
 humanize>=4.9.0       # человекочитаемые размеры/время в ответах бота
 loguru>=0.7.2         # логирование (logger_setup.py)
+speedtest-cli>=2.1.3  # реальный тест скорости через speedtest.net (services/network_tools.py::speed_test)

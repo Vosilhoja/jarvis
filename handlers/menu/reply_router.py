@@ -643,6 +643,13 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await safe_reply(update, f"📶 *Wi-Fi сети:*\n\n{result}")
         return True
 
+    if text == "📶 Диагностика сигнала":
+        import asyncio
+        from services.wifi_monitor import get_wifi_diagnostics_report
+        result = await asyncio.to_thread(get_wifi_diagnostics_report)
+        await safe_reply(update, result)
+        return True
+
     if text == "🏓 Ping 8.8.8.8":
         import asyncio
         from services.extra_functions import ping_host
