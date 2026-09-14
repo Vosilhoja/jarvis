@@ -10,7 +10,7 @@ from services.clipboard_tools import (
     record_clipboard_item,
     set_clipboard,
 )
-from services.misc_tools import (
+from adapters.windows.misc_tools import (
     CREATE_NO_WINDOW,
     ExtraResult,
     QUICK_APPS,

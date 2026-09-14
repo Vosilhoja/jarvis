@@ -94,9 +94,17 @@ APPS_CACHE_PATH = DATA_DIR / "apps_cache.json"
 USER_CONTEXT_PATH = DATA_DIR / "user_context.json"
 SCENARIOS_PATH = DATA_DIR / "scenarios.json"
 WIFI_HISTORY_PATH = DATA_DIR / "wifi_history.json"
+TASKS_DB_PATH = DATA_DIR / "tasks.json"
+USER_MEMORY_PATH = DATA_DIR / "user_memory.json"
+ACTION_HISTORY_PATH = DATA_DIR / "action_history.json"
 
 # Мониторинг и пороги алертов
-BACKGROUND_CHECK_INTERVAL_SEC = int(os.getenv("BACKGROUND_CHECK_INTERVAL_SEC", "120"))
+# Lightweight reminder polling is separate from expensive diagnostics. The
+# defaults keep the resident bot responsive without repeatedly scanning Windows.
+BACKGROUND_CHECK_INTERVAL_SEC = int(os.getenv("BACKGROUND_CHECK_INTERVAL_SEC", "30"))
+SYSTEM_DIAGNOSTICS_INTERVAL_SEC = int(os.getenv("SYSTEM_DIAGNOSTICS_INTERVAL_SEC", "300"))
+WIFI_SAMPLE_INTERVAL_SEC = int(os.getenv("WIFI_SAMPLE_INTERVAL_SEC", "900"))
+IDLE_SAMPLE_INTERVAL_SEC = int(os.getenv("IDLE_SAMPLE_INTERVAL_SEC", "300"))
 DISK_FREE_THRESHOLD_GB = float(os.getenv("DISK_FREE_THRESHOLD_GB", "10.0"))
 CPU_LOAD_THRESHOLD_PERCENT = float(os.getenv("CPU_LOAD_THRESHOLD_PERCENT", "90.0"))
 RAM_LOAD_THRESHOLD_PERCENT = float(os.getenv("RAM_LOAD_THRESHOLD_PERCENT", "90.0"))

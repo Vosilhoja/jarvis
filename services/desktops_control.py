@@ -86,18 +86,20 @@ for _ in range({steps}):
             pass
 
 
-def switch_to_desktop_number(target_num: int):
+def switch_to_desktop_number(target_num: int) -> bool:
     """
     Переключается на рабочий стол target_num (1-indexed).
     Основной способ — эмуляция Win+Ctrl+←/→ через subprocess (даёт нативную анимацию Windows).
     pyvda используется только как аварийный fallback, если subprocess не отработал.
     """
     total = get_desktop_count()
-    target_num = max(1, min(target_num, total))
+    if target_num < 1 or target_num > total:
+        logger.warning("Запрошен несуществующий рабочий стол %s (доступно: %s)", target_num, total)
+        return False
     current = get_current_desktop_number()
 
     if current == target_num:
-        return
+        return True
 
     diff = target_num - current
     steps = abs(diff)
@@ -124,16 +126,20 @@ def switch_to_desktop_number(target_num: int):
                 desktops[target_num - 1].go()
                 time.sleep(0.4)
                 logger.info(f"pyvda fallback: переключено на стол {target_num}")
+                return get_current_desktop_number() == target_num
         except Exception as e:
             logger.error(f"pyvda fallback тоже не сработал: {e}")
+    return get_current_desktop_number() == target_num
 
 
-def switch_desktop_direction(direction: str):
+def switch_desktop_direction(direction: str) -> bool:
+    if direction not in {"left", "right"}:
+        logger.warning("Неизвестное направление рабочего стола: %s", direction)
+        return False
     cur = get_current_desktop_number()
     if direction == "left":
-        switch_to_desktop_number(cur - 1)
-    else:
-        switch_to_desktop_number(cur + 1)
+        return switch_to_desktop_number(cur - 1)
+    return switch_to_desktop_number(cur + 1)
 
 
 def delete_desktop_number(target_num: int) -> str:
@@ -156,6 +162,8 @@ def delete_desktop_number(target_num: int) -> str:
             desktops[target_num - 1].remove()
             time.sleep(0.3)
             new_total = get_desktop_count()
+            if new_total >= total:
+                return f"❌ Не удалось подтвердить удаление рабочего стола {target_num}."
             return f"🗑 Рабочий стол {target_num} удалён. Осталось столов: {new_total}."
     except Exception as e:
         logger.warning(f"pyvda remove failed: {e}")
@@ -176,6 +184,8 @@ def delete_desktop_number(target_num: int) -> str:
             except Exception:
                 pass
         new_total = get_desktop_count()
+        if new_total >= total:
+            return f"❌ Не удалось подтвердить удаление рабочего стола {target_num}."
         return f"🗑 Рабочий стол {target_num} удалён (Win+Ctrl+F4). Осталось столов: {new_total}."
     except Exception as e:
         logger.error(f"Fallback удаления стола не сработал: {e}")

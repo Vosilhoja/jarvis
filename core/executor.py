@@ -46,6 +46,9 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "set_reminder": actions.handle_set_reminder,
     "list_reminders": actions.handle_list_reminders,
     "cancel_reminder": actions.handle_cancel_reminder,
+    "create_task": actions.handle_create_task,
+    "list_tasks": actions.handle_list_tasks,
+    "complete_task": actions.handle_complete_task,
     "get_today_events": actions.handle_get_today_events,
     "get_upcoming_events": actions.handle_get_upcoming_events,
     "get_weekly_report": actions.handle_get_weekly_report,
@@ -60,6 +63,13 @@ INTENT_HANDLER_MAP: Dict[str, Callable[[StepModel, UserTaskSession, Bot], Awaita
     "download_file": actions.handle_download_file,
     "get_weather": actions.handle_get_weather,
     "get_exchange_rate": actions.handle_get_exchange_rate,
+    "open_browser_tab": actions.handle_open_browser_tab,
+    "open_incognito": actions.handle_open_incognito,
+    "close_browser": actions.handle_close_browser,
+    "list_browsers": actions.handle_list_browsers,
+    "new_tab": actions.handle_new_tab,
+    "close_tab": actions.handle_close_tab,
+    "switch_tab": actions.handle_switch_tab,
 
     # System Controls & Monitors
     "switch_virtual_desktop": actions.handle_switch_virtual_desktop,
@@ -195,6 +205,17 @@ class TaskExecutorService:
                     success, report = False, f"❌ Ошибка выполнения шага: {e}"
 
                 session.history.append({"intent": step.intent, "success": success, "time": time.time()})
+                if success:
+                    from domain.memory import user_memory
+                    user_memory.learn_success(session.user_id, step.intent, step.params)
+                    original_text = session.context_memory.get("last_user_text")
+                    if original_text and session.context_memory.get("last_plan_step_count") == 1:
+                        user_memory.learn_phrase(
+                            session.user_id, original_text, step.intent, step.params
+                        )
+                else:
+                    from domain.memory import user_memory
+                    user_memory.learn_failure(session.user_id, step.intent, step.params)
                 session.context_memory.setdefault("last_plan_steps", [])
                 session.context_memory["last_plan_steps"].append({"intent": step.intent, "params": step.params})
                 session.context_memory["last_plan_steps"] = session.context_memory["last_plan_steps"][-30:]

@@ -153,8 +153,12 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
     try:
         from services.local_ai import is_control_query, parse_user_instruction_to_plan_local
         if is_control_query(text):
-            plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan_local, text, recent_actions)
+            plan_steps = await loop.run_in_executor(
+                None, parse_user_instruction_to_plan_local, text, recent_actions, chat_id
+            )
             if plan_steps:
+                session.context_memory["last_user_text"] = text
+                session.context_memory["last_plan_step_count"] = len(plan_steps)
                 session.add_steps(plan_steps)
                 await task_executor.process_user_queue(session, context.bot)
                 return
@@ -164,6 +168,8 @@ async def handle_text_command(update: Update, context: ContextTypes.DEFAULT_TYPE
         pass
 
     plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan, text, recent_actions)
+    session.context_memory["last_user_text"] = text
+    session.context_memory["last_plan_step_count"] = len(plan_steps)
     session.add_steps(plan_steps)
 
     await task_executor.process_user_queue(session, context.bot)

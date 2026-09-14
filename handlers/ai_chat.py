@@ -33,10 +33,18 @@ async def handle_ai_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             from services.local_ai import is_control_query, parse_user_instruction_to_plan_local
             if is_control_query(user_text):
                 logger.info("ai_chat: detected control query, routing to local parser")
-                plan_steps = await loop.run_in_executor(None, parse_user_instruction_to_plan_local, user_text, [])
+                plan_steps = await loop.run_in_executor(
+                    None,
+                    parse_user_instruction_to_plan_local,
+                    user_text,
+                    [],
+                    update.effective_chat.id,
+                )
                 if plan_steps:
                     logger.info("ai_chat: local parser returned %d steps", len(plan_steps))
                     session = task_queue_manager.get_session(update.effective_chat.id)
+                    session.context_memory["last_user_text"] = user_text
+                    session.context_memory["last_plan_step_count"] = len(plan_steps)
                     session.add_steps(plan_steps)
                     await task_executor.process_user_queue(session, context.bot)
                     return
@@ -48,7 +56,10 @@ async def handle_ai_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # ask_gemini может быть блокирующим (сетевая операция) — выполняем в пуле потоков
         logger.info("ai_chat: invoking cloud Gemini for general query")
-        reply = await loop.run_in_executor(None, ask_gemini, user_text, history)
+        from domain.memory import user_memory
+        learning = user_memory.learning_context(update.effective_chat.id)
+        prompt = f"{learning}\n\nЗапрос пользователя:\n{user_text}" if learning else user_text
+        reply = await loop.run_in_executor(None, ask_gemini, prompt, history)
 
         # Сохраняем в историю
         history.append({"role": "user", "parts": [{"text": user_text}]})

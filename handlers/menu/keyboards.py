@@ -18,18 +18,19 @@ def get_main_reply_keyboard() -> ReplyKeyboardMarkup:
 def get_system_reply_keyboard() -> ReplyKeyboardMarkup:
     """Клавиатура управления системой."""
     keyboard = [
-        [KeyboardButton("📊 Инфо о системе"),  KeyboardButton("🌡 Температура")],
-        [KeyboardButton("📅 Календарь сегодня"),KeyboardButton("📈 Недельная сводка")],
-        [KeyboardButton("🔋 Аккумулятор"),      KeyboardButton("🖥 Разрешение")],
-        [KeyboardButton("🌐 IP-адреса"),        KeyboardButton("📋 Буфер обмена")],
-        [KeyboardButton("💾 Диски"),            KeyboardButton("🧠 Железо")],
-        [KeyboardButton("💡 Яркость"),          KeyboardButton("⌨ Подсветка клавы")],
-        [KeyboardButton("🔇 Режим Тихий час"), KeyboardButton("🧹 Очистить %TEMP%")],
+        [KeyboardButton("📊 Инфо о системе"), KeyboardButton("🧠 Железо")],
+        [KeyboardButton("💾 Диски"), KeyboardButton("🌡 Температура")],
+        [KeyboardButton("🔋 Аккумулятор"), KeyboardButton("🖥 Разрешение")],
+        [KeyboardButton("🌐 IP-адреса"), KeyboardButton("📋 Буфер обмена")],
+        [KeyboardButton("📅 Календарь сегодня"), KeyboardButton("📈 Недельная сводка")],
+        [KeyboardButton("🌅 Утренний брифинг"), KeyboardButton("📋 Процессы")],
+        [KeyboardButton("💡 Яркость"), KeyboardButton("⌨ Подсветка клавы")],
+        [KeyboardButton("🔇 Режим Тихий час"), KeyboardButton("🙈 Скрыть все окна")],
+        [KeyboardButton("🧹 Очистить %TEMP%"), KeyboardButton("🗑 Очистить корзину")],
         [KeyboardButton("🛡 Включить охрану"), KeyboardButton("🛑 Снять с охраны")],
-        [KeyboardButton("🙈 Скрыть все окна"), KeyboardButton("🌅 Утренний брифинг")],
-        [KeyboardButton("🗑 Очистить корзину"),KeyboardButton("🔒 Заблокировать")],
-        [KeyboardButton("😴 Режим сна"),        KeyboardButton("🔁 Перезагрузка")],
-        [KeyboardButton("⛔ Выключить ПК"),     KeyboardButton("⬅️ Назад в меню")],
+        [KeyboardButton("🔒 Заблокировать"), KeyboardButton("😴 Режим сна")],
+        [KeyboardButton("🔁 Перезагрузка"), KeyboardButton("⛔ Выключить ПК")],
+        [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
 
@@ -48,11 +49,10 @@ def get_media_reply_keyboard() -> ReplyKeyboardMarkup:
 def get_files_reply_keyboard() -> ReplyKeyboardMarkup:
     """Клавиатура файлов и папок."""
     keyboard = [
-        [KeyboardButton("🗂 Рабочий стол"),    KeyboardButton("⬇️ Загрузки")],
-        [KeyboardButton("📂 Документы"),        KeyboardButton("📦 Размер папок")],
-        [KeyboardButton("🔍 Найти файл"),       KeyboardButton("📝 Поиск в файлах")],
-        [KeyboardButton("📂 Что изменилось сегодня")],
-        [KeyboardButton("📁 Открыть Проводник"), KeyboardButton("🗑 Очистить корзину")],
+        [KeyboardButton("🗂 Рабочий стол"), KeyboardButton("📁 Открыть Проводник")],
+        [KeyboardButton("⬇️ Загрузки"), KeyboardButton("📂 Документы")],
+        [KeyboardButton("📦 Размер папок"), KeyboardButton("📂 Что изменилось сегодня")],
+        [KeyboardButton("🔍 Найти файл"), KeyboardButton("📝 Поиск в файлах")],
         [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
@@ -60,12 +60,12 @@ def get_files_reply_keyboard() -> ReplyKeyboardMarkup:
 def get_network_reply_keyboard() -> ReplyKeyboardMarkup:
     """Клавиатура сети и интернета."""
     keyboard = [
-        [KeyboardButton("🌍 Внешний IP"),     KeyboardButton("🏠 Локальный IP")],
-        [KeyboardButton("📡 Адаптеры сети"),  KeyboardButton("📶 Wi-Fi сети")],
-        [KeyboardButton("📶 Диагностика сигнала")],
-        [KeyboardButton("🏓 Ping 8.8.8.8"),   KeyboardButton("🏓 Ping Яндекс")],
-        [KeyboardButton("🛤 Трассировка"),    KeyboardButton("⚡ Скорость сети")],
-        [KeyboardButton("🧹 Flush DNS"),      KeyboardButton("🌐 ipconfig")],
+        [KeyboardButton("🏠 Локальный IP"), KeyboardButton("🌍 Внешний IP")],
+        [KeyboardButton("📡 Адаптеры сети"), KeyboardButton("📶 Wi-Fi сети")],
+        [KeyboardButton("📶 Диагностика сигнала"), KeyboardButton("🏓 Ping 8.8.8.8")],
+        [KeyboardButton("🏓 Ping Яндекс"), KeyboardButton("🛤 Трассировка")],
+        [KeyboardButton("⚡ Скорость сети"), KeyboardButton("🌐 ipconfig")],
+        [KeyboardButton("🧹 Flush DNS")],
         [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)

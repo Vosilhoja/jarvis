@@ -103,7 +103,9 @@ def main():
             .token(TELEGRAM_BOT_TOKEN)
             .request(request)
             .post_init(post_init)
-            .concurrent_updates(False)
+            # Обработка разных чатов не должна блокировать друг друга.
+            # Очередь конкретного пользователя всё равно сериализует его шаги.
+            .concurrent_updates(4)
             .build()
         )
 
@@ -144,4 +146,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -20,33 +20,35 @@ VK_MEDIA_PREV_TRACK  = 0xB1
 VK_MEDIA_STOP        = 0xB2
 VK_MEDIA_PLAY_PAUSE  = 0xB3
 
-def _press_key(vk_code: int):
+def _press_key(vk_code: int) -> bool:
     """Посылает событие нажатия виртуальной клавиши Windows."""
     try:
         win32api.keybd_event(vk_code, 0, 0, 0)
         win32api.keybd_event(vk_code, 0, win32con.KEYEVENTF_KEYUP, 0)
     except Exception as e:
         logger.error(f"Ошибка нажатия клавиши {hex(vk_code)}: {e}")
+        return False
+    return True
 
 # ─────────────────────────────────────────────────────────────
 #  Медиа-управление
 # ─────────────────────────────────────────────────────────────
 
-def media_play_pause():
+def media_play_pause() -> bool:
     """Play / Pause текущего медиаплеера."""
-    _press_key(VK_MEDIA_PLAY_PAUSE)
+    return _press_key(VK_MEDIA_PLAY_PAUSE)
 
-def media_next():
+def media_next() -> bool:
     """Следующий трек."""
-    _press_key(VK_MEDIA_NEXT_TRACK)
+    return _press_key(VK_MEDIA_NEXT_TRACK)
 
-def media_prev():
+def media_prev() -> bool:
     """Предыдущий трек."""
-    _press_key(VK_MEDIA_PREV_TRACK)
+    return _press_key(VK_MEDIA_PREV_TRACK)
 
-def media_stop():
+def media_stop() -> bool:
     """Остановить воспроизведение."""
-    _press_key(VK_MEDIA_STOP)
+    return _press_key(VK_MEDIA_STOP)
 
 # ─────────────────────────────────────────────────────────────
 #  Управление громкостью через современный pycaw

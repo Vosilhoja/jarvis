@@ -78,7 +78,7 @@ async def handle_search_files(step: StepModel, session: UserTaskSession, bot: Bo
 
 async def handle_send_file_by_name(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     from telegram import InputFile
-    from services.misc_tools import find_file_broad
+    from adapters.windows.misc_tools import find_file_broad
 
     query = step.params["name"]
     MAX_SIZE = 50 * 1024 * 1024  # лимит Telegram для ботов

@@ -16,6 +16,9 @@ from config import (
     DISK_FREE_THRESHOLD_GB,
     CPU_LOAD_THRESHOLD_PERCENT,
     RAM_LOAD_THRESHOLD_PERCENT,
+    SYSTEM_DIAGNOSTICS_INTERVAL_SEC,
+    WIFI_SAMPLE_INTERVAL_SEC,
+    IDLE_SAMPLE_INTERVAL_SEC,
     HUNG_APP_ALERT_SEC,
     WEEKLY_REPORT_WEEKDAY,
     WEEKLY_REPORT_HOUR,
@@ -120,7 +123,10 @@ class ReminderManager:
         now = datetime.now()
         target_time = self.parse_time_expression(when_str)
         if not target_time:
-            target_time = now + timedelta(minutes=15)
+            raise ValueError(
+                f"Не удалось распознать время «{when_str}». "
+                "Пример: «через 20 минут», «сегодня в 18:30» или «завтра в 09:00»."
+            )
 
         rem_id = str(uuid.uuid4())
         reminder = {
@@ -185,6 +191,9 @@ async def background_monitoring_loop():
     logger.info("Фоновый планировщик и система мониторинга Jarvis запущены.")
     last_daily_report_date = None
     last_weekly_report_week = None
+    last_system_diagnostics = 0.0
+    last_wifi_sample = 0.0
+    last_idle_sample = 0.0
 
     while True:
         try:
@@ -201,28 +210,42 @@ async def background_monitoring_loop():
             # 1.5 Учёт простоя ПК для еженедельной статистики (services/usage_stats.py).
             # Раньше record_idle_sample() существовал, но нигде не вызывался —
             # get_weekly_report() всегда показывал "недостаточно данных о простое".
-            try:
-                from services.power_tools import get_idle_seconds
-                from services.usage_stats import record_idle_sample
-                idle_sec = await asyncio.to_thread(get_idle_seconds)
-                record_idle_sample(idle_sec, BACKGROUND_CHECK_INTERVAL_SEC)
-            except Exception:
-                logger.debug("Не удалось записать сэмпл простоя ПК", exc_info=True)
+            now_ts = time.monotonic()
 
-            # 1.6 Сэмпл уровня Wi-Fi сигнала для диагностики во времени
-            # (services/wifi_monitor.py) — копим историю, а не разовый снимок.
-            try:
-                from services.wifi_monitor import record_wifi_sample
-                await asyncio.to_thread(record_wifi_sample)
-            except Exception:
-                logger.debug("Не удалось записать сэмпл Wi-Fi", exc_info=True)
+            if now_ts - last_idle_sample >= IDLE_SAMPLE_INTERVAL_SEC:
+                last_idle_sample = now_ts
+                try:
+                    from services.power_tools import get_idle_seconds
+                    from services.usage_stats import record_idle_sample
+                    idle_sec = await asyncio.to_thread(get_idle_seconds)
+                    record_idle_sample(idle_sec, IDLE_SAMPLE_INTERVAL_SEC)
+                except Exception:
+                    logger.debug("Не удалось записать сэмпл простоя ПК", exc_info=True)
 
-            # 2. Пороги системы
-            alerts = check_system_thresholds(
-                disk_threshold_gb=DISK_FREE_THRESHOLD_GB,
-                cpu_threshold=CPU_LOAD_THRESHOLD_PERCENT,
-                ram_threshold=RAM_LOAD_THRESHOLD_PERCENT
-            )
+            if now_ts - last_wifi_sample >= WIFI_SAMPLE_INTERVAL_SEC:
+                last_wifi_sample = now_ts
+                # Wi-Fi sampling starts netsh and writes a JSON history file,
+                # so it is intentionally much less frequent than reminders.
+                try:
+                    from services.wifi_monitor import record_wifi_sample
+                    await asyncio.to_thread(record_wifi_sample)
+                except Exception:
+                    logger.debug("Не удалось записать сэмпл Wi-Fi", exc_info=True)
+
+            if now_ts - last_system_diagnostics >= SYSTEM_DIAGNOSTICS_INTERVAL_SEC:
+                last_system_diagnostics = now_ts
+                diagnostics_due = True
+                # These checks enumerate disks/windows and sample CPU for 0.5s.
+                alerts = await asyncio.to_thread(
+                    check_system_thresholds,
+                    disk_threshold_gb=DISK_FREE_THRESHOLD_GB,
+                    cpu_threshold=CPU_LOAD_THRESHOLD_PERCENT,
+                    ram_threshold=RAM_LOAD_THRESHOLD_PERCENT,
+                )
+            else:
+                diagnostics_due = False
+                alerts = []
+
             for alert in alerts:
                 await notifier.send_notification(
                     text=alert["msg"],
@@ -266,14 +289,17 @@ async def background_monitoring_loop():
             # после первого зависания). Теперь ведём учёт по каждому hwnd и
             # алертим только когда окно висит подряд ≥ HUNG_APP_ALERT_SEC,
             # с кнопкой моментального завершения процесса.
-            hung = find_hung_windows()
-            now_ts = time.time()
+            if diagnostics_due:
+                hung = await asyncio.to_thread(find_hung_windows)
+            else:
+                hung = []
+            now_wall_ts = time.time()
             current_hwnds = set()
             for h in hung:
                 hwnd = h["hwnd"]
                 current_hwnds.add(hwnd)
-                first_seen = _hung_since.setdefault(hwnd, now_ts)
-                duration_sec = now_ts - first_seen
+                first_seen = _hung_since.setdefault(hwnd, now_wall_ts)
+                duration_sec = now_wall_ts - first_seen
 
                 if duration_sec >= HUNG_APP_ALERT_SEC and hwnd not in _hung_alerted:
                     _hung_alerted.add(hwnd)

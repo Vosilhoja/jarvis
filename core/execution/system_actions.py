@@ -7,7 +7,10 @@ import psutil
 from telegram import Bot, InlineKeyboardMarkup, InlineKeyboardButton, InputFile
 from core.intent_schema import StepModel
 from core.task_queue import UserTaskSession
-from services.desktops_control import switch_to_desktop_number, switch_desktop_direction, create_virtual_desktop, delete_desktop_number
+from services.desktops_control import (
+    switch_to_desktop_number, switch_desktop_direction, create_virtual_desktop,
+    delete_desktop_number, get_current_desktop_number, get_desktop_count,
+)
 from services.media_control import change_volume, set_brightness, media_play_pause, media_next, media_prev, media_stop
 from services.system_info import get_system_metrics, get_top_processes, kill_process_by_pid
 from services.system_monitor import preview_and_cleanup_temp
@@ -18,22 +21,34 @@ async def handle_switch_virtual_desktop(step: StepModel, session: UserTaskSessio
     num = step.params.get("desktop_number")
     direction = step.params.get("direction")
     if num:
-        await asyncio.to_thread(switch_to_desktop_number, int(num))
-        return True, f"✅ Переключился на рабочий стол *{num}*"
+        ok = await asyncio.to_thread(switch_to_desktop_number, int(num))
+        return ok, (
+            f"✅ Переключился на рабочий стол *{num}*"
+            if ok else f"❌ Не удалось подтвердить переход на рабочий стол *{num}*"
+        )
     elif direction:
-        await asyncio.to_thread(switch_desktop_direction, direction)
-        return True, f"✅ Переключился на рабочий стол ({direction})"
+        ok = await asyncio.to_thread(switch_desktop_direction, direction)
+        current = await asyncio.to_thread(get_current_desktop_number)
+        return ok, (
+            f"✅ Текущий рабочий стол: *{current}*"
+            if ok else f"❌ Не удалось переключить рабочий стол в направлении `{direction}`"
+        )
     return False, "Не указан номер стола или направление"
 
 async def handle_create_virtual_desktop(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    await asyncio.to_thread(create_virtual_desktop)
-    return True, "✅ Создан новый виртуальный рабочий стол"
+    before = await asyncio.to_thread(get_desktop_count)
+    after = await asyncio.to_thread(create_virtual_desktop)
+    ok = after > before
+    return ok, (
+        f"✅ Создан новый виртуальный рабочий стол (всего: {after})"
+        if ok else "❌ Не удалось подтвердить создание виртуального рабочего стола"
+    )
 
 async def handle_delete_virtual_desktop(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     from services.desktops_control import get_current_desktop_number
     num = step.params.get("desktop_number") or await asyncio.to_thread(get_current_desktop_number)
     result_text = await asyncio.to_thread(delete_desktop_number, int(num))
-    return True, result_text
+    return not result_text.startswith(("❌", "⚠️")), result_text
 
 async def handle_list_running_processes(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     procs = get_top_processes(limit=8, sort_by="memory")
@@ -87,15 +102,17 @@ async def handle_set_brightness(step: StepModel, session: UserTaskSession, bot: 
 
 async def handle_media_control(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     action = step.params["action"]
-    if action == "play_pause":
-        media_play_pause()
-    elif action == "next":
-        media_next()
-    elif action == "prev":
-        media_prev()
-    elif action == "stop":
-        media_stop()
-    return True, f"⏯ Медиа: {action}"
+    handlers = {
+        "play_pause": media_play_pause,
+        "next": media_next,
+        "prev": media_prev,
+        "stop": media_stop,
+    }
+    handler = handlers.get(action)
+    if handler is None:
+        return False, f"❌ Неизвестное медиа-действие: {action}"
+    ok = await asyncio.to_thread(handler)
+    return ok, f"{'⏯' if ok else '❌'} Медиа: {action}"
 
 async def handle_get_system_status(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     m = get_system_metrics()
@@ -110,8 +127,8 @@ async def handle_get_system_status(step: StepModel, session: UserTaskSession, bo
 
 async def handle_lock_pc(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     import ctypes
-    ctypes.windll.user32.LockWorkStation()
-    return True, "🔒 Рабочая станция заблокирована"
+    ok = bool(await asyncio.to_thread(ctypes.windll.user32.LockWorkStation))
+    return ok, "🔒 Рабочая станция заблокирована" if ok else "❌ Не удалось заблокировать рабочую станцию"
 
 async def handle_start_guard(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     from services.security_guard import security_guard
@@ -143,8 +160,8 @@ async def handle_stop_guard(step: StepModel, session: UserTaskSession, bot: Bot)
     return True, msg
 
 async def handle_sleep_pc(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
-    return True, "😴 ПК переведен в спящий режим"
+    code = await asyncio.to_thread(os.system, "rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+    return code == 0, "😴 ПК переведен в спящий режим" if code == 0 else "❌ Не удалось перевести ПК в спящий режим"
 
 async def handle_shutdown_pc(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     act = "shutdown"
@@ -214,42 +231,42 @@ async def handle_clarify(step: StepModel, session: UserTaskSession, bot: Bot) ->
     return True, "✅ Задан уточняющий вопрос"
 
 async def handle_clear_browser_cache(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import clear_browser_cache
+    from adapters.windows.misc_tools import clear_browser_cache
     msg = await asyncio.to_thread(clear_browser_cache)
     return True, msg
 
 async def handle_create_restore_point(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import create_restore_point
+    from adapters.windows.misc_tools import create_restore_point
     desc = step.params.get("text") or "Jarvis Backup"
     msg = await asyncio.to_thread(create_restore_point, desc)
     return True, msg
 
 async def handle_set_wallpaper(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import set_wallpaper
+    from adapters.windows.misc_tools import set_wallpaper
     path = step.params.get("path", "")
     msg = await asyncio.to_thread(set_wallpaper, path)
     return True, msg
 
 async def handle_toggle_caps_lock(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import toggle_caps_lock
+    from adapters.windows.misc_tools import toggle_caps_lock
     msg = await asyncio.to_thread(toggle_caps_lock)
     return True, msg
 
 async def handle_list_audio_devices(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import list_audio_devices
+    from adapters.windows.misc_tools import list_audio_devices
     msg = await asyncio.to_thread(list_audio_devices)
     await bot.send_message(chat_id=session.user_id, text=msg)
     return True, "✅ Список аудиоустройств отправлен"
 
 async def handle_set_process_volume(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import set_process_volume
+    from adapters.windows.misc_tools import set_process_volume
     proc = step.params.get("process_name", "")
     vol = int(step.params.get("volume", 50))
     msg = await asyncio.to_thread(set_process_volume, proc, vol)
     return True, msg
 
 async def handle_close_active_window(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
-    from services.misc_tools import close_active_window
+    from adapters.windows.misc_tools import close_active_window
     msg = await asyncio.to_thread(close_active_window)
     return True, msg
 

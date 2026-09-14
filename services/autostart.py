@@ -101,10 +101,53 @@ def _register_schtask() -> None:
     )
 
 
+def _remove_duplicate_startup_entries() -> None:
+    """Удаляет старые записи автозапуска, чтобы не было нескольких запусков Jarvis."""
+    try:
+        import winreg
+
+        with winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Run",
+            0,
+            winreg.KEY_READ,
+        ) as key:
+            try:
+                winreg.QueryValueEx(key, RUN_VALUE_NAME)
+            except FileNotFoundError:
+                pass
+            else:
+                winreg.DeleteValue(key, RUN_VALUE_NAME)
+    except Exception:
+        pass
+
+    vbs = startup_vbs_path()
+    if vbs.exists():
+        try:
+            vbs.unlink()
+        except OSError:
+            pass
+
+    try:
+        subprocess.run(
+            ["schtasks", "/Delete", "/TN", TASK_NAME, "/F"],
+            capture_output=True,
+            timeout=15,
+            creationflags=CREATE_NO_WINDOW,
+            cwd=str(BASE_DIR),
+        )
+    except Exception:
+        pass
+
+
 def ensure_autostart() -> str:
-    """Регистрирует автозапуск. Безопасно вызывать при каждом старте бота."""
+    """Регистрирует один активный способ автозапуска, чтобы не было дублированных экземпляров."""
     ok: list[str] = []
     errors: list[str] = []
+
+    # Сначала чистим старые записи, иначе один и тот же бот может стартовать из
+    # нескольких мест (реестр + Startup + schtasks).
+    _remove_duplicate_startup_entries()
 
     try:
         _register_run_key()
@@ -113,19 +156,19 @@ def ensure_autostart() -> str:
         errors.append(f"реестр: {e}")
         logger.warning("Автозапуск (реестр): %s", e)
 
-    try:
-        path = _write_startup_vbs()
-        ok.append(f"Автозагрузка ({path.name})")
-    except Exception as e:
-        errors.append(f"Startup: {e}")
-        logger.warning("Автозапуск (Startup): %s", e)
+        try:
+            path = _write_startup_vbs()
+            ok.append(f"Автозагрузка ({path.name})")
+        except Exception as e2:
+            errors.append(f"Startup: {e2}")
+            logger.warning("Автозапуск (Startup): %s", e2)
 
-    try:
-        _register_schtask()
-        ok.append("Планировщик")
-    except Exception as e:
-        errors.append(f"schtasks: {e}")
-        logger.warning("Автозапуск (schtasks): %s", e)
+            try:
+                _register_schtask()
+                ok.append("Планировщик")
+            except Exception as e3:
+                errors.append(f"schtasks: {e3}")
+                logger.warning("Автозапуск (schtasks): %s", e3)
 
     summary = "Автозапуск при входе в Windows: " + (", ".join(ok) if ok else "не установлен")
     if errors:

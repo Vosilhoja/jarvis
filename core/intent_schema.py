@@ -145,6 +145,17 @@ class GetWeeklyReportParams(BaseModel):
 class CancelReminderParams(BaseModel):
     reminder_id: str = Field(..., description="ID напоминания для отмены")
 
+class CreateTaskParams(BaseModel):
+    title: str = Field(..., description="Название задачи")
+    due: Optional[str] = Field(None, description="Срок задачи, например «завтра в 18:00»")
+    priority: Literal["low", "normal", "high"] = Field("normal", description="Приоритет задачи")
+
+class ListTasksParams(BaseModel):
+    status: Optional[Literal["open", "done", "all"]] = Field("open", description="Какие задачи показать")
+
+class CompleteTaskParams(BaseModel):
+    task_id: str = Field(..., description="ID задачи или часть ее названия")
+
 # 4.6 Сценарии и доп. автоматизации
 class RunScenarioParams(BaseModel):
     scenario_name: str = Field(..., description="Название сохраненного сценария/макроса")
@@ -326,6 +337,9 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "set_reminder": {"model": SetReminderParams, "desc": "Установка напоминания (разового или периодического)"},
     "list_reminders": {"model": ListRemindersParams, "desc": "Список всех активных напоминаний"},
     "cancel_reminder": {"model": CancelReminderParams, "desc": "Отмена напоминания по его ID"},
+    "create_task": {"model": CreateTaskParams, "desc": "Создание постоянной задачи с приоритетом и сроком"},
+    "list_tasks": {"model": ListTasksParams, "desc": "Список открытых, выполненных или всех задач"},
+    "complete_task": {"model": CompleteTaskParams, "desc": "Отметить задачу выполненной по ID или названию"},
     "get_today_events": {"model": GetTodayEventsParams, "desc": "Что сегодня по плану — реальные события из Google Calendar (не ручные напоминания Jarvis)"},
     "get_upcoming_events": {"model": GetUpcomingEventsParams, "desc": "События из Google Calendar на ближайшие N дней"},
     "get_weekly_report": {"model": GetWeeklyReportParams, "desc": "Красивая еженедельная сводка: топ запускаемых приложений, простой ПК, топ посещаемых сайтов"},

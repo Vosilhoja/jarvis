@@ -6,7 +6,10 @@ from core.task_queue import UserTaskSession
 
 async def handle_set_reminder(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:
     from scheduler import reminder_manager
-    rem = reminder_manager.add_reminder(session.user_id, step.params["text"], step.params["when"])
+    try:
+        rem = reminder_manager.add_reminder(session.user_id, step.params["text"], step.params["when"])
+    except ValueError as exc:
+        return False, f"❌ Напоминание не создано: {exc}"
     return True, f"⏰ Напоминание установлено: «{rem['text']}» на {rem['next_trigger_at']}"
 
 async def handle_list_reminders(step: StepModel, session: UserTaskSession, bot: Bot) -> Tuple[bool, str]:

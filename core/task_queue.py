@@ -14,7 +14,10 @@ class UserTaskSession:
         self.is_running: bool = False
         self.current_step: Optional[StepModel] = None
         self.history: List[Dict[str, Any]] = []
-        self.context_memory: Dict[str, Any] = {} # Сохранение путей, файлов, результатов между шагами
+        from domain.memory import user_memory
+        self.context_memory: Dict[str, Any] = {
+            "persistent_memory": user_memory.get(user_id),
+        }
         self.pending_confirmation: Optional[Dict[str, Any]] = None # Для опасных действий
 
     def add_steps(self, steps: List[StepModel]):

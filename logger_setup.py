@@ -55,17 +55,36 @@ def setup_logging(log_file: str = "jarvis.log") -> logging.Logger:
         backtrace=False,
         diagnose=False,
     )
-    _loguru_logger.add(
-        log_path,
-        level="INFO",
-        format="{time:YYYY-MM-DD HH:mm:ss} [{level}] [jarvis] {message}",
-        rotation="5 MB",
-        retention=3,
-        encoding="utf-8",
-        enqueue=True,       # запись через отдельный поток-очередь — устойчиво к PermissionError при ротации
-        backtrace=False,
-        diagnose=False,
-    )
+    try:
+        _loguru_logger.add(
+            log_path,
+            level="INFO",
+            format="{time:YYYY-MM-DD HH:mm:ss} [{level}] [jarvis] {message}",
+            rotation="5 MB",
+            retention=3,
+            encoding="utf-8",
+            enqueue=True,
+            backtrace=False,
+            diagnose=False,
+        )
+    except (PermissionError, OSError) as exc:
+        # На Windows лог-файл может быть захвачен другим процессом/экземпляром бота.
+        # В этом случае продолжаем логировать в stdout/stderr без ротации, чтобы
+        # один неудачный rollover не убивал весь runtime.
+        _loguru_logger.add(
+            sys.stderr,
+            level="WARNING",
+            format="<yellow>{time:YYYY-MM-DD HH:mm:ss}</yellow> [<level>{level}</level>] [jarvis] {message}",
+            colorize=True,
+            enqueue=True,
+            backtrace=False,
+            diagnose=False,
+        )
+        _loguru_logger.warning(
+            "Не удалось открыть лог-файл %s для ротации: %s. Логирование продолжается без ротации.",
+            log_path,
+            exc,
+        )
 
     logger.addHandler(_InterceptHandler())
     logger.propagate = False

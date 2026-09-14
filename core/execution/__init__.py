@@ -32,6 +32,13 @@ from core.execution.search_actions import (
     handle_download_file,
     handle_get_weather,
     handle_get_exchange_rate,
+    handle_open_browser_tab,
+    handle_open_incognito,
+    handle_close_browser,
+    handle_list_browsers,
+    handle_new_tab,
+    handle_close_tab,
+    handle_switch_tab,
 )
 from core.execution.system_actions import (
     handle_switch_virtual_desktop,
@@ -68,6 +75,7 @@ from core.execution.calendar_actions import (
     handle_get_upcoming_events,
 )
 from core.execution.stats_actions import handle_get_weekly_report
+from core.execution.task_actions import handle_create_task, handle_list_tasks, handle_complete_task
 
 __all__ = [
     "resolve_path_aliases",
@@ -98,6 +106,13 @@ __all__ = [
     "handle_download_file",
     "handle_get_weather",
     "handle_get_exchange_rate",
+    "handle_open_browser_tab",
+    "handle_open_incognito",
+    "handle_close_browser",
+    "handle_list_browsers",
+    "handle_new_tab",
+    "handle_close_tab",
+    "handle_switch_tab",
     "handle_switch_virtual_desktop",
     "handle_create_virtual_desktop",
     "handle_delete_virtual_desktop",
@@ -129,4 +144,7 @@ __all__ = [
     "handle_get_today_events",
     "handle_get_upcoming_events",
     "handle_get_weekly_report",
+    "handle_create_task",
+    "handle_list_tasks",
+    "handle_complete_task",
 ]

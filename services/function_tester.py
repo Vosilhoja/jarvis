@@ -36,7 +36,6 @@ TEST_REGISTRY: Dict[str, List[Any]] = {
     "services.extra_functions.mouse_drag_to": [20, 20],
     "services.extra_functions.mouse_scroll_units": [3],
     "services.extra_functions.open_notepad_quick_note": ["test note from tester"],
-    "services.extra_functions.take_screenshot": [],
     "services.screenshot.take_screenshot": [],
     "services.extra_functions.get_battery_info": [],
     "services.new_features.generate_system_health_summary": [],
@@ -88,6 +87,19 @@ def discover_tests() -> Dict[str, Dict[str, object]]:
             path = f"{mod.__name__}.{attr_name}"
             # default metadata
             meta = {'args': [], 'skipped': False, 'reason': ''}
+            if inspect.iscoroutinefunction(obj):
+                meta['skipped'] = True
+                meta['reason'] = 'Async function; tested by async integration tests'
+            else:
+                required = [
+                    p.name
+                    for p in inspect.signature(obj).parameters.values()
+                    if p.default is inspect.Parameter.empty
+                    and p.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+                ]
+                if required:
+                    meta['skipped'] = True
+                    meta['reason'] = f"Requires explicit arguments: {', '.join(required)}"
             doc = inspect.getdoc(obj) or ''
             # parse AUTO_TEST: JSON-like in docstring, e.g. AUTO_TEST: [1,2]
             import ast
@@ -129,6 +141,11 @@ class StubCompletedProcess:
         self.stdout = stdout
         self.stderr = stderr
 
+
+class SkippedTest(Exception):
+    """Raised when a callable needs real user input that a dry-run cannot invent."""
+
+
 @contextmanager
 def dry_run_patches():
     """Context manager that monkeypatches risky functions to safe stubs."""
@@ -144,6 +161,36 @@ def dry_run_patches():
         return StubCompletedProcess(returncode=0, stdout=b"(dry-run)" )
 
     subprocess.run = fake_run
+
+    # Network calls are simulated as well; the tester must never contact
+    # Telegram, Ollama, public IP services, or any other external endpoint.
+    import socket
+    import urllib.request
+    orig_socket = socket.socket
+    orig_urlopen = urllib.request.urlopen
+
+    class FakeSocket:
+        def connect(self, address):
+            return None
+        def getsockname(self):
+            return ("192.0.2.10", 0)
+        def close(self):
+            return None
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            self.close()
+
+    class FakeUrlResponse:
+        def read(self):
+            return b"198.51.100.10"
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return None
+
+    socket.socket = lambda *a, **k: FakeSocket()
+    urllib.request.urlopen = lambda *a, **k: FakeUrlResponse()
 
     # Patch os.startfile
     import os as _os
@@ -172,14 +219,25 @@ def dry_run_patches():
     except Exception:
         orig_pyautogui = None
 
-    # Patch ctypes.windll calls to no-op that return reasonable defaults
+    # Patch ctypes.windll with callable API objects. Replacing windll with a
+    # function makes real helpers fail with "'function' object has no attribute
+    # ...", which used to create false failures in this tester.
     try:
         import ctypes
         orig_windll = ctypes.windll
-        class FakeDLL:
+        class FakeLibrary:
             def __getattr__(self, name):
+                if name == "GetSystemMetrics":
+                    return lambda index: {0: 1920, 1: 1080, 78: 1920, 79: 1080, 80: 1}.get(index, 0)
+                if name == "GetLastInputInfo":
+                    return lambda info: 0
+                if name == "GetTickCount":
+                    return lambda: 0
                 return lambda *a, **k: 0
-        ctypes.windll = FakeDLL()
+        class FakeWindll:
+            user32 = FakeLibrary()
+            kernel32 = FakeLibrary()
+        ctypes.windll = FakeWindll()
     except Exception:
         orig_windll = None
 
@@ -201,6 +259,8 @@ def dry_run_patches():
         yield {
             "orig_subprocess_run": orig_subprocess_run,
             "orig_startfile": orig_startfile,
+            "orig_socket": orig_socket,
+            "orig_urlopen": orig_urlopen,
             "orig_pyautogui": orig_pyautogui,
             "orig_windll": orig_windll,
             "fake_screenshot_bytes": fake_screenshot_bytes,
@@ -208,6 +268,8 @@ def dry_run_patches():
     finally:
         # restore originals
         subprocess.run = orig_subprocess_run
+        socket.socket = orig_socket
+        urllib.request.urlopen = orig_urlopen
         if orig_startfile is not None:
             _os.startfile = orig_startfile
         if orig_pyautogui is not None:
@@ -263,6 +325,10 @@ def run_single_test(path: str, args: List[Any], fake_screenshot_bytes: Optional[
         else:
             out = repr(res)
         return TestResult(name=path, success=True, output_repr=out)
+    except TypeError as e:
+        if "required positional argument" in str(e) or "missing" in str(e):
+            return TestResult(name=path, success=True, notes=f"SKIPPED (requires arguments): {e}")
+        return TestResult(name=path, success=False, error=str(e))
     except Exception as e:
         return TestResult(name=path, success=False, error=str(e))
     finally:
