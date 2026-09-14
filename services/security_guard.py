@@ -1,8 +1,9 @@
 """
-Модуль охраны ПК (Режим сторожа при движении мыши).
-При активации дает пользователю 5 секунд, чтобы убрать руку от мыши.
-После этого отслеживает координаты курсора.
-Если мышь сдвинулась хоть на пиксель:
+Модуль охраны ПК (Режим сторожа при движении мыши / нажатии клавиш).
+При активации дает пользователю 5 секунд, чтобы убрать руку от мыши/клавиатуры.
+После этого отслеживает координаты курсора, смену активного окна/рабочего стола
+и (через pynput) любое нажатие клавиш на клавиатуре.
+Если сработал любой из триггеров:
 1. Мгновенно блокирует экран (LockWorkStation).
 2. Отправляет тревожное уведомление пользователю в Telegram с фото/скриншотом.
 Пользователь может в любой момент выключить режим охраны кнопкой из бота.
@@ -15,6 +16,12 @@ from typing import Optional, Callable
 
 import pyautogui
 
+try:
+    from pynput import keyboard as _pynput_keyboard
+    _PYNPUT_AVAILABLE = True
+except Exception:
+    _PYNPUT_AVAILABLE = False
+
 logger = logging.getLogger("jarvis")
 
 class SecurityGuard:
@@ -23,6 +30,8 @@ class SecurityGuard:
         self._thread: Optional[threading.Thread] = None
         self._on_trigger_callback: Optional[Callable] = None
         self._cancel_event = threading.Event()
+        self._key_pressed_event = threading.Event()
+        self._keyboard_listener = None
 
     def is_active(self) -> bool:
         return self._is_active
@@ -36,11 +45,28 @@ class SecurityGuard:
 
         self._is_active = True
         self._cancel_event.clear()
+        self._key_pressed_event.clear()
         self._on_trigger_callback = on_trigger_callback
+
+        if _PYNPUT_AVAILABLE:
+            try:
+                self._keyboard_listener = _pynput_keyboard.Listener(on_press=self._on_key_press)
+                self._keyboard_listener.start()
+            except Exception as e:
+                logger.warning(f"Режим охраны: не удалось запустить pynput-слушатель клавиатуры: {e}")
+                self._keyboard_listener = None
+        else:
+            logger.warning("Режим охраны: pynput не установлен, детектор нажатий клавиш отключён.")
 
         self._thread = threading.Thread(target=self._guard_loop, args=(delay_sec,), daemon=True)
         self._thread.start()
-        return f"🛡 *Режим охраны активирован!*\n\nУ вас есть *{delay_sec} секунд*, чтобы убрать руку от мыши. При любом движении мыши экран будет мгновенно заблокирован!"
+        keyboard_note = "" if _PYNPUT_AVAILABLE else "\n\n⚠️ _Детектор клавиатуры недоступен (pynput не установлен)_"
+        return (
+            f"🛡 *Режим охраны активирован!*\n\n"
+            f"У вас есть *{delay_sec} секунд*, чтобы убрать руку от мыши и клавиатуры. "
+            f"При любом движении мыши, нажатии клавиши, смене окна или рабочего стола "
+            f"экран будет мгновенно заблокирован!{keyboard_note}"
+        )
 
     def stop_guard(self) -> str:
         """
@@ -51,8 +77,22 @@ class SecurityGuard:
 
         self._is_active = False
         self._cancel_event.set()
+        self._stop_keyboard_listener()
         logger.info("Режим охраны остановлен пользователем.")
         return "🛡 Режим охраны успешно ОТКЛЮЧЕН."
+
+    def _stop_keyboard_listener(self):
+        if self._keyboard_listener is not None:
+            try:
+                self._keyboard_listener.stop()
+            except Exception:
+                pass
+            self._keyboard_listener = None
+
+    def _on_key_press(self, key):
+        # Срабатывает из отдельного потока pynput — просто выставляем флаг,
+        # саму блокировку/уведомление делает основной _guard_loop.
+        self._key_pressed_event.set()
 
     def _guard_loop(self, delay_sec: int):
         logger.info(f"Режим охраны: задержка {delay_sec} сек...")
@@ -60,8 +100,13 @@ class SecurityGuard:
         for _ in range(delay_sec * 10):
             if self._cancel_event.is_set():
                 self._is_active = False
+                self._stop_keyboard_listener()
                 return
             time.sleep(0.1)
+
+        # Сбрасываем нажатия клавиш, накопленные во время периода отсрочки
+        # (пользователь ещё легально мог печатать, убирая руки).
+        self._key_pressed_event.clear()
 
         # Запоминаем исходные координаты
         try:
@@ -85,7 +130,8 @@ class SecurityGuard:
 
         logger.info(
             f"Режим охраны АКТИВИРОВАН. Позиция: ({start_x}, {start_y}), "
-            f"окно: {start_foreground_hwnd}, стол: {start_desktop}"
+            f"окно: {start_foreground_hwnd}, стол: {start_desktop}, "
+            f"детектор клавиатуры: {'вкл' if _PYNPUT_AVAILABLE else 'выкл'}"
         )
 
         desktop_check_counter = 0
@@ -104,13 +150,17 @@ class SecurityGuard:
             if abs(cur_x - start_x) > 3 or abs(cur_y - start_y) > 3:
                 trigger_reason = f"мышь переместилась из ({start_x}, {start_y}) в ({cur_x}, {cur_y})"
 
-            # 2. Проверка смены активного окна (Alt+Tab, клик по таскбару, тачпад-жест)
+            # 2. Проверка нажатия клавиши (через pynput, событийно — не polling)
+            if not trigger_reason and self._key_pressed_event.is_set():
+                trigger_reason = "нажата клавиша на клавиатуре"
+
+            # 3. Проверка смены активного окна (Alt+Tab, клик по таскбару, тачпад-жест)
             if not trigger_reason:
                 cur_foreground_hwnd = ctypes.windll.user32.GetForegroundWindow()
                 if cur_foreground_hwnd != start_foreground_hwnd:
                     trigger_reason = "сменилось активное окно (Alt+Tab / переключение приложения)"
 
-            # 3. Проверка смены виртуального рабочего стола (раз в ~0.5 сек — дороже по CPU)
+            # 4. Проверка смены виртуального рабочего стола (раз в ~0.5 сек — дороже по CPU)
             if not trigger_reason and start_desktop is not None:
                 desktop_check_counter += 1
                 if desktop_check_counter >= 10:
@@ -128,6 +178,7 @@ class SecurityGuard:
                 # 1. Блокируем Windows
                 ctypes.windll.user32.LockWorkStation()
                 self._is_active = False
+                self._stop_keyboard_listener()
 
                 # 2. Вызываем колбэк уведомления (если передан)
                 if self._on_trigger_callback:
@@ -154,7 +205,7 @@ def make_guard_alert_callback(bot, chat_id: int, loop=None):
     def on_guard_triggered(sx, sy, cx, cy):
         alert_text = (
             f"🚨 *ТРЕВОГА! РЕЖИМ ОХРАНЫ СРАБОТАЛ!*\n\n"
-            f"Зафиксировано движение мыши/смена окна или рабочего стола!\n"
+            f"Зафиксировано движение мыши/нажатие клавиши/смена окна или рабочего стола!\n"
             f"📍 Исходные координаты: `({sx}, {sy})`\n"
             f"📍 Новые координаты: `({cx}, {cy})`\n\n"
             f"🔒 *Компьютер немедленно заблокирован!*"

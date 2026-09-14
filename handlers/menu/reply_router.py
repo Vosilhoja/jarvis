@@ -16,6 +16,7 @@ _AWAITING_INPUT_KEYS = (
     "awaiting_screenshot_choice", "awaiting_brightness",
     "awaiting_volume", "awaiting_file_search", "awaiting_app_search",
     "awaiting_qr", "awaiting_file_content_search",
+    "awaiting_folder_changes", "awaiting_app_volume",
 )
 
 def _clear_awaiting(context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -164,6 +165,30 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         import asyncio
         from services.extra_functions import search_files
         result = await asyncio.to_thread(search_files, text)
+        await update.message.reply_text(result, parse_mode="Markdown")
+        return True
+
+    if context.user_data.get("awaiting_folder_changes"):
+        context.user_data.pop("awaiting_folder_changes")
+        import asyncio
+        from services.misc_tools import get_folder_changes_today
+        result = await asyncio.to_thread(get_folder_changes_today, text)
+        await update.message.reply_text(result, parse_mode="Markdown")
+        return True
+
+    if context.user_data.get("awaiting_app_volume"):
+        context.user_data.pop("awaiting_app_volume")
+        parts = text.strip().rsplit(" ", 1)
+        if len(parts) != 2 or not parts[1].isdigit():
+            await update.message.reply_text(
+                "⚠️ Формат: `имя_процесса процент`. Например: `chrome 30`", parse_mode="Markdown"
+            )
+            return True
+        proc_name, vol_str = parts
+        volume = max(0, min(100, int(vol_str)))
+        import asyncio
+        from services.misc_tools import set_process_volume
+        result = await asyncio.to_thread(set_process_volume, proc_name, volume)
         await update.message.reply_text(result, parse_mode="Markdown")
         return True
 
@@ -360,6 +385,20 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text(get_screen_resolution(), parse_mode="Markdown")
         return True
 
+    if text == "🙈 Скрыть все окна":
+        import asyncio
+        from services.misc_tools import hide_all_windows_except_active
+        result = await asyncio.to_thread(hide_all_windows_except_active)
+        await update.message.reply_text(result, parse_mode="Markdown")
+        return True
+
+    if text == "🌅 Утренний брифинг":
+        from services.morning_briefing import build_morning_briefing
+        await update.message.reply_text("🌅 Собираю утренний брифинг...")
+        result = await build_morning_briefing()
+        await update.message.reply_text(result, parse_mode="Markdown")
+        return True
+
     if text == "🌐 IP-адреса":
         from services.extra_functions import get_local_ip, get_public_ip
         await update.message.reply_text(
@@ -497,6 +536,15 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
         )
         return True
 
+    if text == "🎚 Громкость приложения":
+        context.user_data["awaiting_app_volume"] = True
+        await update.message.reply_text(
+            "🎚 *Громкость приложения:* напишите имя процесса и процент через пробел.\n\n"
+            "_Например: `chrome 30` или `spotify 80`_",
+            parse_mode="Markdown",
+        )
+        return True
+
     if text.startswith("🎚 Звук "):
         lvl_str = text.replace("🎚 Звук ", "").replace("%", "").strip()
         try:
@@ -555,6 +603,14 @@ async def handle_reply_keyboard(update: Update, context: ContextTypes.DEFAULT_TY
     if text == "🔍 Найти файл":
         context.user_data["awaiting_file_search"] = True
         await update.message.reply_text("🔍 *Напишите имя или часть названия файла для поиска:*", parse_mode="Markdown")
+        return True
+
+    if text == "📂 Что изменилось сегодня":
+        context.user_data["awaiting_folder_changes"] = True
+        await update.message.reply_text(
+            "📂 *Какую папку проверить?*\n\nМожно алиасом: `рабочий стол`, `загрузки`, `документы` — или полным путём.",
+            parse_mode="Markdown",
+        )
         return True
 
     if text == "📁 Открыть Проводник":

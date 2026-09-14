@@ -125,6 +125,14 @@ GOOGLE_CALENDAR_TOKEN_PATH = DATA_DIR / "google_calendar_token.json"
 WEEKLY_REPORT_WEEKDAY = int(os.getenv("WEEKLY_REPORT_WEEKDAY", "0"))
 WEEKLY_REPORT_HOUR = int(os.getenv("WEEKLY_REPORT_HOUR", "9"))
 
+# Утренний брифинг (services/morning_briefing.py + services/apscheduler_jobs.py) —
+# во сколько каждый день автоматически присылать "Доброе утро, сэр!" с погодой
+# и планами на день из Google Calendar. Город для погоды опционален: если не
+# задан, get_weather_forecast() определяет его автоматически по IP.
+MORNING_GREETING_HOUR = int(os.getenv("MORNING_GREETING_HOUR", "8"))
+MORNING_GREETING_MINUTE = int(os.getenv("MORNING_GREETING_MINUTE", "0"))
+MORNING_GREETING_CITY = os.getenv("MORNING_GREETING_CITY", "") or None
+
 def validate_config() -> None:
     """Проверяет корректность обязательных переменных конфигурации."""
     missing = []

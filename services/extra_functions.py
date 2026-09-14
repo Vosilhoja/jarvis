@@ -65,6 +65,8 @@ from services.misc_tools import (
     close_active_window,
     minimize_all_windows,
     get_installed_updates,
+    get_folder_changes_today,
+    hide_all_windows_except_active,
 )
 from services.network_tools import (
     flush_dns,
@@ -240,6 +242,10 @@ def dispatch_extra(intent: str, params: Dict[str, Any], session: Any) -> Optiona
             return ExtraResult(True, laptop_screen_sleep())
         if intent == "installed_updates":
             return ExtraResult(True, get_installed_updates())
+        if intent == "get_folder_changes_today":
+            return ExtraResult(True, get_folder_changes_today(params.get("path", "")))
+        if intent == "hide_all_windows_except_active":
+            return ExtraResult(True, hide_all_windows_except_active())
     except Exception as e:
         logger.error("dispatch_extra error on %s: %s", intent, e, exc_info=True)
         return ExtraResult(False, f"❌ {intent}: {e}")

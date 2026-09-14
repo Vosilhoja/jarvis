@@ -26,3 +26,12 @@ pypdf>=4.0.0
 google-auth>=2.29.0
 google-auth-oauthlib>=1.2.0
 google-api-python-client>=2.120.0
+
+# Производительность и новые функции (см. CHANGES.md)
+winloop>=0.1.6        # быстрый event loop для asyncio на Windows (аналог uvloop)
+msgspec>=0.18.6       # быстрая (де)сериализация JSON для scheduler.py::ReminderManager
+APScheduler>=3.10.4   # cron-планировщик для утреннего брифинга (services/apscheduler_jobs.py)
+pynput>=1.7.7         # доп. детектор нажатий клавиш для services/security_guard.py
+send2trash>=1.8.3     # безопасное удаление в корзину вместо permanent delete
+humanize>=4.9.0       # человекочитаемые размеры/время в ответах бота
+loguru>=0.7.2         # логирование (logger_setup.py)

@@ -1,5 +1,15 @@
 import sys
 import os
+
+# winloop — быстрый event loop для asyncio на Windows (аналог uvloop).
+# Обязательно ДО любого создания/получения event loop (в т.ч. до импорта
+# telegram.ext, который его создаёт внутри run_polling()).
+try:
+    import winloop
+    winloop.install()
+except Exception as _e:
+    print(f"[JARVIS] winloop недоступен, использую стандартный event loop asyncio: {_e}", file=sys.stderr)
+
 import asyncio
 import logging
 import traceback
@@ -42,6 +52,11 @@ async def post_init(application: Application):
     """Инициализация фоновых служб после запуска бота."""
     notifier.set_bot(application.bot)
     asyncio.create_task(background_monitoring_loop())
+    try:
+        from services.apscheduler_jobs import start_apscheduler_jobs
+        start_apscheduler_jobs()
+    except Exception as e:
+        logger.warning("Не удалось запустить APScheduler (утренний брифинг): %s", e)
     try:
         from services.autostart import ensure_autostart
         logger.info(ensure_autostart())

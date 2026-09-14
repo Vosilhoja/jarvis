@@ -26,6 +26,7 @@ def get_system_reply_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton("💡 Яркость"),          KeyboardButton("⌨ Подсветка клавы")],
         [KeyboardButton("🔇 Режим Тихий час"), KeyboardButton("🧹 Очистить %TEMP%")],
         [KeyboardButton("🛡 Включить охрану"), KeyboardButton("🛑 Снять с охраны")],
+        [KeyboardButton("🙈 Скрыть все окна"), KeyboardButton("🌅 Утренний брифинг")],
         [KeyboardButton("🗑 Очистить корзину"),KeyboardButton("🔒 Заблокировать")],
         [KeyboardButton("😴 Режим сна"),        KeyboardButton("🔁 Перезагрузка")],
         [KeyboardButton("⛔ Выключить ПК"),     KeyboardButton("⬅️ Назад в меню")],
@@ -39,6 +40,7 @@ def get_media_reply_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton("🔉 Тише (-10%)"),    KeyboardButton("🔇 Mute"),       KeyboardButton("🔊 Громче (+10%)")],
         [KeyboardButton("🎚 Звук 0%"),        KeyboardButton("🎚 Звук 25%"),   KeyboardButton("🎚 Звук 50%"), KeyboardButton("🎚 Звук 100%")],
         [KeyboardButton("🎙 Установить громкость"),                             KeyboardButton("⏹ Стоп")],
+        [KeyboardButton("🎚 Громкость приложения")],
         [KeyboardButton("⬅️ Назад в меню")],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, is_persistent=True)
@@ -49,6 +51,7 @@ def get_files_reply_keyboard() -> ReplyKeyboardMarkup:
         [KeyboardButton("🗂 Рабочий стол"),    KeyboardButton("⬇️ Загрузки")],
         [KeyboardButton("📂 Документы"),        KeyboardButton("📦 Размер папок")],
         [KeyboardButton("🔍 Найти файл"),       KeyboardButton("📝 Поиск в файлах")],
+        [KeyboardButton("📂 Что изменилось сегодня")],
         [KeyboardButton("📁 Открыть Проводник"), KeyboardButton("🗑 Очистить корзину")],
         [KeyboardButton("⬅️ Назад в меню")],
     ]

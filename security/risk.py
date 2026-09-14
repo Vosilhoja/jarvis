@@ -38,6 +38,8 @@ ACTION_RISK_MAP: dict[str, RiskLevel] = {
     "get_screen_info": RiskLevel.SAFE,
     "get_datetime": RiskLevel.SAFE,
     "list_audio_devices": RiskLevel.SAFE,
+    "get_folder_changes_today": RiskLevel.SAFE,
+    "hide_all_windows_except_active": RiskLevel.LOW,
     "chat_reply": RiskLevel.SAFE,
     "clarify": RiskLevel.SAFE,
 

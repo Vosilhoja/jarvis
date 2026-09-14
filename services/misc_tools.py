@@ -776,3 +776,86 @@ def get_installed_updates() -> str:
         return "🔄 Последние обновления Windows:\n" + "\n".join(lines[:8]) if lines else "Нет данных об обновлениях"
     except Exception as e:
         return f"Ошибка: {e}"
+
+
+def hide_all_windows_except_active() -> str:
+    """
+    Сворачивает все видимые окна, КРОМЕ текущего активного (в отличие от
+    minimize_all_windows(), который сворачивает вообще всё через Win+D).
+    Полезно для фокус-режима на одном приложении.
+    """
+    try:
+        import win32gui
+        import win32con
+
+        active_hwnd = win32gui.GetForegroundWindow()
+        # Системные окна, которые не стоит трогать (таскбар, панель задач и т.д.)
+        skip_titles = {"Program Manager", ""}
+        hidden = 0
+        for hwnd, title in _enum_windows():
+            if hwnd == active_hwnd or title in skip_titles:
+                continue
+            try:
+                win32gui.ShowWindow(hwnd, win32con.SW_MINIMIZE)
+                hidden += 1
+            except Exception:
+                continue
+
+        active_title = win32gui.GetWindowText(active_hwnd) or "(без заголовка)"
+        if hidden == 0:
+            return f"🙈 Других окон не найдено — активно только «{active_title}»"
+        return f"🙈 Свёрнуто окон: {hidden}. Осталось активным: «{active_title}»"
+    except Exception as e:
+        return f"Ошибка: {e}"
+
+
+def get_folder_changes_today(path: str) -> str:
+    """
+    Показывает файлы в указанной папке, изменённые или созданные сегодня
+    ("что изменилось в папке X за сегодня"). Не рекурсивно в подпапки глубже
+    2 уровней и с ограничением по количеству файлов — чтобы не зависнуть
+    на больших деревьях каталогов (см. известные грабли про блокирующие вызовы).
+    """
+    import humanize
+    from datetime import datetime
+    from core.execution.common import resolve_path_aliases
+
+    try:
+        folder = resolve_path_aliases(path)
+        if not folder.exists() or not folder.is_dir():
+            return f"❌ Папка не найдена: `{folder}`"
+
+        today = datetime.now().date()
+        changed = []
+        checked = 0
+        MAX_CHECK = 5000  # предохранитель от зависания на огромных папках
+
+        for item in folder.rglob("*"):
+            checked += 1
+            if checked > MAX_CHECK:
+                break
+            if not item.is_file():
+                continue
+            try:
+                mtime = datetime.fromtimestamp(item.stat().st_mtime)
+            except Exception:
+                continue
+            if mtime.date() == today:
+                changed.append((mtime, item))
+
+        if not changed:
+            return f"📂 За сегодня в «{folder.name}» изменений не найдено."
+
+        changed.sort(key=lambda x: x[0], reverse=True)
+        lines = []
+        for mtime, item in changed[:30]:
+            try:
+                size = humanize.naturalsize(item.stat().st_size, binary=True)
+            except Exception:
+                size = "?"
+            lines.append(f"• {mtime.strftime('%H:%M')} — {item.name} ({size})")
+
+        extra = f"\n\n…и ещё {len(changed) - 30} файл(ов)" if len(changed) > 30 else ""
+        return f"📂 *Изменено сегодня в «{folder.name}»* ({len(changed)}):\n\n" + "\n".join(lines) + extra
+    except Exception as e:
+        return f"Ошибка: {e}"

@@ -411,6 +411,8 @@ INTENT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "quick_note": {"model": NoteParams, "desc": "Быстрая заметка в Блокноте"},
     "set_process_volume": {"model": ProcessVolumeParams, "desc": "Установить громкость для конкретной программы"},
     "list_audio_devices": {"model": EmptyParams, "desc": "Список звуковых устройств"},
+    "get_folder_changes_today": {"model": OptionalPathParams, "desc": "Показать файлы, изменённые/созданные сегодня в указанной папке"},
+    "hide_all_windows_except_active": {"model": EmptyParams, "desc": "Свернуть все окна кроме текущего активного (фокус-режим)"},
     "installed_updates": {"model": EmptyParams, "desc": "Последние обновления Windows"},
     "toggle_caps_lock": {"model": EmptyParams, "desc": "Переключить Caps Lock"},
     "toggle_mute": {"model": EmptyParams, "desc": "Переключить Mute (без звука)"},

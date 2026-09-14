@@ -1,9 +1,9 @@
 import uuid
-import json
 import time
 import asyncio
 import logging
 import re
+import msgspec
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -35,8 +35,13 @@ class ReminderManager:
     def load(self):
         if self.db_path.exists():
             try:
-                with open(self.db_path, "r", encoding="utf-8") as f:
-                    self.reminders = json.load(f)
+                # msgspec.json быстрее стандартного json на (де)сериализации;
+                # ReminderManager вызывается на каждом тике фонового цикла и при
+                # каждом добавлении/удалении напоминания, так что выигрыш накопительный.
+                # Формат файла не меняется — это обычный JSON-массив объектов,
+                # так что старые reminders.json, записанные старым json.dump, читаются как есть.
+                raw = self.db_path.read_bytes()
+                self.reminders = msgspec.json.decode(raw) if raw.strip() else []
             except Exception as e:
                 logger.error(f"Ошибка загрузки напоминаний: {e}")
                 self.reminders = []
@@ -45,8 +50,7 @@ class ReminderManager:
 
     def save(self):
         try:
-            with open(self.db_path, "w", encoding="utf-8") as f:
-                json.dump(self.reminders, f, ensure_ascii=False, indent=2)
+            self.db_path.write_bytes(msgspec.json.encode(self.reminders))
         except Exception as e:
             logger.error(f"Ошибка сохранения напоминаний: {e}")
 

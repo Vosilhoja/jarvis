@@ -124,10 +124,10 @@ async def handle_delete_item(step: StepModel, session: UserTaskSession, bot: Bot
     if not target_p.exists():
         return False, f"❌ Путь `{target_p}` не существует."
     try:
-        if target_p.is_dir():
-            await asyncio.to_thread(shutil.rmtree, target_p)
-        else:
-            await asyncio.to_thread(target_p.unlink)
+        import send2trash
+        # Отправляем в Корзину вместо безвозвратного удаления (shutil.rmtree/unlink) —
+        # так операцию можно отменить, если пользователь ошибся с путём.
+        await asyncio.to_thread(send2trash.send2trash, str(target_p))
     except Exception as e:
         return False, f"❌ Не удалось удалить `{target_p}`: {e}"
-    return True, f"🗑️ Удалено: `{target_p}`"
+    return True, f"🗑️ Перемещено в Корзину: `{target_p}`"
